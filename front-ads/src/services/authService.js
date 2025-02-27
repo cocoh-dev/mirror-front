@@ -1,15 +1,17 @@
 import api from '../lib/api';
-import { jwtDecode } from 'jwt-decode';
+
+// 사용자 정보 캐싱을 위한 변수
+let userCache = null;
+let pendingUserPromise = null;
+const CACHE_EXPIRY = 5 * 60 * 1000; // 5분 캐시
+let cacheTimestamp = null;
 
 // Login function
 export const login = async ({ email, password }) => {
   try {
     const response = await api.post('/auth/login', { email, password });
-    
-    // Store tokens
-    localStorage.setItem('token', response.data.token);
-    localStorage.setItem('refreshToken', response.data.refreshToken);
-    
+    // 로그인 성공 시 캐시 초기화
+    invalidateCache();
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: 'Login failed' };
@@ -19,7 +21,7 @@ export const login = async ({ email, password }) => {
 // Register function
 export const register = async (userData) => {
   try {
-    const response = await api.post('/auth/register', userData);
+    const response = await api.post('/auth/signup', userData);
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: 'Registration failed' };
@@ -27,41 +29,75 @@ export const register = async (userData) => {
 };
 
 // Logout function
-export const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('refreshToken');
-  window.location.href = '/auth/login';
-};
-
-// Check if user is authenticated
-export const isAuthenticated = () => {
-  const token = localStorage.getItem('token');
-  if (!token) return false;
-  
+export const logout = async () => {
   try {
-    const decoded = jwtDecode(token);
-    const currentTime = Date.now() / 1000;
-    
-    // Check if token is expired
-    return decoded.exp > currentTime;
+    // 로그아웃 시 캐시 초기화
+    invalidateCache();
+    // 백엔드에 로그아웃 요청
+    await api.get('/auth/logout');
+    window.location.href = '/auth/login';
   } catch (error) {
-    return false;
+    console.error('Logout error:', error);
+    // 오류가 있어도 로그인 페이지로 리다이렉트
+    window.location.href = '/auth/login';
   }
 };
 
-// Get current user
-export const getCurrentUser = () => {
-  const token = localStorage.getItem('token');
-  if (!token) return null;
-  
-  try {
-    return jwtDecode(token);
-  } catch (error) {
-    return null;
-  }
+// 캐시 초기화 함수
+const invalidateCache = () => {
+  userCache = null;
+  pendingUserPromise = null;
+  cacheTimestamp = null;
 };
 
-// Password reset request
+// 캐시가 유효한지 확인
+const isCacheValid = () => {
+  return userCache && cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_EXPIRY);
+};
+
+// 사용자 정보 확인 함수 (캐싱 적용)
+export const checkAuth = async () => {
+  // 이미 진행 중인 요청이 있으면 그 결과를 기다림
+  if (pendingUserPromise) {
+    return pendingUserPromise;
+  }
+  
+  // 캐시가 유효하면 캐시된 데이터 반환
+  if (isCacheValid()) {
+    return userCache;
+  }
+  
+  // 새 요청 실행
+  pendingUserPromise = api.get('/auth/me')
+    .then(response => {
+      userCache = response.data.user;
+      cacheTimestamp = Date.now();
+      pendingUserPromise = null;
+      return userCache;
+    })
+    .catch(error => {
+      console.error('Error checking auth:', error);
+      pendingUserPromise = null;
+      userCache = null;
+      cacheTimestamp = null;
+      return null;
+    });
+
+  return pendingUserPromise;
+};
+
+// 인증 여부 확인
+export const isAuthenticated = async () => {
+  const user = await checkAuth();
+  return !!user;
+};
+
+// 현재 사용자 정보 가져오기
+export const getCurrentUser = async () => {
+  return await checkAuth();
+};
+
+// 비밀번호 초기화 요청
 export const requestPasswordReset = async (email) => {
   try {
     const response = await api.post('/auth/forgot-password', { email });
@@ -71,7 +107,7 @@ export const requestPasswordReset = async (email) => {
   }
 };
 
-// Reset password with token
+// 비밀번호 재설정
 export const resetPassword = async (token, newPassword) => {
   try {
     const response = await api.post('/auth/reset-password', { 

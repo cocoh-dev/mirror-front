@@ -23,15 +23,25 @@ export default function Navbar() {
 
   useEffect(() => {
     setIsMounted(true);
-    const currentUser = getCurrentUser();
-    setUser(currentUser);
+    
+    // 비동기 함수를 즉시 실행하는 패턴
+    const fetchUser = async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+
+    fetchUser();
   }, []);
 
   // Only render on client side to avoid hydration mismatch
   if (!isMounted) return null;
 
-  // If no user or on auth pages, don't show navbar
-  if (!user || pathname.startsWith('/auth/')) return null;
+  // If on auth pages, don't show navbar
+  if (pathname.startsWith('/auth/')) return null;
 
   const handleLogout = () => {
     logout();
@@ -96,32 +106,43 @@ export default function Navbar() {
             </nav>
           </div>
           
-          {/* User dropdown */}
+          {/* User dropdown or login/register buttons */}
           <div className="flex items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                    {user?.name?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                  <span>{user?.name || 'User'}</span>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                      {user?.name?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <span>{user?.name || 'User'}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/subscriptions">Subscriptions</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex space-x-2">
+                <Button variant="outline" asChild>
+                  <Link href="/auth/login">로그인</Link>
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/subscriptions">Subscriptions</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <Button asChild>
+                  <Link href="/auth/register">회원가입</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

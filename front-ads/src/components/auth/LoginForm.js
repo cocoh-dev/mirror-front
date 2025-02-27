@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { login } from '@/services/authService';
+import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
 
 // Import shadcn components
 import { Button } from '@/components/ui/button';
@@ -87,6 +88,11 @@ export default function LoginForm() {
             {loading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
+        
+        {/* Social Login Buttons */}
+        <div className="mt-6">
+          <SocialLoginButtons />
+        </div>
       </CardContent>
       <CardFooter className="flex justify-center">
         <p className="text-sm text-gray-500">

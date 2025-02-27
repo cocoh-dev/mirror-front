@@ -1,9 +1,9 @@
+// components/layout/Navbar.js
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { logout, getCurrentUser } from '@/services/authService';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Import shadcn components
 import { Button } from '@/components/ui/button';
@@ -18,34 +18,28 @@ import {
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [user, setUser] = useState(null);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-    
-    // 비동기 함수를 즉시 실행하는 패턴
-    const fetchUser = async () => {
-      try {
-        const currentUser = await getCurrentUser();
-        setUser(currentUser);
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
-      }
-    };
-
-    fetchUser();
-  }, []);
-
-  // Only render on client side to avoid hydration mismatch
-  if (!isMounted) return null;
+  const { user, loading, logout } = useAuth();
 
   // If on auth pages, don't show navbar
   if (pathname.startsWith('/auth/')) return null;
 
-  const handleLogout = () => {
-    logout();
-  };
+  // 로딩 중에는 스켈레톤 UI 또는 간단한 로딩 상태 표시
+  if (loading) {
+    return (
+      <header className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4">
+          <div className="flex h-16 items-center justify-between">
+            {/* 로고 */}
+            <div className="flex items-center">
+              <span className="text-2xl font-bold">Mirror Motion</span>
+            </div>
+            {/* 로딩 상태 표시 */}
+            <div className="w-32 h-10 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="bg-white border-b border-gray-200">
@@ -53,8 +47,8 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo and main navigation */}
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center">
-              <span className="text-2xl font-bold">HairSalon</span>
+            <Link href="/" className="flex items-center">
+              <span className="text-2xl font-bold">Mirror Motion</span>
             </Link>
             
             <nav className="ml-10 space-x-4">
@@ -128,7 +122,7 @@ export default function Navbar() {
                     <Link href="/subscriptions">Subscriptions</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
+                  <DropdownMenuItem onClick={logout}>
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>

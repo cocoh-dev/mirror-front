@@ -1,5 +1,7 @@
+// app/layout.js
 import './globals.css';
 import { Inter } from 'next/font/google';
+import { AuthProvider } from '@/contexts/AuthContext';
 import Navbar from '@/components/layout/Navbar';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 

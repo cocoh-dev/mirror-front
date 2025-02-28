@@ -1,8 +1,9 @@
+// app/dashboard/page.js
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { isAuthenticated, getCurrentUser } from '@/services/authService';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Import shadcn components
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,24 +11,22 @@ import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    // Check if user is authenticated
-    if (!isAuthenticated()) {
+    // 로딩이 완료된 후 사용자가 없으면 로그인 페이지로 리다이렉트
+    if (!loading && !user) {
       router.push('/auth/login');
-      return;
     }
-
-    // Get current user info
-    const currentUser = getCurrentUser();
-    setUser(currentUser);
-    setLoading(false);
-  }, [router]);
+  }, [user, loading, router]);
 
   if (loading) {
     return <div className="container mx-auto p-4">Loading...</div>;
+  }
+
+  // 사용자가 없으면 렌더링하지 않음 (리다이렉트 대기)
+  if (!user) {
+    return null;
   }
 
   return (

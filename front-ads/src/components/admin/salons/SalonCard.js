@@ -17,7 +17,7 @@ export const SalonCard = ({ salon, onView, onEdit, onDelete }) => {
             <CardTitle className="text-lg">{salon.name}</CardTitle>
             <CardDescription className="flex items-center mt-1">
               <MapPin className="h-3 w-3 mr-1" />
-              {salon.address}
+              {salon.location.address_line1} {salon.location.address_line2}
             </CardDescription>
           </div>
           <StatusBadge status={salon.status} />
@@ -25,7 +25,7 @@ export const SalonCard = ({ salon, onView, onEdit, onDelete }) => {
       </CardHeader>
       <CardContent className="p-4 pt-2">
         <div className="text-sm text-muted-foreground mt-2">
-          <div>대표: {salon.owner}</div>
+          <div>대표: {salon.owner.name}</div>
           <div>연락처: {salon.phone}</div>
           <div className="mt-1">
             <SalonRating rating={salon.rating} reviewCount={salon.reviewCount} />

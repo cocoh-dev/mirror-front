@@ -1,4 +1,5 @@
-import { useState } from 'react';
+// app/admin/salons/components/SalonFilters.js
+import { useState, useEffect } from 'react';
 import { Search, Grid, List } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,15 +8,35 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
 export const SalonFilters = ({ 
-  searchQuery, 
-  onSearchChange, 
-  viewMode, 
+  searchQuery = '', 
+  onSearchChange,
+  viewMode,
   onViewModeChange,
-  onSortChange
+  onSortChange,
+  activeTab = 'all',
+  onTabChange
 }) => {
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+  
+  // 검색어 입력 시 지연 시간 후 검색 실행 (디바운싱)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearchQuery !== searchQuery) {
+        onSearchChange(localSearchQuery);
+      }
+    }, 500); // 500ms 디바운스
+    
+    return () => clearTimeout(timer);
+  }, [localSearchQuery, onSearchChange, searchQuery]);
+  
+  // 검색어 초기값 업데이트
+  useEffect(() => {
+    setLocalSearchQuery(searchQuery);
+  }, [searchQuery]);
+
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-      <Tabs defaultValue="all" className="w-full sm:w-auto">
+      <Tabs value={activeTab} onValueChange={onTabChange} className="w-full sm:w-auto">
         <TabsList>
           <TabsTrigger value="all">전체</TabsTrigger>
           <TabsTrigger value="verified">인증됨</TabsTrigger>
@@ -31,8 +52,8 @@ export const SalonFilters = ({
             type="search"
             placeholder="미용실 검색..."
             className="pl-8 w-full sm:w-[250px]"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
+            value={localSearchQuery}
+            onChange={(e) => setLocalSearchQuery(e.target.value)}
           />
         </div>
         

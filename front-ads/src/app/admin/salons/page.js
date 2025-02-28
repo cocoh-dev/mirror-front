@@ -2,206 +2,216 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Building,
-  CheckCircle,
-  ChevronDown,
-  MapPin,
-  MoreHorizontal,
-  Plus,
-  Search,
-  Trash2,
-  Edit2,
-  Star,
-  Grid,
-  List,
-  XCircle,
-  Eye
-} from 'lucide-react';
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue 
-} from '@/components/ui/select';
-
-import { SalonActions } from '@/components/admin/salons/SubscriptionBadge';
-import { SalonCard } from '@/components/admin/salons/SalonCard';
 import { SalonFilters } from '@/components/admin/salons/SalonFilters';
 import { SalonGrid } from '@/components/admin/salons/SalonGrid';
 import { SalonPageHeader } from '@/components/admin/salons/SalonPageHeader';
-import { SalonRating } from '@/components/admin/salons/SalonRating';
 import { SalonTable } from '@/components/admin/salons/SalonTable';
-import { StatusBadge } from '@/components/admin/members/Badges';
-import { SubscriptionBadge } from '@/components/admin/salons/SubscriptionBadge';
+import { TableSkeleton, GridSkeleton } from '@/components/admin/salons/SkeletonLoaders';
 
-// 더미 데이터
-const salons = [
-  {
-    id: '1',
-    name: '스타일리시 살롱',
-    address: '서울시 강남구 테헤란로 123',
-    owner: '김미영',
-    ownerEmail: 'miyoung.kim@example.com',
-    phone: '02-1234-5678',
-    status: 'verified',
-    rating: 4.8,
-    reviewCount: 125,
-    subscriptionType: 'premium',
-    registeredDate: '2023-10-15',
-    image: '/images/salon1.jpg'
-  },
-  {
-    id: '2',
-    name: '뷰티 헤어',
-    address: '서울시 서초구 반포대로 45',
-    owner: '박준호',
-    ownerEmail: 'junho.park@example.com',
-    phone: '02-9876-5432',
-    status: 'verified',
-    rating: 4.5,
-    reviewCount: 98,
-    subscriptionType: 'standard',
-    registeredDate: '2023-11-22',
-    image: '/images/salon2.jpg'
-  },
-  {
-    id: '3',
-    name: '컬러풀 살롱',
-    address: '서울시 용산구 이태원로 56',
-    owner: '이지은',
-    ownerEmail: 'jieun.lee@example.com',
-    phone: '02-4567-8901',
-    status: 'pending',
-    rating: 0,
-    reviewCount: 0,
-    subscriptionType: 'free',
-    registeredDate: '2024-02-05',
-    image: '/images/salon3.jpg'
-  },
-  {
-    id: '4',
-    name: '맨즈 그루밍',
-    address: '서울시 마포구 홍대입구로 78',
-    owner: '최동현',
-    ownerEmail: 'donghyun.choi@example.com',
-    phone: '02-3456-7890',
-    status: 'verified',
-    rating: 4.7,
-    reviewCount: 85,
-    subscriptionType: 'premium',
-    registeredDate: '2023-09-10',
-    image: '/images/salon4.jpg'
-  },
-  {
-    id: '5',
-    name: '내추럴 뷰티',
-    address: '서울시 성동구 왕십리로 34',
-    owner: '최세라',
-    ownerEmail: 'sera.choi@example.com',
-    phone: '02-8765-4321',
-    status: 'rejected',
-    rating: 0,
-    reviewCount: 0,
-    subscriptionType: 'free',
-    registeredDate: '2024-01-30',
-    image: '/images/salon5.jpg'
-  },
-];
+import { searchSalons, deleteSalon, updateSalonStatus } from '@/services/salonService';
 
 export default function SalonsPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('grid');
-  const [sortOption, setSortOption] = useState('newest');
+  const router = useRouter();
+  const queryClient = useQueryClient();
   
+  // 상태 관리
+  const [viewMode, setViewMode] = useState('grid');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchParams, setSearchParams] = useState({
+    keyword: '',
+    status: 'all',
+    sortBy: 'created_at',
+    sortOrder: 'DESC'
+  });
+
+  // API에서 데이터 가져오기
+  const {
+    data,
+    isLoading,
+    isError,
+    error
+  } = useQuery({
+    queryKey: ['salons', currentPage, itemsPerPage, searchParams],
+    queryFn: () => searchSalons({
+      page: currentPage,
+      limit: itemsPerPage,
+      keyword: searchParams.keyword,
+      status: searchParams.status !== 'all' ? searchParams.status : undefined,
+      sortBy: searchParams.sortBy,
+      sortOrder: searchParams.sortOrder
+    }),
+    keepPreviousData: true
+  });
+
+  // 미용실 삭제 mutation
+  const deleteMutation = useMutation({
+    mutationFn: (id) => deleteSalon(id),
+    onSuccess: () => {
+      toast.success('미용실이 삭제되었습니다.');
+      queryClient.invalidateQueries(['salons']);
+    },
+    onError: (error) => {
+      toast.error('미용실 삭제 중 오류가 발생했습니다.');
+      console.error('미용실 삭제 실패:', error);
+    }
+  });
+
+  // 미용실 상태 변경 mutation
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }) => updateSalonStatus(id, status),
+    onSuccess: () => {
+      toast.success('미용실 상태가 변경되었습니다.');
+      queryClient.invalidateQueries(['salons']);
+    },
+    onError: (error) => {
+      toast.error('상태 변경 중 오류가 발생했습니다.');
+      console.error('미용실 상태 변경 실패:', error);
+    }
+  });
+
   // 이벤트 핸들러
   const handleAddSalon = () => {
-    console.log('미용실 추가 버튼 클릭');
-    // 여기에 모달 열기 또는 페이지 이동 로직 추가
+    router.push('/admin/salons/add');
   };
-  
+
   const handleViewSalon = (salon) => {
-    console.log('상세보기', salon);
-    // 상세 보기 로직
+    router.push(`/admin/salons/${salon.id}`);
   };
-  
+
   const handleEditSalon = (salon) => {
-    console.log('수정하기', salon);
-    // 수정 로직
+    router.push(`/admin/salons/${salon.id}/edit`);
   };
-  
+
   const handleDeleteSalon = (salon) => {
-    console.log('삭제하기', salon);
-    // 삭제 로직
+    if (window.confirm(`정말로 "${salon.name}" 미용실을 삭제하시겠습니까?`)) {
+      deleteMutation.mutate(salon.id);
+    }
   };
-  
-  const handleSortChange = (value) => {
-    setSortOption(value);
-    // 정렬 로직
+
+  const handleStatusChange = (salon, newStatus) => {
+    statusMutation.mutate({ id: salon.id, status: newStatus });
   };
-  
-  // 필터링된 미용실 목록
-  const filteredSalons = salons.filter(salon => 
-    salon.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    salon.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    salon.owner.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
+
+  const handleSearchChange = (value) => {
+    setSearchParams(prev => ({ ...prev, keyword: value }));
+    setCurrentPage(1); // 검색어 변경 시 첫 페이지로 이동
+  };
+
+  const handleStatusFilterChange = (status) => {
+    setSearchParams(prev => ({ ...prev, status }));
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (sortOption) => {
+    // 정렬 옵션에 따른 sortBy 및 sortOrder 설정
+    const sortMappings = {
+      'newest': { sortBy: 'created_at', sortOrder: 'DESC' },
+      'oldest': { sortBy: 'created_at', sortOrder: 'ASC' },
+      'name': { sortBy: 'name', sortOrder: 'ASC' },
+      'rating': { sortBy: 'rating', sortOrder: 'DESC' }
+    };
+
+    const { sortBy, sortOrder } = sortMappings[sortOption] || sortMappings.newest;
+    setSearchParams(prev => ({ ...prev, sortBy, sortOrder }));
+  };
+
+  // 에러 처리
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <p className="text-destructive text-lg">데이터를 불러오는 중 오류가 발생했습니다.</p>
+        <p className="text-muted-foreground">{error.message}</p>
+        <Button onClick={() => queryClient.invalidateQueries(['salons'])}>
+          다시 시도
+        </Button>
+      </div>
+    );
+  }
+
+  // 데이터 추출
+  const salons = data?.data || [];
+  console.log(salons);
+  const pagination = data?.pagination || { totalItems: 0, totalPages: 1 };
+
   return (
     <div className="space-y-6">
       <SalonPageHeader onAddSalon={handleAddSalon} />
       
       <SalonFilters 
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        searchQuery={searchParams.keyword}
+        onSearchChange={handleSearchChange}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         onSortChange={handleSortChange}
+        activeTab={searchParams.status}
+        onTabChange={handleStatusFilterChange}
       />
       
-      {viewMode === 'grid' ? (
-        <SalonGrid 
-          salons={filteredSalons}
-          onView={handleViewSalon}
-          onEdit={handleEditSalon}
-          onDelete={handleDeleteSalon}
-        />
+      {isLoading ? (
+        viewMode === 'grid' ? <GridSkeleton /> : <TableSkeleton />
       ) : (
-        <SalonTable 
-          salons={filteredSalons}
-          onView={handleViewSalon}
-          onEdit={handleEditSalon}
-          onDelete={handleDeleteSalon}
-        />
+        <>
+          {viewMode === 'grid' ? (
+            <SalonGrid 
+              salons={salons}
+              onView={handleViewSalon}
+              onEdit={handleEditSalon}
+              onDelete={handleDeleteSalon}
+              onStatusChange={handleStatusChange}
+            />
+          ) : (
+            <SalonTable 
+              salons={salons}
+              onView={handleViewSalon}
+              onEdit={handleEditSalon}
+              onDelete={handleDeleteSalon}
+              onStatusChange={handleStatusChange}
+            />
+          )}
+
+          {/* 페이지네이션 컴포넌트 */}
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              총 {pagination.totalItems}개의 미용실 중 {(currentPage - 1) * itemsPerPage + 1}-
+              {Math.min(currentPage * itemsPerPage, pagination.totalItems)}개 표시
+            </p>
+            
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1 || isLoading}
+              >
+                이전
+              </Button>
+              <span className="text-sm">
+                {currentPage} / {pagination.totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, pagination.totalPages))}
+                disabled={currentPage >= pagination.totalPages || isLoading}
+              >
+                다음
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+      
+      {/* 로딩 인디케이터 */}
+      {(deleteMutation.isLoading || statusMutation.isLoading) && (
+        <div className="fixed bottom-4 right-4 bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-lg flex items-center space-x-2">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>작업 처리 중...</span>
+        </div>
       )}
     </div>
   );

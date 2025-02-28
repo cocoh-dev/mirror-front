@@ -29,8 +29,8 @@ export const SalonTable = ({ salons, onView, onEdit, onDelete }) => {
               <TableRow key={salon.id}>
                 <TableCell className="font-medium">{salon.id}</TableCell>
                 <TableCell>{salon.name}</TableCell>
-                <TableCell>{salon.address}</TableCell>
-                <TableCell>{salon.owner}</TableCell>
+                <TableCell>{salon.location.address_line1} {salon.location.address_line2}</TableCell>
+                <TableCell>{salon.owner.name}</TableCell>
                 <TableCell>{salon.phone}</TableCell>
                 <TableCell>
                   <StatusBadge status={salon.status} />

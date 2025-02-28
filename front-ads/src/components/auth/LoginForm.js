@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { login } from '@/services/authService';
 import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 // Import shadcn components
 import { Button } from '@/components/ui/button';
@@ -27,8 +27,6 @@ export default function LoginForm() {
 
     try {
       await login({ email, password });
-      // 로그인 후 사용자 정보 갱신
-      await refreshUser();
       router.push('/dashboard');
     } catch (err) {
       setError(err.message || 'Failed to login. Please check your credentials.');

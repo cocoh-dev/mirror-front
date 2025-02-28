@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { logout, getCurrentUser } from '@/services/authService';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 // Import shadcn components
 import { Button } from '@/components/ui/button';
@@ -15,37 +15,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [user, setUser] = useState(null);
+  const { user, loading, logout, initialized } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
-
+  
   useEffect(() => {
     setIsMounted(true);
-    
-    // 비동기 함수를 즉시 실행하는 패턴
-    const fetchUser = async () => {
-      try {
-        const currentUser = await getCurrentUser();
-        setUser(currentUser);
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
-      }
-    };
-
-    fetchUser();
   }, []);
 
   // Only render on client side to avoid hydration mismatch
   if (!isMounted) return null;
 
   // If on auth pages, don't show navbar
-  if (pathname.startsWith('/auth/')) return null;
-
-  const handleLogout = () => {
-    logout();
-  };
+  if (pathname?.startsWith('/auth/')) return null;
 
   return (
     <header className="bg-white border-b border-gray-200">
@@ -53,8 +38,8 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo and main navigation */}
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center">
-              <span className="text-2xl font-bold">HairSalon</span>
+            <Link href="/" className="flex items-center">
+              <span className="text-2xl font-bold">Mirror Motion</span>
             </Link>
             
             <nav className="ml-10 space-x-4">
@@ -72,7 +57,7 @@ export default function Navbar() {
               <Link 
                 href="/salons" 
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  pathname.startsWith('/salons') 
+                  pathname?.startsWith('/salons') 
                     ? 'bg-gray-100 text-gray-900' 
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
@@ -83,7 +68,7 @@ export default function Navbar() {
               <Link 
                 href="/ads" 
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  pathname.startsWith('/ads') 
+                  pathname?.startsWith('/ads') 
                     ? 'bg-gray-100 text-gray-900' 
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
@@ -95,7 +80,7 @@ export default function Navbar() {
                 <Link 
                   href="/admin" 
                   className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    pathname.startsWith('/admin') 
+                    pathname?.startsWith('/admin') 
                       ? 'bg-gray-100 text-gray-900' 
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
@@ -108,7 +93,12 @@ export default function Navbar() {
           
           {/* User dropdown or login/register buttons */}
           <div className="flex items-center">
-            {user ? (
+            {!initialized || loading ? (
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-5 w-24" />
+              </div>
+            ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="flex items-center gap-2">
@@ -128,7 +118,7 @@ export default function Navbar() {
                     <Link href="/subscriptions">Subscriptions</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
+                  <DropdownMenuItem onClick={logout}>
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>

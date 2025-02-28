@@ -6,12 +6,40 @@ let pendingUserPromise = null;
 const CACHE_EXPIRY = 5 * 60 * 1000; // 5분 캐시
 let cacheTimestamp = null;
 
+// 새로운 상태 구독 시스템
+const subscribers = new Set();
+
+// 사용자 정보를 모든 구독자에게 알림
+const notifySubscribers = (user) => {
+  subscribers.forEach(callback => callback(user));
+};
+
+// 사용자 상태 변경 구독하기
+export const subscribeToAuthChanges = (callback) => {
+  subscribers.add(callback);
+  
+  // 현재 캐시된 사용자 정보가 있으면 즉시 알림
+  if (userCache) {
+    callback(userCache);
+  } else if (!pendingUserPromise) {
+    // 캐시된 정보가 없고 진행 중인 요청도 없으면 새로 요청
+    checkAuth();
+  }
+  
+  // 구독 해제 함수 반환
+  return () => {
+    subscribers.delete(callback);
+  };
+};
+
 // Login function
 export const login = async ({ email, password }) => {
   try {
     const response = await api.post('/auth/login', { email, password });
-    // 로그인 성공 시 캐시 초기화
-    invalidateCache();
+    // 로그인 성공 시 사용자 정보 갱신
+    userCache = response.data.user || await checkAuth();
+    cacheTimestamp = Date.now();
+    notifySubscribers(userCache);
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: 'Login failed' };
@@ -31,6 +59,12 @@ export const socialLogin = (provider) => {
 export const register = async (userData) => {
   try {
     const response = await api.post('/auth/signup', userData);
+    // 회원가입 성공 시 캐시 업데이트
+    if (response.data.user) {
+      userCache = response.data.user;
+      cacheTimestamp = Date.now();
+      notifySubscribers(userCache);
+    }
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: 'Registration failed' };
@@ -44,6 +78,7 @@ export const logout = async () => {
     invalidateCache();
     // 백엔드에 로그아웃 요청
     await api.get('/auth/logout');
+    notifySubscribers(null);
     window.location.href = '/auth/login';
   } catch (error) {
     console.error('Logout error:', error);
@@ -82,6 +117,7 @@ export const checkAuth = async () => {
       userCache = response.data.user;
       cacheTimestamp = Date.now();
       pendingUserPromise = null;
+      notifySubscribers(userCache);
       return userCache;
     })
     .catch(error => {
@@ -89,6 +125,7 @@ export const checkAuth = async () => {
       pendingUserPromise = null;
       userCache = null;
       cacheTimestamp = null;
+      notifySubscribers(null);
       return null;
     });
 
@@ -101,9 +138,19 @@ export const isAuthenticated = async () => {
   return !!user;
 };
 
+// 동기식 인증 확인 (캐시된 값만 확인)
+export const isAuthenticatedSync = () => {
+  return !!userCache;
+};
+
 // 현재 사용자 정보 가져오기
 export const getCurrentUser = async () => {
   return await checkAuth();
+};
+
+// 현재 사용자 정보 동기식으로 가져오기 (캐시된 값만 반환)
+export const getCurrentUserSync = () => {
+  return userCache;
 };
 
 // 비밀번호 초기화 요청
@@ -128,3 +175,16 @@ export const resetPassword = async (token, newPassword) => {
     throw error.response?.data || { message: 'Password reset failed' };
   }
 };
+
+// 페이지 로드 시 자동으로 사용자 정보 확인 설정
+if (typeof window !== 'undefined') {
+  // 페이지 로드 시 한 번 실행
+  checkAuth();
+  
+  // 탭 활성화될 때마다 캐시 유효성 확인
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !isCacheValid()) {
+      checkAuth();
+    }
+  });
+}

@@ -1,9 +1,9 @@
-// components/layout/Navbar.js
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 // Import shadcn components
 import { Button } from '@/components/ui/button';
@@ -15,31 +15,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, initialized } = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Only render on client side to avoid hydration mismatch
+  if (!isMounted) return null;
 
   // If on auth pages, don't show navbar
-  if (pathname.startsWith('/auth/')) return null;
-
-  // 로딩 중에는 스켈레톤 UI 또는 간단한 로딩 상태 표시
-  if (loading) {
-    return (
-      <header className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            {/* 로고 */}
-            <div className="flex items-center">
-              <span className="text-2xl font-bold">Mirror Motion</span>
-            </div>
-            {/* 로딩 상태 표시 */}
-            <div className="w-32 h-10 bg-gray-200 rounded animate-pulse"></div>
-          </div>
-        </div>
-      </header>
-    );
-  }
+  if (pathname?.startsWith('/auth/')) return null;
 
   return (
     <header className="bg-white border-b border-gray-200">
@@ -66,7 +57,7 @@ export default function Navbar() {
               <Link 
                 href="/salons" 
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  pathname.startsWith('/salons') 
+                  pathname?.startsWith('/salons') 
                     ? 'bg-gray-100 text-gray-900' 
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
@@ -77,7 +68,7 @@ export default function Navbar() {
               <Link 
                 href="/ads" 
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  pathname.startsWith('/ads') 
+                  pathname?.startsWith('/ads') 
                     ? 'bg-gray-100 text-gray-900' 
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
@@ -89,7 +80,7 @@ export default function Navbar() {
                 <Link 
                   href="/admin" 
                   className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    pathname.startsWith('/admin') 
+                    pathname?.startsWith('/admin') 
                       ? 'bg-gray-100 text-gray-900' 
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
@@ -102,7 +93,12 @@ export default function Navbar() {
           
           {/* User dropdown or login/register buttons */}
           <div className="flex items-center">
-            {user ? (
+            {!initialized || loading ? (
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-5 w-24" />
+              </div>
+            ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="flex items-center gap-2">

@@ -1,85 +1,102 @@
-'use client';
+// services/adService.js
+import api from '@/lib/api';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { isAuthenticated, getCurrentUser } from '@/services/authService';
-
-// Import shadcn components
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-
-export default function Dashboard() {
-  const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if user is authenticated
-    if (!isAuthenticated()) {
-      router.push('/auth/login');
-      return;
-    }
-
-    // Get current user info
-    const currentUser = getCurrentUser();
-    setUser(currentUser);
-    setLoading(false);
-  }, [router]);
-
-  if (loading) {
-    return <div className="container mx-auto p-4">Loading...</div>;
+// 광고 목록 조회
+export const getAds = async (params = {}) => {
+  try {
+    const response = await api.get('/api/ads', { params });
+    return response.data;
+  } catch (error) {
+    console.error('광고 목록 조회 실패:', error);
+    throw error;
   }
+};
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Salon Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>My Salons</CardTitle>
-            <CardDescription>Manage your salons and locations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">0</p>
-            <p className="text-gray-500">Active Salons</p>
-          </CardContent>
-          <CardFooter>
-            <Button onClick={() => router.push('/salons')}>View Salons</Button>
-          </CardFooter>
-        </Card>
-        
-        {/* Advertisements Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Advertisements</CardTitle>
-            <CardDescription>Manage your advertising campaigns</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">0</p>
-            <p className="text-gray-500">Active Ads</p>
-          </CardContent>
-          <CardFooter>
-            <Button onClick={() => router.push('/ads')}>View Ads</Button>
-          </CardFooter>
-        </Card>
-        
-        {/* Subscription Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Subscription</CardTitle>
-            <CardDescription>Manage your subscription plans</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-500">Current Plan:</p>
-            <p className="text-xl font-medium">None</p>
-          </CardContent>
-          <CardFooter>
-            <Button onClick={() => router.push('/subscriptions')}>Manage Subscription</Button>
-          </CardFooter>
-        </Card>
-      </div>
-    </div>
-  );
-}
+// 광고 상세 조회
+export const getAdById = async (id) => {
+  try {
+    const response = await api.get(`/api/ads/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('광고 상세 조회 실패:', error);
+    throw error;
+  }
+};
+
+// 광고 생성
+export const createAd = async (adData) => {
+  try {
+    const response = await api.post('/api/ads', adData);
+    return response.data;
+  } catch (error) {
+    console.error('광고 생성 실패:', error);
+    throw error;
+  }
+};
+
+// 광고 수정
+export const updateAd = async (id, adData) => {
+  try {
+    const response = await api.put(`/api/ads/${id}`, adData);
+    return response.data;
+  } catch (error) {
+    console.error('광고 수정 실패:', error);
+    throw error;
+  }
+};
+
+// 광고 삭제
+export const deleteAd = async (id) => {
+  try {
+    const response = await api.delete(`/api/ads/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('광고 삭제 실패:', error);
+    throw error;
+  }
+};
+
+// 전체 광고 목록 조회 (페이지네이션 포함)
+export const getAdsList = async (params = {}) => {
+  try {
+    const response = await api.get('/api/ads/list', { params });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error('전체 광고 목록 조회 실패:', error);
+    throw error;
+  }
+};
+
+// 디스플레이용 광고 조회
+export const getDisplayAds = async () => {
+  try {
+    const response = await api.get('/api/display/ads');
+    return response.data;
+  } catch (error) {
+    console.error('디스플레이용 광고 조회 실패:', error);
+    throw error;
+  }
+};
+
+// 광고 스케줄 설정
+export const scheduleAd = async (scheduleData) => {
+  try {
+    const response = await api.post('/api/ads/schedule', scheduleData);
+    return response.data;
+  } catch (error) {
+    console.error('광고 스케줄 설정 실패:', error);
+    throw error;
+  }
+};
+
+// 광고 활성화/비활성화 토글
+export const toggleAdStatus = async (id, isActive) => {
+  try {
+    const response = await api.put(`/api/ads/${id}`, { is_active: isActive });
+    return response.data;
+  } catch (error) {
+    console.error('광고 상태 변경 실패:', error);
+    throw error;
+  }
+};

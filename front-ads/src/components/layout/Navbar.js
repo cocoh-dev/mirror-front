@@ -15,7 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -95,8 +94,6 @@ export default function Navbar() {
           <div className="flex items-center">
             {!initialized || loading ? (
               <div className="flex items-center gap-2">
-                <Skeleton className="h-8 w-8 rounded-full" />
-                <Skeleton className="h-5 w-24" />
               </div>
             ) : user ? (
               <DropdownMenu>

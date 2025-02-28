@@ -1,6 +1,7 @@
+// /admin/ads/page.js
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   CalendarDays,
   ChevronDown,
@@ -43,75 +44,9 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { toast } from "sonner";
 
-// 더미 데이터
-const ads = [
-  {
-    id: '1',
-    title: '2024 여름 헤어스타일 프로모션',
-    company: '스타일리시 살롱',
-    status: 'active',
-    type: 'banner',
-    startDate: '2024-02-15',
-    endDate: '2024-03-15',
-    budget: 450000,
-    spent: 225000,
-    impressions: 15420,
-    clicks: 728,
-  },
-  {
-    id: '2',
-    title: '신규 고객 첫 방문 50% 할인',
-    company: '뷰티 헤어',
-    status: 'active',
-    type: 'popup',
-    startDate: '2024-02-10',
-    endDate: '2024-03-10',
-    budget: 300000,
-    spent: 180000,
-    impressions: 12750,
-    clicks: 632,
-  },
-  {
-    id: '3',
-    title: '봄맞이 헤어 컬러 특별 프로모션',
-    company: '컬러풀 살롱',
-    status: 'pending',
-    type: 'sidebar',
-    startDate: '2024-03-01',
-    endDate: '2024-03-31',
-    budget: 500000,
-    spent: 0,
-    impressions: 0,
-    clicks: 0,
-  },
-  {
-    id: '4',
-    title: '남성 헤어 스타일링 특가',
-    company: '맨즈 그루밍',
-    status: 'inactive',
-    type: 'banner',
-    startDate: '2024-01-15',
-    endDate: '2024-02-15',
-    budget: 250000,
-    spent: 250000,
-    impressions: 18500,
-    clicks: 845,
-  },
-  {
-    id: '5',
-    title: '헤어 케어 제품 출시 기념 이벤트',
-    company: '내추럴 뷰티',
-    status: 'paused',
-    type: 'popup',
-    startDate: '2024-02-20',
-    endDate: '2024-03-20',
-    budget: 350000,
-    spent: 87500,
-    impressions: 5230,
-    clicks: 210,
-  },
-];
+import { getAds ,getAdsList, deleteAd, scheduleAd } from '@/services/adService';
 
 // 상태 뱃지 컴포넌트
 const StatusBadge = ({ status }) => {
@@ -128,6 +63,74 @@ const StatusBadge = ({ status }) => {
 };
 
 export default function AdsPage() {
+  const [ads, setAds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // 광고 목록 불러오기
+  const fetchAds = async () => {
+    try {
+      setLoading(true);
+      const response = await getAds();
+      console.log(response);
+      setAds(response.ads || []);
+      setError(null);
+    } catch (error) {
+      setError('광고 목록을 불러오는데 실패했습니다.');
+      toast({
+        title: '오류',
+        description: '광고 목록을 불러오는데 실패했습니다.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // 광고 삭제 처리
+  const handleDeleteAd = async (id) => {
+    if (window.confirm('정말 이 광고를 삭제하시겠습니까?')) {
+      try {
+        await deleteAd(id);
+        toast({
+          title: '성공',
+          description: '광고가 삭제되었습니다.',
+        });
+        fetchAds(); // 목록 다시 불러오기
+      } catch (error) {
+        toast({
+          title: '오류',
+          description: '광고 삭제 중 문제가 발생했습니다.',
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+  
+  // 광고 일시중지/재개 처리
+  const handleToggleAdStatus = async (id, currentStatus) => {
+    const newStatus = currentStatus === 'active' ? 'paused' : 'active';
+    try {
+      await updateAd(id, { status: newStatus });
+      toast({
+        title: '성공',
+        description: `광고가 ${newStatus === 'active' ? '활성화' : '일시중지'} 되었습니다.`,
+      });
+      fetchAds(); // 목록 다시 불러오기
+    } catch (error) {
+      toast({
+        title: '오류',
+        description: '상태 변경 중 문제가 발생했습니다.',
+        variant: 'destructive',
+      });
+    }
+  };
+  
+  // 컴포넌트 마운트시 광고 목록 불러오기
+  useEffect(() => {
+    fetchAds();
+  }, []);
+  
   const [searchQuery, setSearchQuery] = useState('');
   
   return (
@@ -194,28 +197,28 @@ export default function AdsPage() {
                       <TableCell>
                         <div className="flex items-center">
                           <CalendarDays className="mr-1 h-3 w-3 text-muted-foreground" />
-                          <span className="text-xs">{ad.startDate} ~ {ad.endDate}</span>
+                          {/* <span className="text-xs">{ad.startDate} ~ {ad.endDate}</span> */}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center">
                           <DollarSign className="mr-1 h-3 w-3 text-muted-foreground" />
-                          <span>₩{ad.budget.toLocaleString()}</span>
+                          {/* <span>₩{ad.budget.toLocaleString()}</span> */}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="space-y-1">
+                        {/* <div className="space-y-1">
                           <Progress value={(ad.spent / ad.budget) * 100} className="h-2" />
                           <div className="flex justify-between text-xs text-muted-foreground">
                             <span>₩{ad.spent.toLocaleString()}</span>
                             <span>{Math.round((ad.spent / ad.budget) * 100)}%</span>
                           </div>
-                        </div>
+                        </div> */}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center">
                           <Eye className="mr-1 h-3 w-3 text-muted-foreground" />
-                          <span>{ad.clicks.toLocaleString()} / {ad.impressions.toLocaleString()}</span>
+                          {/* <span>{ad.clicks.toLocaleString()} / {ad.impressions.toLocaleString()}</span> */}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">

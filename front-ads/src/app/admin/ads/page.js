@@ -3,70 +3,43 @@
 
 import { useState, useEffect } from 'react';
 import {
-  CalendarDays,
-  ChevronDown,
-  Clock,
-  DollarSign,
-  Eye,
-  MoreHorizontal,
   Plus,
   Search,
-  Trash2,
-  Edit2,
-  Pause,
-  Play
+  Grid,
+  List,
+  Download,
+  Loader2
 } from 'lucide-react';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { toast } from "sonner";
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 
-import { getAds ,getAdsList, deleteAd, scheduleAd } from '@/services/adService';
+// API 서비스
+import { getAds } from '@/services/adService';
 
-// 상태 뱃지 컴포넌트
-const StatusBadge = ({ status }) => {
-  const variants = {
-    active: { variant: 'default', label: '진행중' },
-    inactive: { variant: 'secondary', label: '종료됨' },
-    pending: { variant: 'outline', label: '대기중' },
-    paused: { variant: 'warning', label: '일시중지' },
-  };
-  
-  const { variant, label } = variants[status] || variants.inactive;
-  
-  return <Badge variant={variant}>{label}</Badge>;
-};
+// 분리된 컴포넌트 가져오기
+import { AdCard, AdTable } from '@/components/admin/ads';
 
 export default function AdsPage() {
+  // 상태 관리
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState('list');
+  const [currentTab, setCurrentTab] = useState('all');
+  
+  // 데이터 상태
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // 광고 목록 불러오기
   const fetchAds = async () => {
     try {
@@ -86,65 +59,59 @@ export default function AdsPage() {
       setLoading(false);
     }
   };
-  
-  // 광고 삭제 처리
-  const handleDeleteAd = async (id) => {
-    if (window.confirm('정말 이 광고를 삭제하시겠습니까?')) {
-      try {
-        await deleteAd(id);
-        toast({
-          title: '성공',
-          description: '광고가 삭제되었습니다.',
-        });
-        fetchAds(); // 목록 다시 불러오기
-      } catch (error) {
-        toast({
-          title: '오류',
-          description: '광고 삭제 중 문제가 발생했습니다.',
-          variant: 'destructive',
-        });
-      }
-    }
-  };
-  
-  // 광고 일시중지/재개 처리
-  const handleToggleAdStatus = async (id, currentStatus) => {
-    const newStatus = currentStatus === 'active' ? 'paused' : 'active';
-    try {
-      await updateAd(id, { status: newStatus });
-      toast({
-        title: '성공',
-        description: `광고가 ${newStatus === 'active' ? '활성화' : '일시중지'} 되었습니다.`,
-      });
-      fetchAds(); // 목록 다시 불러오기
-    } catch (error) {
-      toast({
-        title: '오류',
-        description: '상태 변경 중 문제가 발생했습니다.',
-        variant: 'destructive',
-      });
-    }
-  };
-  
-  // 컴포넌트 마운트시 광고 목록 불러오기
+
+  // 컴포넌트 마운트 시 데이터 불러오기
   useEffect(() => {
     fetchAds();
   }, []);
-  
-  const [searchQuery, setSearchQuery] = useState('');
+
+  // 필터링된 광고 데이터 계산
+  const filteredAds = ads.filter(ad => {
+    // 탭 필터링
+    if (currentTab !== 'all' && ad.status !== currentTab) {
+      return false;
+    }
+    
+    // 검색어 필터링
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        ad.title.toLowerCase().includes(query) ||
+        ad.company.toLowerCase().includes(query)
+      );
+    }
+    
+    return true;
+  });
+
+  // 검색 핸들러
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // 탭 변경 핸들러
+  const handleTabChange = (value) => {
+    setCurrentTab(value);
+  };
   
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">광고 관리</h1>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          광고 추가
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="h-9 gap-1">
+            <Download className="h-4 w-4" />
+            <span>내보내기</span>
+          </Button>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            광고 추가
+          </Button>
+        </div>
       </div>
       
-      <Tabs defaultValue="all" className="space-y-4">
-        <div className="flex justify-between items-center">
+      <Tabs defaultValue="all" value={currentTab} onValueChange={handleTabChange} className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <TabsList>
             <TabsTrigger value="all">전체</TabsTrigger>
             <TabsTrigger value="active">진행중</TabsTrigger>
@@ -153,126 +120,96 @@ export default function AdsPage() {
             <TabsTrigger value="inactive">종료됨</TabsTrigger>
           </TabsList>
           
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="광고 검색..."
-              className="pl-8 w-[250px]"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="광고 검색..."
+                className="pl-8 w-full sm:w-[250px]"
+                value={searchQuery}
+                onChange={handleSearch}
+              />
+            </div>
+            
+            <div className="flex border rounded-md">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="icon"
+                className="h-9 w-9 rounded-none rounded-l-md"
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid className="h-4 w-4" />
+              </Button>
+              <Separator orientation="vertical" />
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="icon"
+                className="h-9 w-9 rounded-none rounded-r-md"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
         
-        <TabsContent value="all" className="space-y-4">
+        {/* 로딩 상태 */}
+        {loading ? (
           <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>제목</TableHead>
-                    <TableHead>업체</TableHead>
-                    <TableHead>상태</TableHead>
-                    <TableHead>기간</TableHead>
-                    <TableHead>예산</TableHead>
-                    <TableHead>사용량</TableHead>
-                    <TableHead>클릭수</TableHead>
-                    <TableHead className="text-right">관리</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {ads.map((ad) => (
-                    <TableRow key={ad.id}>
-                      <TableCell className="font-medium">{ad.id}</TableCell>
-                      <TableCell>
-                        <div className="font-medium">{ad.title}</div>
-                        <div className="text-sm text-muted-foreground">{ad.type}</div>
-                      </TableCell>
-                      <TableCell>{ad.company}</TableCell>
-                      <TableCell>
-                        <StatusBadge status={ad.status} />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <CalendarDays className="mr-1 h-3 w-3 text-muted-foreground" />
-                          {/* <span className="text-xs">{ad.startDate} ~ {ad.endDate}</span> */}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <DollarSign className="mr-1 h-3 w-3 text-muted-foreground" />
-                          {/* <span>₩{ad.budget.toLocaleString()}</span> */}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {/* <div className="space-y-1">
-                          <Progress value={(ad.spent / ad.budget) * 100} className="h-2" />
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>₩{ad.spent.toLocaleString()}</span>
-                            <span>{Math.round((ad.spent / ad.budget) * 100)}%</span>
-                          </div>
-                        </div> */}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Eye className="mr-1 h-3 w-3 text-muted-foreground" />
-                          {/* <span>{ad.clicks.toLocaleString()} / {ad.impressions.toLocaleString()}</span> */}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>작업</DropdownMenuLabel>
-                            <DropdownMenuItem className="flex items-center gap-2">
-                              <Eye className="h-4 w-4" />
-                              <span>상세보기</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="flex items-center gap-2">
-                              <Edit2 className="h-4 w-4" />
-                              <span>수정</span>
-                            </DropdownMenuItem>
-                            {ad.status === 'active' ? (
-                              <DropdownMenuItem className="flex items-center gap-2">
-                                <Pause className="h-4 w-4" />
-                                <span>일시중지</span>
-                              </DropdownMenuItem>
-                            ) : ad.status === 'paused' ? (
-                              <DropdownMenuItem className="flex items-center gap-2">
-                                <Play className="h-4 w-4" />
-                                <span>재개</span>
-                              </DropdownMenuItem>
-                            ) : null}
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive flex items-center gap-2">
-                              <Trash2 className="h-4 w-4" />
-                              <span>삭제</span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+            <CardContent className="p-6 flex items-center justify-center min-h-[200px]">
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-muted-foreground">광고 목록을 불러오는 중...</p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : error ? (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <p className="text-destructive">{error}</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={fetchAds}
+              >
+                다시 시도
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <TabsContent value={currentTab} className="space-y-4">
+            {filteredAds.length > 0 ? (
+              viewMode === 'list' ? (
+                <AdTable ads={filteredAds} />
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredAds.map((ad) => (
+                    <AdCard key={ad.id} ad={ad} />
                   ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* 다른 탭 내용은 비슷하므로 생략 */}
-        <TabsContent value="active" className="space-y-4">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">진행중인 광고만 표시합니다.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </div>
+              )
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-muted-foreground">
+                    {searchQuery 
+                      ? '검색 결과가 없습니다.' 
+                      : currentTab === 'all' 
+                        ? '등록된 광고가 없습니다.' 
+                        : `${currentTab === 'active' 
+                          ? '진행중인' 
+                          : currentTab === 'pending' 
+                            ? '대기중인' 
+                            : currentTab === 'paused' 
+                              ? '일시중지된' 
+                              : '종료된'} 광고가 없습니다.`}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

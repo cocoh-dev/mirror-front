@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import DaumPostcode from "react-daum-postcode";
 
 export default function SearchAddressModal({ isOpen, onClose, onCompletePost }) {
@@ -8,10 +8,12 @@ export default function SearchAddressModal({ isOpen, onClose, onCompletePost }) 
         <DialogHeader>
           <DialogTitle>주소 검색</DialogTitle>
         </DialogHeader>
-        <DaumPostcode onComplete={onCompletePost} />
-        <DialogClose asChild>
-          <button className="mt-2 w-full py-2 bg-gray-800 text-white rounded">닫기</button>
-        </DialogClose>
+        <DaumPostcode
+          onComplete={(data) => {
+            onCompletePost(data); // 주소 선택 후 데이터 전달
+            onClose(); // 모달 자동 닫기
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

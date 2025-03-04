@@ -26,7 +26,15 @@ export const SalonTable = ({ salons, onView, onEdit, onDelete }) => {
           </TableHeader>
           <TableBody>
             {salons.map((salon) => (
-              <TableRow key={salon.id}>
+              <TableRow 
+                key={salon.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={(e) => {
+                  // 이벤트 버블링 방지 - SalonActions의 클릭이 행 클릭으로 전파되지 않도록
+                  if (e.target.closest('.salon-actions')) return;
+                  onView(salon);
+                }}
+              >
                 <TableCell className="font-medium">{salon.id}</TableCell>
                 <TableCell>{salon.name}</TableCell>
                 <TableCell>{salon.location.address_line1} {salon.location.address_line2}</TableCell>
@@ -42,12 +50,14 @@ export const SalonTable = ({ salons, onView, onEdit, onDelete }) => {
                   <SalonRating rating={salon.rating} reviewCount={salon.reviewCount} />
                 </TableCell>
                 <TableCell className="text-right">
-                  <SalonActions 
-                    salon={salon}
-                    onView={onView}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                  />
+                  <div className="salon-actions">
+                    <SalonActions 
+                      salon={salon}
+                      onView={onView}
+                      onEdit={onEdit}
+                      onDelete={onDelete}
+                    />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

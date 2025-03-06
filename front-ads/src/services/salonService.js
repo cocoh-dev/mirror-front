@@ -49,6 +49,7 @@ export const searchSalons = async (options) => {
 export const getSalonById = async (id) => {
   try {
     const response = await api.get(`/api/salons/${id}`);
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(`미용실 ID ${id} 조회 실패:`, error);

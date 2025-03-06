@@ -5,6 +5,7 @@ import { StatusBadge } from './StatusBadge';
 import { SubscriptionBadge } from './SubscriptionBadge';
 import { SalonRating } from './SalonRating';
 import { SalonActions } from './SalonActions';
+import { formatPhoneNumber, formatBusinessNumber } from '@/utils/numberFormat';
 
 export const SalonTable = ({ salons, onView, onEdit, onDelete }) => {
   return (
@@ -39,7 +40,7 @@ export const SalonTable = ({ salons, onView, onEdit, onDelete }) => {
                 <TableCell>{salon.name}</TableCell>
                 <TableCell>{salon.location.address_line1} {salon.location.address_line2}</TableCell>
                 <TableCell>{salon.owner.name}</TableCell>
-                <TableCell>{salon.phone}</TableCell>
+                <TableCell>{formatPhoneNumber(salon.phone)}</TableCell>
                 <TableCell>
                   <StatusBadge status={salon.status} />
                 </TableCell>

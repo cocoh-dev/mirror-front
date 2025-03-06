@@ -4,6 +4,7 @@ import { StatusBadge } from './StatusBadge';
 import { SubscriptionBadge } from './SubscriptionBadge';
 import { SalonRating } from './SalonRating';
 import { SalonActions } from './SalonActions';
+import { formatPhoneNumber, formatBusinessNumber } from '@/utils/numberFormat';
 
 export const SalonCard = ({ salon, onView, onEdit, onDelete }) => {
   return (
@@ -33,7 +34,7 @@ export const SalonCard = ({ salon, onView, onEdit, onDelete }) => {
       <CardContent className="p-4 pt-2">
         <div className="text-sm text-muted-foreground mt-2">
           <div>대표: {salon.owner.name}</div>
-          <div>연락처: {salon.phone}</div>
+          <div>연락처: {formatPhoneNumber(salon.phone)}</div>
           <div className="mt-1">
             <SalonRating rating={salon.rating} reviewCount={salon.reviewCount} />
           </div>

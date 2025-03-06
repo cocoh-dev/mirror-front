@@ -1,3 +1,4 @@
+// src/app/salons/[id]/page.js
 'use client';
 
 import { useState } from 'react';
@@ -46,6 +47,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { formatPhoneNumber, cleanBusinessNumber, cleanPhoneNumber, formatBusinessNumber } from '@/utils/numberFormat';
 
 export default function SalonDetailPage() {
   const params = useParams();
@@ -137,10 +139,38 @@ export default function SalonDetailPage() {
     }
   };
 
+  const handlePhoneChange = (e) => {
+    const formattedNumber = formatPhoneNumber(e.target.value);
+    
+    setFormData({
+      ...formData,
+      phone: formattedNumber
+    });
+  };
+  
+  // 2. 사업자등록번호 입력을 위한 특수 핸들러 추가
+  const handleBusinessNumberChange = (e) => {
+    const formattedNumber = formatBusinessNumber(e.target.value);
+    
+    setFormData({
+      ...formData,
+      business_number: formattedNumber
+    });
+  };
+  
+
   // 폼 제출 핸들러
   const handleSubmit = (e) => {
     e.preventDefault();
-    updateMutation.mutate(formData);
+    
+    // 제출 전 전화번호와 사업자등록번호에서 하이픈 제거
+    const dataToSubmit = {
+      ...formData,
+      phone: cleanPhoneNumber(formData.phone),
+      business_number: cleanBusinessNumber(formData.business_number)
+    };
+    
+    updateMutation.mutate(dataToSubmit);
   };
 
   // 편집 취소 핸들러
@@ -222,8 +252,12 @@ export default function SalonDetailPage() {
               <Button 
                 variant="outline" 
                 onClick={() => {
-                  // 수정 모드로 전환할 때 현재 데이터로 폼 데이터 다시 설정
-                  setFormData(salonData.salon);
+                  const formattedData = {
+                    ...salonData.salon,
+                    phone: formatPhoneNumber(salonData.salon.phone),
+                    business_number: formatBusinessNumber(salonData.salon.business_number)
+                  };
+                  setFormData(formattedData);
                   setIsEditing(true);
                 }}
               >
@@ -327,11 +361,29 @@ export default function SalonDetailPage() {
                         <Input 
                           name="phone"
                           value={formData?.phone || ''}
-                          onChange={handleChange}
+                          onChange={handlePhoneChange}
                           className="mt-1"
                         />
                       ) : (
-                        <p className="text-muted-foreground">{salon.phone}</p>
+                        <p className="text-muted-foreground">{formatPhoneNumber(salon.phone)}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 사업자등록번호 */}
+                  <div className="flex items-start gap-2">
+                    <Building className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                    <div className="w-full">
+                      <p className="font-medium">사업자등록번호</p>
+                      {isEditing ? (
+                        <Input 
+                          name="business_number"
+                          value={formData?.business_number || ''}
+                          onChange={handleBusinessNumberChange}
+                          className="mt-1"
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{formatBusinessNumber(salon.business_number)}</p>
                       )}
                     </div>
                   </div>

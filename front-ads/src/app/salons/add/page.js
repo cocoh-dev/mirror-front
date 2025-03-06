@@ -1,3 +1,4 @@
+// src/app/salons/add/page.js
 'use client';
 
 import { useState } from 'react';
@@ -12,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { createSalon } from '@/services/salonService';
 import SearchAddressModal from '@/components/common/SearchAddressModal';
 import { KakaoMap } from '@/components/common/kakao';
+import { formatPhoneNumber, formatBusinessNumber, cleanPhoneNumber, cleanBusinessNumber } from '@/utils/numberFormat';
 
 export const RegisterSalonForm = () => {
   const router = useRouter();
@@ -30,10 +32,10 @@ export const RegisterSalonForm = () => {
   const [formData, setFormData] = useState({
     salon: {
       name: '',
-      // phone: '',
+      phone: '',
       business_hours: '',
       business_number: '',
-      // description: '',
+      description: '',
     },
     address: '',
     addressDetail: '',
@@ -60,6 +62,31 @@ export const RegisterSalonForm = () => {
     }
   };
 
+  // 입력 필드 변경 핸들러
+const handlePhoneChange = (e) => {
+  const formattedNumber = formatPhoneNumber(e.target.value);
+  
+  setFormData({
+    ...formData,
+    salon: {
+      ...formData.salon,
+      phone: formattedNumber
+    }
+  });
+};
+
+const handleBusinessNumberChange = (e) => {
+  const formattedNumber = formatBusinessNumber(e.target.value);
+  
+  setFormData({
+    ...formData,
+    salon: {
+      ...formData.salon,
+      business_number: formattedNumber
+    }
+  });
+};
+  
   const handleSelectChange = (name, value) => {
     setFormData(prev => ({
       ...prev,
@@ -72,7 +99,16 @@ export const RegisterSalonForm = () => {
     setIsSubmitting(true);
     
     try {
-      await createSalon(formData);
+      const dataToSubmit = {
+        ...formData,
+        salon: {
+          ...formData.salon,
+          phone: cleanPhoneNumber(formData.salon.phone),
+          business_number: cleanBusinessNumber(formData.salon.business_number)
+        }
+      };
+      
+      await createSalon(dataToSubmit);
       toast.success('미용실이 성공적으로 등록되었습니다.');
       router.push('/salons');
     } catch (error) {
@@ -131,7 +167,7 @@ export const RegisterSalonForm = () => {
                       id="salon.phone"
                       name="salon.phone"
                       value={formData.salon.phone}
-                      onChange={handleChange}
+                      onChange={handlePhoneChange}
                       placeholder="000-0000-0000"
                       required
                       />
@@ -161,7 +197,7 @@ export const RegisterSalonForm = () => {
                       id="salon.business_number"
                       name="salon.business_number"
                       value={formData.salon.business_number}
-                      onChange={handleChange}
+                      onChange={handleBusinessNumberChange}
                       placeholder="000-00-00000"
                       required
                       />

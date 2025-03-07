@@ -153,7 +153,7 @@ export default function SalonDetailPage() {
               <AlertDialogHeader>
                 <AlertDialogTitle>미용실 삭제</AlertDialogTitle>
                 <AlertDialogDescription>
-                  정말로 "{salon.name}" 미용실을 삭제하시겠습니까?
+                  정말로 &apos;{salon.name}&apos; 미용실을 삭제하시겠습니까?
                   이 작업은 되돌릴 수 없습니다.
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -531,7 +531,7 @@ export default function SalonDetailPage() {
                   <div>
                     <p className="font-medium">상태 변경</p>
                     <p className="text-sm text-muted-foreground">2024년 1월 10일 09:45</p>
-                    <p className="text-sm">미용실 상태가 '심사중'에서 '인증됨'으로 변경되었습니다.</p>
+                    <p className="text-sm">미용실 상태가 &apos;심사중&apos;에서 &apos;인증됨&apos;으로 변경되었습니다.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">

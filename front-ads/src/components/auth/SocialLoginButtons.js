@@ -3,7 +3,7 @@
 import { socialLogin } from '@/services/authService';
 import { Button } from '@/components/ui/button';
 
-export default function SocialLoginButtons() {
+export default function SocialLoginButtons({ returnUrl }) {
   return (
     <div className="flex flex-col space-y-3 w-full">
       <div className="relative">
@@ -18,7 +18,7 @@ export default function SocialLoginButtons() {
       <Button 
         variant="outline" 
         className="flex items-center justify-center gap-2 bg-[#FEE500] hover:bg-[#FDD835] hover:text-black text-black"
-        onClick={() => socialLogin('kakao')}
+        onClick={() => socialLogin('kakao', returnUrl)}
       >
         <KakaoIcon className="h-5 w-5" />
         카카오로 로그인
@@ -27,7 +27,7 @@ export default function SocialLoginButtons() {
       <Button 
         variant="outline" 
         className="flex items-center justify-center gap-2 bg-[#03C75A] hover:bg-[#02A54A] text-white"
-        onClick={() => socialLogin('naver')}
+        onClick={() => socialLogin('naver', returnUrl)}
       >
         <NaverIcon className="h-5 w-5" />
         네이버로 로그인
@@ -36,7 +36,7 @@ export default function SocialLoginButtons() {
       <Button 
         variant="outline" 
         className="flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-black"
-        onClick={() => socialLogin('google')}
+        onClick={() => socialLogin('google', returnUrl)}
       >
         <GoogleIcon className="h-5 w-5" />
         Google로 로그인

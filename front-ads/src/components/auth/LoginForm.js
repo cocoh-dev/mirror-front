@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { login } from '@/services/authService';
 import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
@@ -14,7 +14,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginForm() {
   const router = useRouter();
-  const { refreshUser } = useAuth();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl') || '/dashboard';
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -27,7 +29,7 @@ export default function LoginForm() {
 
     try {
       await login({ email, password });
-      router.push('/dashboard');
+      router.push(returnUrl); // returnUrl로 리다이렉트
     } catch (err) {
       setError(err.message || 'Failed to login. Please check your credentials.');
     } finally {
@@ -93,7 +95,7 @@ export default function LoginForm() {
         
         {/* Social Login Buttons */}
         <div className="mt-6">
-          <SocialLoginButtons />
+          <SocialLoginButtons returnUrl={returnUrl} />
         </div>
       </CardContent>
       <CardFooter className="flex justify-center">

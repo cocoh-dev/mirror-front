@@ -47,12 +47,16 @@ export const login = async ({ email, password }) => {
 };
 
 // 소셜 로그인 URL 가져오기
-export const socialLogin = (provider) => {
+export const socialLogin = (provider, returnUrl) => {
   const redirectUrl = window.location.origin;
   // state 파라미터에 redirect_url을 인코딩하여 포함
-  const state = encodeURIComponent(JSON.stringify({ redirectUrl }));
+  // const state = encodeURIComponent(JSON.stringify({ redirectUrl }));
+  const encodedState = encodeURIComponent(JSON.stringify({
+    redirectUrl: window.location.origin,
+    returnUrl: returnUrl // 로그인 후 리다이렉트할 경로
+  }));
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
-  window.location.href = `${baseUrl}/auth/${provider}?state=${state}`;
+  window.location.href = `${baseUrl}/auth/${provider}?state=${encodedState}`;
 };
 
 // Register function

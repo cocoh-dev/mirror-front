@@ -8,6 +8,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 // Import shadcn components
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function Dashboard() {
   }, [user, loading, router]);
 
   if (loading) {
-    return <div className="container mx-auto p-4">Loading...</div>;
+    return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
   }
 
   // 사용자가 없으면 렌더링하지 않음 (리다이렉트 대기)

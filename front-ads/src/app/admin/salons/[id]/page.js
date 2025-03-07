@@ -8,7 +8,8 @@ import {
   ArrowLeft, 
   Building, 
   Phone, 
-  Mail, 
+  Mail,
+  Loader2,
   MapPin, 
   Calendar, 
   Star, 
@@ -90,12 +91,7 @@ export default function SalonDetailPage() {
   // 로딩 상태
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex flex-col items-center space-y-2">
-          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-          <p className="text-muted-foreground">미용실 정보를 불러오는 중...</p>
-        </div>
-      </div>
+      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
     );
   }
   

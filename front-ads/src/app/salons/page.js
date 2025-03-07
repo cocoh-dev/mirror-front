@@ -11,15 +11,7 @@ import { SalonTable } from "@/components/admin/salons/SalonTable";
 import { SalonGrid } from "@/components/admin/salons/SalonGrid";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-
-// 로딩 스피너 컴포넌트
-const LoadingSpinner = () => {
-  return (
-    <div className="flex items-center justify-center w-full h-60">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-    </div>
-  );
-};
+import { Loader2 } from "lucide-react";
 
 const MySalonsList = () => {
   const [salons, setSalons] = useState([]);
@@ -111,7 +103,7 @@ const MySalonsList = () => {
     }
   };
 
-  if (loading && salons.length === 0) return <LoadingSpinner />;
+  if (loading && salons.length === 0) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
   
   if (error) {
     return (

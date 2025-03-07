@@ -267,9 +267,7 @@ export default function AdDetailPage() {
   // 로딩 중 표시
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
+      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
     );
   }
 

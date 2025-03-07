@@ -40,12 +40,12 @@ export default function CatchAllAdminPage({ params }) {
       <p className="mb-8 text-center max-w-md text-muted-foreground">
         요청하신 페이지는 존재하지 않습니다.
       </p>
-      <a 
+      <Link
         href="/admin"
         className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
       >
         관리자 대시보드로 돌아가기
-      </a>
+      </Link>
     </div>
   );
 }

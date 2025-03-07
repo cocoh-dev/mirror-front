@@ -276,7 +276,7 @@ export default function SalonDetailPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>미용실 삭제</AlertDialogTitle>
                     <AlertDialogDescription>
-                      정말로 "{salon.name}" 미용실을 삭제하시겠습니까?
+                      정말로 &apos;{salon.name}&apos; 미용실을 삭제하시겠습니까?
                       이 작업은 되돌릴 수 없습니다.
                     </AlertDialogDescription>
                   </AlertDialogHeader>

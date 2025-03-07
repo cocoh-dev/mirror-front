@@ -1,6 +1,6 @@
-// app/auth/login/page.js
 'use client';
 
+import { Suspense } from 'react';
 import LoginForm from '@/components/auth/LoginForm';
 
 export default function LoginPage() {
@@ -14,7 +14,9 @@ export default function LoginPage() {
           </p>
         </div>
         
-        <LoginForm />
+        <Suspense fallback={<div>Loading form...</div>}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   );

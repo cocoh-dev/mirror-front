@@ -11,7 +11,7 @@ import { SalonGrid } from '@/components/admin/salons/SalonGrid';
 import { SalonPageHeader } from '@/components/admin/salons/SalonPageHeader';
 import { SalonTable } from '@/components/admin/salons/SalonTable';
 import { TableSkeleton, GridSkeleton } from '@/components/admin/salons/SkeletonLoaders';
-
+import { Loader2 } from 'lucide-react';
 import { searchSalons, deleteSalon, updateSalonStatus } from '@/services/salonService';
 
 export default function SalonsPage() {

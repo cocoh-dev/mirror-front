@@ -46,6 +46,10 @@ export const login = async ({ email, password }) => {
   }
 };
 
+export const signUp = (userData) => {
+  return handleApiCall(() => api.post('/auth/signup', userData));
+};
+
 // 소셜 로그인 URL 가져오기
 export const socialLogin = (provider, returnUrl) => {
   const redirectUrl = window.location.origin;

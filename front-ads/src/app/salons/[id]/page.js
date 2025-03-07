@@ -277,7 +277,7 @@ export default function SalonDetailPage() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>취소</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white">
                       삭제
                     </AlertDialogAction>
                   </AlertDialogFooter>

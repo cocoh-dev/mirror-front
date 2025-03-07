@@ -40,9 +40,9 @@ export default function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
+        <CardTitle className="text-2xl">로그인</CardTitle>
         <CardDescription>
-          Enter your credentials to access your account
+          로그인 정보를 입력해주세요
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -54,7 +54,7 @@ export default function LoginForm() {
           )}
           
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">이메일</Label>
             <Input
               id="email"
               type="email"
@@ -67,12 +67,12 @@ export default function LoginForm() {
           
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">비밀번호</Label>
               <Link 
                 href="/auth/forgot-password" 
                 className="text-sm text-blue-500 hover:text-blue-700"
               >
-                Forgot password?
+                비밀번호를 잊으셨나요?
               </Link>
             </div>
             <Input
@@ -100,9 +100,9 @@ export default function LoginForm() {
       </CardContent>
       <CardFooter className="flex justify-center">
         <p className="text-sm text-gray-500">
-          Don&apos;t have an account?{' '}
+          계정이 없으신가요?{' '}
           <Link href="/auth/register" className="text-blue-500 hover:text-blue-700">
-            Sign up
+            회원가입
           </Link>
         </p>
       </CardFooter>

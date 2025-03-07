@@ -38,7 +38,7 @@ export default function Navbar() {
           {/* Logo and main navigation */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold">Mirror Motion</span>
+              <span className="text-2xl font-bold">미러모션</span>
             </Link>
             
             <nav className="ml-10 space-x-4">
@@ -50,7 +50,7 @@ export default function Navbar() {
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                Dashboard
+                대시보드
               </Link>
               
               <Link 
@@ -61,7 +61,7 @@ export default function Navbar() {
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                Salons
+                미용실
               </Link>
               
               <Link 
@@ -72,7 +72,7 @@ export default function Navbar() {
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                Advertisements
+                광고
               </Link>
               
               {user?.role === 'admin' || user?.role === 'superadmin' ? (
@@ -84,7 +84,7 @@ export default function Navbar() {
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  Admin
+                  관리
                 </Link>
               ) : null}
             </nav>
@@ -109,14 +109,14 @@ export default function Navbar() {
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/profile">Profile</Link>
+                    <Link href="/profile">프로필</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/subscriptions">Subscriptions</Link>
+                    <Link href="/subscriptions">구독</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout}>
-                    Logout
+                    로그아웃
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

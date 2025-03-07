@@ -148,14 +148,14 @@ export default function SalonDetailPage() {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>미용실 삭제</AlertDialogTitle>
-                <AlertDialogDescription>
+                <AlertDialogDescription >
                   정말로 &apos;{salon.name}&apos; 미용실을 삭제하시겠습니까?
                   이 작업은 되돌릴 수 없습니다.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>취소</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white">
                   삭제
                 </AlertDialogAction>
               </AlertDialogFooter>

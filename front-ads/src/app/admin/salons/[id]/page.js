@@ -137,7 +137,7 @@ export default function SalonDetailPage() {
         </div>
         
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => router.push(`/admin/salons/${salonId}/edit`)}>
+          <Button variant="outline">
             <Edit2 className="mr-2 h-4 w-4" />
             수정
           </Button>

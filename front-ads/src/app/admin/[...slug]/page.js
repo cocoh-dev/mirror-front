@@ -1,6 +1,7 @@
 'use client';
 
 import { use } from 'react';
+import Link from 'next/link';
 
 export default function CatchAllAdminPage({ params }) {
   // React.use()를 사용하여 params 객체 언래핑
@@ -19,15 +20,15 @@ export default function CatchAllAdminPage({ params }) {
       <div className="flex flex-col items-center justify-center min-h-[80vh]">
         <h2 className="text-2xl font-semibold mb-4">페이지 준비 중</h2>
         <p className="mb-8 text-center max-w-md text-muted-foreground">
-          요청하신 '{slug.join('/')}' 페이지는 현재 개발 중입니다. 
+          요청하신 &apos;{slug.join('/')}&apos; 페이지는 현재 개발 중입니다.
           빠른 시일 내에 서비스를 제공해 드리겠습니다.
         </p>
-        <a 
+        <Link 
           href="/admin"
           className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
         >
           관리자 대시보드로 돌아가기
-        </a>
+        </Link>
       </div>
     );
   }

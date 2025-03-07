@@ -86,10 +86,21 @@ export const AdMediaTab = ({
                 <div key={media.id} className="relative group overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md">
                   <div className="aspect-video bg-gray-100 relative overflow-hidden">
                     {media.type === 'image' ? (
+                      // <img
+                      //   src={`${process.env.NEXT_PUBLIC_API_URL}/api/proxy-image?url=${encodeURIComponent(media.url)}`}
+                      //   // src={media.url}
+                      //   alt={`광고 미디어 ${index + 1}`}
+                      //   className="w-full h-full object-cover"
+                      // />
                       <img
-                        src={media.url}
+                        src={`${process.env.NEXT_PUBLIC_API_URL}/api/proxy-image?url=${encodeURIComponent(media.url)}`}
                         alt={`광고 미디어 ${index + 1}`}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.error('이미지 로딩 실패:', media.url);
+                          console.log(e);
+                          // e.target.src = '/fallback-image.png'; // 대체 이미지 설정
+                        }}
                       />
                     ) : (
                       <video

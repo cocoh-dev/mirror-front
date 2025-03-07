@@ -30,7 +30,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 
-export const AdCard = ({ ad }) => {
+export const AdCard = ({ ad, onView }) => {
   // 이미지/비디오 오류 상태 관리
   const [mediaError, setMediaError] = useState(false);
   
@@ -82,8 +82,10 @@ export const AdCard = ({ ad }) => {
       );
     } else {
       return (
+        
         <img
-          src={url}
+          src={`${process.env.NEXT_PUBLIC_API_URL}/api/proxy-image?url=${encodeURIComponent(url)}`}
+          // src={url}
           alt={ad.title}
           className="w-full aspect-video object-cover"
           onError={() => setMediaError(true)}
@@ -93,7 +95,14 @@ export const AdCard = ({ ad }) => {
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card
+      className="overflow-hidden cursor-pointer transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]"
+      onClick={(e) => {
+        // 이벤트 버블링 방지 - SalonActions의 클릭이 Card 클릭으로 전파되지 않도록
+        if (e.target.closest('.salon-actions')) return;
+        onView(ad);
+      }}
+      >
       <div className="overflow-hidden">
         {renderMedia()}
       </div>
@@ -140,7 +149,7 @@ export const AdCard = ({ ad }) => {
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0 flex justify-end">
-        <DropdownMenu>
+        <DropdownMenu className="ads-actions">
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <MoreHorizontal className="h-4 w-4" />

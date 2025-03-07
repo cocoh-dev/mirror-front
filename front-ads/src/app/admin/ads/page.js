@@ -190,7 +190,7 @@ export default function AdsPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredAds.map((ad) => (
-                    <AdCard key={ad.id} ad={ad} />
+                    <AdCard key={ad.id} ad={ad} onView={handleViewAd} />
                   ))}
                 </div>
               )

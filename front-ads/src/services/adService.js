@@ -16,6 +16,7 @@ export const getAds = async (params = {}) => {
 export const getAdById = async (id) => {
   try {
     const response = await api.get(`/api/ads/${id}`);
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('광고 상세 조회 실패:', error);
@@ -32,6 +33,19 @@ export const createAd = async (adData) => {
     console.error('광고 생성 실패:', error);
     throw error;
   }
+};
+
+export const updateAdMedia = async (id, mediaData) => {
+  try {
+    const response = await api.post(`/api/ads/${id}/media`, mediaData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('광고 미디어 업로드 실패:', error);
+    throw error;
+  }
+
 };
 
 // 광고 수정

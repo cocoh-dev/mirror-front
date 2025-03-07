@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   Search,
@@ -30,6 +31,7 @@ import { getAds } from '@/services/adService';
 import { AdCard, AdTable } from '@/components/admin/ads';
 
 export default function AdsPage() {
+  const router = useRouter();
   // 상태 관리
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('list');
@@ -45,7 +47,7 @@ export default function AdsPage() {
     try {
       setLoading(true);
       const response = await getAds();
-      console.log(response);
+      // console.log(response);
       setAds(response.ads || []);
       setError(null);
     } catch (error) {
@@ -76,13 +78,16 @@ export default function AdsPage() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
-        ad.title.toLowerCase().includes(query) ||
-        ad.company.toLowerCase().includes(query)
+        ad.title.toLowerCase().includes(query)
       );
     }
     
     return true;
   });
+
+  const handleViewAd = (ad) => {
+    router.push(`/admin/ads/${ad.id}`);
+  };
 
   // 검색 핸들러
   const handleSearch = (e) => {
@@ -181,7 +186,7 @@ export default function AdsPage() {
           <TabsContent value={currentTab} className="space-y-4">
             {filteredAds.length > 0 ? (
               viewMode === 'list' ? (
-                <AdTable ads={filteredAds} />
+                <AdTable ads={filteredAds} onView={handleViewAd}/>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredAds.map((ad) => (

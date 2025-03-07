@@ -30,7 +30,7 @@ import {
     DropdownMenuTrigger,
   } from '@/components/ui/dropdown-menu';
   
-  export const AdTable = ({ ads }) => {
+  export const AdTable = ({ ads, onView }) => {
     return (
       <Card>
         <CardContent className="p-0">
@@ -50,7 +50,15 @@ import {
             </TableHeader>
             <TableBody>
               {ads.map((ad) => (
-                <TableRow key={ad.id}>
+                <TableRow key={ad.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={(e) => {
+                    // 이벤트 버블링 방지 - adsActions의 클릭이 행 클릭으로 전파되지 않도록
+                    if (e.target.closest('.ads-actions')) return;
+                    onView(ad);
+                  }}
+                >
+
                   <TableCell className="font-medium">{ad.id}</TableCell>
                   <TableCell>
                     <div className="font-medium">{ad.title}</div>
@@ -87,7 +95,7 @@ import {
                       <span>{ad.clicks?.toLocaleString()} / {ad.impressions?.toLocaleString()}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right ads-actions">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">

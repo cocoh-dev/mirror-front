@@ -12,6 +12,7 @@ import { SalonGrid } from "@/components/admin/salons/SalonGrid";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Loader2 } from "lucide-react";
+import { ErrorDisplay } from "@/components/ui/error-display";
 
 const MySalonsList = () => {
   const [salons, setSalons] = useState([]);
@@ -107,9 +108,12 @@ const MySalonsList = () => {
   
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center text-red-600">{error}</div>
-      </div>
+      <ErrorDisplay
+        message={error || '데이터를 불러오는 중 오류가 발생했습니다.'}
+        retryFn={() => window.location.reload()}
+        backPath="/dashboard"
+        backLabel="대시보드로 이동"
+      />
     );
   }
 

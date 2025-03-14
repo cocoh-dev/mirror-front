@@ -101,6 +101,7 @@ const AdminSidebar = () => {
               <MenuItem label="스폰서" href="/admin/companies" />
               <MenuItem label="미용실" href="/admin/salons" />
               <MenuItem label="구독" href="/admin/subscription" />
+              <MenuItem label="H.set" href="/admin/h-set" />
               <MenuItem label="게시판" href="/admin/boards" />
               <MenuItem label="페이지" href="/admin/pages" />
               <MenuItem label="문서" href="/admin/documents" />

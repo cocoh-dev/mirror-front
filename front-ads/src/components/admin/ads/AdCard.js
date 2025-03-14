@@ -1,6 +1,7 @@
 // /components/admin/ads/AdCard.jsx
 import { useState } from 'react';
 import Image from 'next/image';
+import { ImageIcon } from 'lucide-react';
 import { 
   Card,
   CardHeader,

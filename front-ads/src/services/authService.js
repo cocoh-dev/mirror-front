@@ -39,7 +39,8 @@ const clearTokens = () => {
 };
 
 // URL에서 토큰 추출 (OAuth 콜백용)
-export const extractTokensFromUrl = () => {
+// extractTokensFromUrl 함수 수정
+export const extractTokensFromUrl = async () => {
   if (typeof window === 'undefined') return null;
   
   const urlParams = new URLSearchParams(window.location.search);
@@ -47,12 +48,26 @@ export const extractTokensFromUrl = () => {
   const refreshToken = urlParams.get('refreshToken');
   
   if (accessToken && refreshToken) {
+    console.log('OAuth 리다이렉트 - 토큰 발견:', { 
+      accessTokenLength: accessToken.length, 
+      refreshTokenLength: refreshToken.length 
+    });
+    
     // 토큰 저장
     setTokens(accessToken, refreshToken);
     
     // URL에서 토큰 파라미터 제거 (보안)
     const cleanUrl = window.location.pathname;
     window.history.replaceState({}, document.title, cleanUrl);
+    
+    // 여기서 즉시 사용자 정보를 로드하는 것이 중요합니다
+    try {
+      const user = await checkAuth();
+      console.log('OAuth 로그인 성공 - 사용자 정보 로드됨:', user ? '성공' : '실패');
+      return { accessToken, refreshToken, user };
+    } catch (err) {
+      console.error('OAuth 로그인 후 사용자 정보 로드 실패:', err);
+    }
     
     return { accessToken, refreshToken };
   }
@@ -187,6 +202,7 @@ const isCacheValid = () => {
 };
 
 // 사용자 정보 확인 함수 (캐싱 적용)
+// checkAuth 함수에 디버깅 로그 추가
 export const checkAuth = async () => {
   // 이미 진행 중인 요청이 있으면 그 결과를 기다림
   if (pendingUserPromise) {
@@ -199,16 +215,25 @@ export const checkAuth = async () => {
   }
   
   // 액세스 토큰이 없으면 인증되지 않은 상태로 처리
-  if (!getAccessToken()) {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    console.log('액세스 토큰이 없음, 인증되지 않은 상태로 처리');
     userCache = null;
     cacheTimestamp = null;
     notifySubscribers(null);
     return null;
   }
   
+  console.log('사용자 정보 요청 시작, 토큰 있음');
+  
   // 새 요청 실행
-  pendingUserPromise = api.get('/auth/me')
+  pendingUserPromise = api.get('/auth/me', {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  })
     .then(response => {
+      console.log('사용자 정보 요청 성공:', response.data);
       userCache = response.data.user;
       cacheTimestamp = Date.now();
       pendingUserPromise = null;
@@ -216,17 +241,19 @@ export const checkAuth = async () => {
       return userCache;
     })
     .catch(async error => {
+      console.error('사용자 정보 요청 실패:', error.response || error);
+      
       // 401 오류면 토큰 갱신 시도
       if (error.response && error.response.status === 401) {
+        console.log('401 오류 발생, 토큰 갱신 시도');
         const refreshed = await refreshToken();
         if (refreshed) {
-          // 토큰 갱신 성공 시 다시 요청
+          console.log('토큰 갱신 성공, 사용자 정보 다시 요청');
           pendingUserPromise = null;
           return checkAuth();
         }
       }
       
-      console.error('Error checking auth:', error);
       pendingUserPromise = null;
       userCache = null;
       cacheTimestamp = null;

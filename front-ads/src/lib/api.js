@@ -37,9 +37,22 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = getAccessToken();
+    const originalUrl = config.url;
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      // Vercel이나 ngrok에서 문제 디버깅을 위한 로그 추가
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`API 요청: ${config.method.toUpperCase()} ${originalUrl}`, {
+          baseURL: config.baseURL,
+          hasToken: !!token,
+          tokenLength: token ? token.length : 0
+        });
+      }
+    } else {
+      console.warn(`토큰 없이 API 요청: ${config.method.toUpperCase()} ${originalUrl}`);
     }
+    
     return config;
   },
   (error) => Promise.reject(error)
@@ -50,6 +63,13 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    
+    console.log('API 오류 발생:', {
+      status: error.response?.status,
+      url: originalRequest.url,
+      method: originalRequest.method,
+      hasAuthHeader: !!originalRequest.headers.Authorization
+    });
     
     // 토큰 만료 오류이고, 재시도하지 않은 요청인 경우
     if (error.response && error.response.status === 401 && !originalRequest._retry) {

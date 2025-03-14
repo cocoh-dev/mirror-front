@@ -48,10 +48,10 @@ export const extractTokensFromUrl = async () => {
   const refreshToken = urlParams.get('refreshToken');
   
   if (accessToken && refreshToken) {
-    console.log('OAuth 리다이렉트 - 토큰 발견:', { 
-      accessTokenLength: accessToken.length, 
-      refreshTokenLength: refreshToken.length 
-    });
+    // console.log('OAuth 리다이렉트 - 토큰 발견:', { 
+    //   accessTokenLength: accessToken.length, 
+    //   refreshTokenLength: refreshToken.length 
+    // });
     
     // 토큰 저장
     setTokens(accessToken, refreshToken);
@@ -63,10 +63,11 @@ export const extractTokensFromUrl = async () => {
     // 여기서 즉시 사용자 정보를 로드하는 것이 중요합니다
     try {
       const user = await checkAuth();
-      console.log('OAuth 로그인 성공 - 사용자 정보 로드됨:', user ? '성공' : '실패');
+      // console.log('OAuth 로그인 성공 - 사용자 정보 로드됨:', user ? '성공' : '실패');
       return { accessToken, refreshToken, user };
     } catch (err) {
-      console.error('OAuth 로그인 후 사용자 정보 로드 실패:', err);
+      // console.error('OAuth 로그인 후 사용자 정보 로드 실패:', err);
+      throw err;
     }
     
     return { accessToken, refreshToken };
@@ -217,30 +218,23 @@ export const checkAuth = async () => {
   // 액세스 토큰이 없으면 인증되지 않은 상태로 처리
   const accessToken = getAccessToken();
   if (!accessToken) {
-    console.log('액세스 토큰이 없음, 인증되지 않은 상태로 처리');
+    // console.log('액세스 토큰이 없음, 인증되지 않은 상태로 처리');
     userCache = null;
     cacheTimestamp = null;
     notifySubscribers(null);
     return null;
   }
-  console.log('API URL:', process.env.NEXT_PUBLIC_API_URL);
-
-  console.log('사용자 정보 요청 시작, 토큰 있음');
   
-  console.log('토큰으로 인증 요청:', accessToken.substring(0, 10) + '...');
+  // console.log('사용자 정보 요청 시작, 토큰 있음');
   
+  // 새 요청 실행
   pendingUserPromise = api.get('/auth/me', {
     headers: {
       'Authorization': `Bearer ${accessToken}`
     }
   })
     .then(response => {
-      console.log('응답 타입:', typeof response.data);
-      console.log('응답 내용:', 
-        typeof response.data === 'string' 
-          ? response.data.substring(0, 100) + '...' 
-          : JSON.stringify(response.data).substring(0, 100) + '...'
-      );
+      // console.log('사용자 정보 요청 성공:', response.data);
       userCache = response.data.user;
       cacheTimestamp = Date.now();
       pendingUserPromise = null;
@@ -252,10 +246,10 @@ export const checkAuth = async () => {
       
       // 401 오류면 토큰 갱신 시도
       if (error.response && error.response.status === 401) {
-        console.log('401 오류 발생, 토큰 갱신 시도');
+        // console.log('401 오류 발생, 토큰 갱신 시도');
         const refreshed = await refreshToken();
         if (refreshed) {
-          console.log('토큰 갱신 성공, 사용자 정보 다시 요청');
+          // console.log('토큰 갱신 성공, 사용자 정보 다시 요청');
           pendingUserPromise = null;
           return checkAuth();
         }

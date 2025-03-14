@@ -135,7 +135,6 @@ export default function SalonsPage() {
 
   // 데이터 추출
   const salons = data?.data || [];
-  console.log(salons);
   const pagination = data?.pagination || { totalItems: 0, totalPages: 1 };
 
   return (

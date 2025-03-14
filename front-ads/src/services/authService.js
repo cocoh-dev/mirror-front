@@ -9,6 +9,57 @@ let cacheTimestamp = null;
 // 새로운 상태 구독 시스템
 const subscribers = new Set();
 
+// 토큰 관리 함수
+const setTokens = (accessToken, refreshToken) => {
+  if (typeof window !== 'undefined') {
+    if (accessToken) localStorage.setItem('accessToken', accessToken);
+    if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+  }
+};
+
+const getAccessToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('accessToken');
+  }
+  return null;
+};
+
+const getRefreshToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('refreshToken');
+  }
+  return null;
+};
+
+const clearTokens = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }
+};
+
+// URL에서 토큰 추출 (OAuth 콜백용)
+export const extractTokensFromUrl = () => {
+  if (typeof window === 'undefined') return null;
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const accessToken = urlParams.get('accessToken');
+  const refreshToken = urlParams.get('refreshToken');
+  
+  if (accessToken && refreshToken) {
+    // 토큰 저장
+    setTokens(accessToken, refreshToken);
+    
+    // URL에서 토큰 파라미터 제거 (보안)
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+    
+    return { accessToken, refreshToken };
+  }
+  
+  return null;
+};
+
 // 사용자 정보를 모든 구독자에게 알림
 const notifySubscribers = (user) => {
   subscribers.forEach(callback => callback(user));
@@ -36,6 +87,12 @@ export const subscribeToAuthChanges = (callback) => {
 export const login = async ({ email, password }) => {
   try {
     const response = await api.post('/auth/login', { email, password });
+    
+    // 받은 토큰 저장
+    if (response.data.accessToken && response.data.refreshToken) {
+      setTokens(response.data.accessToken, response.data.refreshToken);
+    }
+    
     // 로그인 성공 시 사용자 정보 갱신
     userCache = response.data.user || await checkAuth();
     cacheTimestamp = Date.now();
@@ -47,14 +104,13 @@ export const login = async ({ email, password }) => {
 };
 
 export const signUp = (userData) => {
-  return handleApiCall(() => api.post('/auth/signup', userData));
+  return api.post('/auth/signup', userData);
 };
 
 // 소셜 로그인 URL 가져오기
 export const socialLogin = (provider, returnUrl) => {
   const redirectUrl = window.location.origin;
   // state 파라미터에 redirect_url을 인코딩하여 포함
-  // const state = encodeURIComponent(JSON.stringify({ redirectUrl }));
   const encodedState = encodeURIComponent(JSON.stringify({
     redirectUrl: window.location.origin,
     returnUrl: returnUrl // 로그인 후 리다이렉트할 경로
@@ -79,18 +135,41 @@ export const register = async (userData) => {
   }
 };
 
+// 토큰 갱신 함수
+export const refreshToken = async () => {
+  try {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) throw new Error('No refresh token available');
+    
+    const response = await api.post('/auth/refresh-token', { refreshToken });
+    if (response.data.accessToken && response.data.refreshToken) {
+      setTokens(response.data.accessToken, response.data.refreshToken);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Token refresh failed:', error);
+    clearTokens();
+    notifySubscribers(null);
+    return false;
+  }
+};
+
 // Logout function
 export const logout = async () => {
   try {
-    // 로그아웃 시 캐시 초기화
-    invalidateCache();
-    // 백엔드에 로그아웃 요청
-    await api.get('/auth/logout');
-    notifySubscribers(null);
-    window.location.href = '/auth/login';
+    const accessToken = getAccessToken();
+    if (accessToken) {
+      // Authorization 헤더에 토큰 추가하여 요청
+      await api.post('/auth/logout');
+    }
   } catch (error) {
     console.error('Logout error:', error);
-    // 오류가 있어도 로그인 페이지로 리다이렉트
+  } finally {
+    // 토큰 삭제 및 캐시 초기화
+    clearTokens();
+    invalidateCache();
+    notifySubscribers(null);
     window.location.href = '/auth/login';
   }
 };
@@ -119,6 +198,14 @@ export const checkAuth = async () => {
     return userCache;
   }
   
+  // 액세스 토큰이 없으면 인증되지 않은 상태로 처리
+  if (!getAccessToken()) {
+    userCache = null;
+    cacheTimestamp = null;
+    notifySubscribers(null);
+    return null;
+  }
+  
   // 새 요청 실행
   pendingUserPromise = api.get('/auth/me')
     .then(response => {
@@ -128,7 +215,17 @@ export const checkAuth = async () => {
       notifySubscribers(userCache);
       return userCache;
     })
-    .catch(error => {
+    .catch(async error => {
+      // 401 오류면 토큰 갱신 시도
+      if (error.response && error.response.status === 401) {
+        const refreshed = await refreshToken();
+        if (refreshed) {
+          // 토큰 갱신 성공 시 다시 요청
+          pendingUserPromise = null;
+          return checkAuth();
+        }
+      }
+      
       console.error('Error checking auth:', error);
       pendingUserPromise = null;
       userCache = null;
@@ -148,7 +245,7 @@ export const isAuthenticated = async () => {
 
 // 동기식 인증 확인 (캐시된 값만 확인)
 export const isAuthenticatedSync = () => {
-  return !!userCache;
+  return !!userCache && !!getAccessToken();
 };
 
 // 현재 사용자 정보 가져오기
@@ -186,6 +283,9 @@ export const resetPassword = async (token, newPassword) => {
 
 // 페이지 로드 시 자동으로 사용자 정보 확인 설정
 if (typeof window !== 'undefined') {
+  // URL에서 토큰 파라미터 확인 (OAuth 콜백)
+  extractTokensFromUrl();
+  
   // 페이지 로드 시 한 번 실행
   checkAuth();
   

@@ -67,7 +67,6 @@ export const extractTokensFromUrl = async () => {
       return { accessToken, refreshToken, user };
     } catch (err) {
       // console.error('OAuth 로그인 후 사용자 정보 로드 실패:', err);
-      throw err;
     }
     
     return { accessToken, refreshToken };

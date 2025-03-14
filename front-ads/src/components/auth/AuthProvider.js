@@ -5,8 +5,7 @@ import {
   getCurrentUserSync, 
   subscribeToAuthChanges,
   logout as authLogout,
-  login as authLogin,
-  extractTokensFromUrl
+  login as authLogin
 } from '@/services/authService';
 
 // 컨텍스트 생성
@@ -18,11 +17,6 @@ export function AuthProvider({ children }) {
   const [initialized, setInitialized] = useState(false);
   
   useEffect(() => {
-    // URL에서 토큰 추출 시도 (OAuth 콜백)
-    const tokens = extractTokensFromUrl();
-    if (tokens) {
-      console.log('토큰이 URL에서 추출되었습니다');
-    }
     
     // 첫 로드 시 캐시된 사용자 정보가 있으면 사용
     const cachedUser = getCurrentUserSync();

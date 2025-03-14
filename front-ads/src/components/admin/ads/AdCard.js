@@ -1,5 +1,6 @@
 // /components/admin/ads/AdCard.jsx
 import { useState } from 'react';
+import Image from 'next/image';
 import { 
   Card,
   CardHeader,
@@ -27,7 +28,6 @@ import {
   Trash2,
   Pause,
   Play,
-  Image as ImageIcon
 } from 'lucide-react';
 
 export const AdCard = ({ ad, onView }) => {
@@ -83,10 +83,11 @@ export const AdCard = ({ ad, onView }) => {
     } else {
       return (
         
-        <img
+        <Image
           src={`${process.env.NEXT_PUBLIC_API_URL}/api/proxy-image?url=${encodeURIComponent(url)}`}
-          // src={url}
           alt={ad.title}
+          width={1200} // 적절한 크기로 조정하세요
+          height={675} // 16:9 비율 유지(aspect-video)
           className="w-full aspect-video object-cover"
           onError={() => setMediaError(true)}
         />

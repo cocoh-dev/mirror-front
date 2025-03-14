@@ -8,33 +8,91 @@ export const setRouter = (nextRouter) => {
   router = nextRouter;
 };
 
+// 토큰 관련 헬퍼 함수
+const getAccessToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('accessToken');
+  }
+  return null;
+};
+
+const getRefreshToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('refreshToken');
+  }
+  return null;
+};
+
 // Create an axios instance with the base URL of your backend
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
   headers: {
     'Content-Type': 'application/json',
   },
-  // Important for cookie-based auth
-  withCredentials: true,
+  // withCredentials는 더 이상 필요없음 (쿠키를 사용하지 않으므로)
+  withCredentials: false,
 });
+
+// 요청 인터셉터 - Authorization 헤더에 Bearer 토큰 추가
+api.interceptors.request.use(
+  (config) => {
+    const token = getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // 응답 인터셉터 추가
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // 401 에러 감지
-    if (error.response && error.response.status === 401) {
-      // 클라이언트 측에서만 실행 (브라우저 환경)
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // 토큰 만료 오류이고, 재시도하지 않은 요청인 경우
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      // 리프레시 토큰이 있는 경우에만 토큰 갱신 시도
+      const refreshToken = getRefreshToken();
+      if (refreshToken) {
+        try {
+          // 토큰 갱신 시도 - 원래 요청의 인터셉터를 피하기 위해 별도 인스턴스 사용
+          const tokenResponse = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/refresh-token`,
+            { refreshToken }
+          );
+          
+          if (tokenResponse.data.accessToken) {
+            // 새 토큰 저장
+            localStorage.setItem('accessToken', tokenResponse.data.accessToken);
+            localStorage.setItem('refreshToken', tokenResponse.data.refreshToken);
+            
+            // 원래 요청에 새 토큰 적용하고 재시도
+            originalRequest.headers.Authorization = `Bearer ${tokenResponse.data.accessToken}`;
+            originalRequest._retry = true;
+            return api(originalRequest);
+          }
+        } catch (refreshError) {
+          console.error('토큰 갱신 실패:', refreshError);
+        }
+      }
+      
+      // 토큰 갱신 실패 시 로그인 페이지로 리다이렉트
       if (typeof window !== 'undefined') {
-        // 라우터가 설정되어 있으면 사용, 아니면 window.location 사용
         const returnUrl = encodeURIComponent(window.location.pathname);
         if (router) {
           router.push(`/auth/login?returnUrl=${returnUrl}`);
         } else {
           window.location.href = `/auth/login?returnUrl=${returnUrl}`;
         }
+        
+        // 토큰 삭제
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
       }
     }
+    
     return Promise.reject(error);
   }
 );

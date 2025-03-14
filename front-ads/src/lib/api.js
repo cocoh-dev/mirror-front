@@ -25,12 +25,12 @@ const getRefreshToken = () => {
 
 // Create an axios instance with the base URL of your backend
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api', // 또는 백엔드 서버 전체 URL
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-  },
-  // withCredentials는 더 이상 필요없음 (쿠키를 사용하지 않으므로)
-  withCredentials: false,
+    'Accept': 'application/json', // 명시적으로 JSON 응답 요청
+  }
 });
 
 // 요청 인터셉터 - Authorization 헤더에 Bearer 토큰 추가
@@ -42,17 +42,17 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
       // Vercel이나 ngrok에서 문제 디버깅을 위한 로그 추가
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`API 요청: ${config.method.toUpperCase()} ${originalUrl}`, {
-          baseURL: config.baseURL,
-          hasToken: !!token,
-          tokenLength: token ? token.length : 0
-        });
-      }
+      // if (process.env.NODE_ENV !== 'production') {
+      //   console.log(`API 요청: ${config.method.toUpperCase()} ${originalUrl}`, {
+      //     baseURL: config.baseURL,
+      //     hasToken: !!token,
+      //     tokenLength: token ? token.length : 0
+      //   });
+      // }
     } else {
       console.warn(`토큰 없이 API 요청: ${config.method.toUpperCase()} ${originalUrl}`);
     }
-    
+    config.headers['ngrok-skip-browser-warning'] = 'true';
     return config;
   },
   (error) => Promise.reject(error)
@@ -64,12 +64,12 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
-    console.log('API 오류 발생:', {
-      status: error.response?.status,
-      url: originalRequest.url,
-      method: originalRequest.method,
-      hasAuthHeader: !!originalRequest.headers.Authorization
-    });
+    // console.log('API 오류 발생:', {
+    //   status: error.response?.status,
+    //   url: originalRequest.url,
+    //   method: originalRequest.method,
+    //   hasAuthHeader: !!originalRequest.headers.Authorization
+    // });
     
     // 토큰 만료 오류이고, 재시도하지 않은 요청인 경우
     if (error.response && error.response.status === 401 && !originalRequest._retry) {

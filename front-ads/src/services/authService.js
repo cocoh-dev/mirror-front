@@ -223,7 +223,8 @@ export const checkAuth = async () => {
     notifySubscribers(null);
     return null;
   }
-  
+  console.log('API URL:', process.env.NEXT_PUBLIC_API_URL);
+
   console.log('사용자 정보 요청 시작, 토큰 있음');
   
   console.log('토큰으로 인증 요청:', accessToken.substring(0, 10) + '...');

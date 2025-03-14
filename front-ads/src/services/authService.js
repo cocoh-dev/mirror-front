@@ -226,14 +226,20 @@ export const checkAuth = async () => {
   
   console.log('사용자 정보 요청 시작, 토큰 있음');
   
-  // 새 요청 실행
+  console.log('토큰으로 인증 요청:', accessToken.substring(0, 10) + '...');
+  
   pendingUserPromise = api.get('/auth/me', {
     headers: {
       'Authorization': `Bearer ${accessToken}`
     }
   })
     .then(response => {
-      console.log('사용자 정보 요청 성공:', response.data);
+      console.log('응답 타입:', typeof response.data);
+      console.log('응답 내용:', 
+        typeof response.data === 'string' 
+          ? response.data.substring(0, 100) + '...' 
+          : JSON.stringify(response.data).substring(0, 100) + '...'
+      );
       userCache = response.data.user;
       cacheTimestamp = Date.now();
       pendingUserPromise = null;

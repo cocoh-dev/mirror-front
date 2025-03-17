@@ -84,13 +84,24 @@ export const AdCard = ({ ad, onView }) => {
     } else {
       return (
         
-        <Image
+        // <Image
+        //   src={`${process.env.NEXT_PUBLIC_API_URL}/api/proxy-image?url=${encodeURIComponent(url)}`}
+        //   alt={ad.title}
+        //   width={1200} // 적절한 크기로 조정하세요
+        //   height={675} // 16:9 비율 유지(aspect-video)
+        //   className="w-full aspect-video object-cover"
+        //   onError={() => setMediaError(true)}
+        // />
+
+        <img
           src={`${process.env.NEXT_PUBLIC_API_URL}/api/proxy-image?url=${encodeURIComponent(url)}`}
           alt={ad.title}
-          width={1200} // 적절한 크기로 조정하세요
-          height={675} // 16:9 비율 유지(aspect-video)
-          className="w-full aspect-video object-cover"
-          onError={() => setMediaError(true)}
+          className="w-full h-50 object-cover"
+          onError={(e) => {
+            console.error('이미지 로딩 실패:', media.url);
+            console.log(e);
+            // e.target.src = '/fallback-image.png'; // 대체 이미지 설정
+          }}
         />
       );
     }
@@ -112,7 +123,6 @@ export const AdCard = ({ ad, onView }) => {
         <div className="flex justify-between items-start">
           <div>
             <CardTitle className="text-lg">{ad.title}</CardTitle>
-            <div className="text-sm text-muted-foreground">{ad.company}</div>
           </div>
           <StatusBadge status={ad.status} />
         </div>
@@ -136,19 +146,6 @@ export const AdCard = ({ ad, onView }) => {
           </div>
         </div>
         
-        <div className="flex items-center text-sm text-muted-foreground mt-2">
-          <Eye className="mr-1 h-3 w-3" />
-          <span>노출: {ad.impressions?.toLocaleString()}</span>
-        </div>
-        
-        <div className="flex items-center text-sm text-muted-foreground mt-1">
-          <span className="ml-4">클릭: {ad.clicks?.toLocaleString()}</span>
-          {ad.impressions > 0 && (
-            <span className="ml-2">
-              ({((ad.clicks / ad.impressions) * 100).toFixed(2)}%)
-            </span>
-          )}
-        </div>
       </CardContent>
       <CardFooter className="p-4 pt-0 flex justify-end">
         <DropdownMenu className="ads-actions">

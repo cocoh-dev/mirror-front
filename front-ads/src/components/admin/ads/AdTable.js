@@ -39,12 +39,10 @@ import {
               <TableRow>
                 <TableHead>ID</TableHead>
                 <TableHead>제목</TableHead>
-                <TableHead>업체</TableHead>
                 <TableHead>상태</TableHead>
                 <TableHead>기간</TableHead>
                 <TableHead>예산</TableHead>
                 <TableHead>사용량</TableHead>
-                <TableHead>클릭수</TableHead>
                 <TableHead className="text-right">관리</TableHead>
               </TableRow>
             </TableHeader>
@@ -64,7 +62,6 @@ import {
                     <div className="font-medium">{ad.title}</div>
                     <div className="text-sm text-muted-foreground">{ad.type}</div>
                   </TableCell>
-                  <TableCell>{ad.company}</TableCell>
                   <TableCell>
                     <StatusBadge status={ad.status} />
                   </TableCell>
@@ -87,12 +84,6 @@ import {
                         <span>₩{ad.spent?.toLocaleString()}</span>
                         <span>{Math.round((ad.spent / ad.budget) * 100)}%</span>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Eye className="mr-1 h-3 w-3 text-muted-foreground" />
-                      <span>{ad.clicks?.toLocaleString()} / {ad.impressions?.toLocaleString()}</span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right ads-actions">

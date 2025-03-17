@@ -80,3 +80,121 @@ export const GridSkeleton = () => {
     </div>
   );
 };
+
+export const SalonDetailSkeleton = () => {
+  return (
+    <div className="container mx-auto p-4">
+      <div className="space-y-6">
+        {/* 헤더 스켈레톤 */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-10 w-10 rounded-md" />
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-6 w-24" />
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-24" />
+          </div>
+        </div>
+        
+        {/* 탭 스켈레톤 */}
+        <div>
+          <div className="flex space-x-1 rounded-lg bg-muted p-1 mb-4">
+            {Array(5).fill(null).map((_, i) => (
+              <Skeleton key={i} className="h-9 w-24 rounded" />
+            ))}
+          </div>
+          
+          {/* 기본 정보 탭 스켈레톤 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* 기본 정보 카드 */}
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <Skeleton className="h-6 w-32 mb-2" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {Array(6).fill(null).map((_, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <Skeleton className="h-5 w-5 rounded-full" />
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-5 w-24" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+            
+            {/* 상태 및 통계 카드 영역 */}
+            <div className="space-y-4">
+              {/* 상태 카드 */}
+              <Card>
+                <CardHeader>
+                  <Skeleton className="h-6 w-32 mb-2" />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-6 w-24" />
+                      <Skeleton className="h-6 w-24" />
+                    </div>
+                  </div>
+                  
+                  <Skeleton className="h-1 w-full" />
+                  
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <div className="flex flex-wrap gap-2">
+                      <Skeleton className="h-9 w-20" />
+                      <Skeleton className="h-9 w-20" />
+                      <Skeleton className="h-9 w-20" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* 통계 카드 */}
+              <Card>
+                <CardHeader>
+                  <Skeleton className="h-6 w-24 mb-2" />
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {Array(3).fill(null).map((_, i) => (
+                      <div key={i}>
+                        <div className="flex items-center justify-between mb-1">
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-4 w-16" />
+                        </div>
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          
+          {/* 추가 정보 */}
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-40 mb-2" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};

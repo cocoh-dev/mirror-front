@@ -48,6 +48,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { formatPhoneNumber, cleanBusinessNumber, cleanPhoneNumber, formatBusinessNumber } from '@/utils/numberFormat';
+import { SalonDetailSkeleton } from '@/components/admin/salons/SkeletonLoaders';
 
 export default function SalonDetailPage() {
   const params = useParams();
@@ -185,7 +186,7 @@ export default function SalonDetailPage() {
   // 로딩 상태
   if (isLoading) {
     return (
-      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      <SalonDetailSkeleton />
     );
   }
   

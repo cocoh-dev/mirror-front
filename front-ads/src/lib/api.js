@@ -79,7 +79,7 @@ api.interceptors.response.use(
         try {
           // 토큰 갱신 시도 - 원래 요청의 인터셉터를 피하기 위해 별도 인스턴스 사용
           const tokenResponse = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/refresh-token`,
+            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3100/api'}/auth/refresh-token`,
             { refreshToken }
           );
           

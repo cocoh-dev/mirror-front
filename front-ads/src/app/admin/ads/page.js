@@ -108,7 +108,7 @@ export default function AdsPage() {
             <Download className="h-4 w-4" />
             <span>내보내기</span>
           </Button>
-          <Button>
+          <Button onClick={() => router.push('/admin/ads/add')} className="h-9 gap-1">
             <Plus className="mr-2 h-4 w-4" />
             광고 추가
           </Button>

@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Loader2 } from "lucide-react";
 import { ErrorDisplay } from "@/components/ui/error-display";
+import { GridSkeleton } from "@/components/admin/salons/SkeletonLoaders";
+import { TableSkeleton } from "@/components/admin/members/TableSkeleton";
 
 const MySalonsList = () => {
   const [salons, setSalons] = useState([]);
@@ -104,8 +106,6 @@ const MySalonsList = () => {
     }
   };
 
-  if (loading && salons.length === 0) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
-  
   if (error) {
     return (
       <ErrorDisplay
@@ -134,53 +134,58 @@ const MySalonsList = () => {
         </ToggleGroup>
       </div>
 
-      {viewMode === 'grid' ? (
-        <SalonGrid 
-          salons={salons}
-          onView={handleViewSalon}
-          onEdit={handleEditSalon}
-          onDelete={handleDeleteSalon}
-        />
+    {loading ? (
+        viewMode === 'grid' ? <GridSkeleton /> : <TableSkeleton />
       ) : (
-        <SalonTable 
-          salons={salons}
-          onView={handleViewSalon}
-          onEdit={handleEditSalon}
-          onDelete={handleDeleteSalon}
-        />
+        <>
+          {viewMode === 'grid' ? (
+            <SalonGrid 
+              salons={salons}
+              onView={handleViewSalon}
+              onEdit={handleEditSalon}
+              onDelete={handleDeleteSalon}
+            />
+          ) : (
+            <SalonTable 
+              salons={salons}
+              onView={handleViewSalon}
+              onEdit={handleEditSalon}
+              onDelete={handleDeleteSalon}
+            />
+          )}
+
+          {/* 페이지네이션 컴포넌트 */}
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              총 {pagination.totalItems}개의 미용실 중 {(currentPage - 1) * itemsPerPage + 1}-
+              {Math.min(currentPage * itemsPerPage, pagination.totalItems)}개 표시
+            </p>
+            
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1 || isLoading}
+              >
+                이전
+              </Button>
+              <span className="text-sm">
+                {currentPage} / {pagination.totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, pagination.totalPages))}
+                disabled={currentPage >= pagination.totalPages || isLoading}
+              >
+                다음
+              </Button>
+            </div>
+          </div>
+        </>
       )}
 
-      {/* 페이지네이션 컴포넌트 */}
-      {salons.length > 0 && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            총 {pagination.totalItems}개의 미용실 중 {(currentPage - 1) * itemsPerPage + 1}-
-            {Math.min(currentPage * itemsPerPage, pagination.totalItems)}개 표시
-          </p>
-          
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1 || loading}
-            >
-              이전
-            </Button>
-            <span className="text-sm">
-              {currentPage} / {pagination.totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, pagination.totalPages))}
-              disabled={currentPage >= pagination.totalPages || loading}
-            >
-              다음
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
     </div>
   );

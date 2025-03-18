@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import Navbar from '@/components/layout/Navbar';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import QueryProvider from '@/components/QueryProvider';
+import Footer from '@/components/layout/Footer';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,7 +20,10 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <QueryProvider>
             <Navbar />
-            <main>{children}</main>
+            <div className="min-h-screen flex flex-col">
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
           </QueryProvider>
         </AuthProvider>
       </body>

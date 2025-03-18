@@ -6,6 +6,9 @@ let pendingUserPromise = null;
 const CACHE_EXPIRY = 5 * 60 * 1000; // 5분 캐시
 let cacheTimestamp = null;
 
+// 토큰 갱신 중인지 추적하는 변수
+let isRefreshing = false;
+
 // 새로운 상태 구독 시스템
 const subscribers = new Set();
 
@@ -75,6 +78,72 @@ export const login = async ({ email, password }) => {
   }
 };
 
+// 토큰 갱신 명시적 함수
+// 토큰 갱신 명시적 함수 - 개선된 버전
+export const refreshAuthToken = async () => {
+  // 이미 갱신 중이면 중복 요청 방지
+  if (isRefreshing) {
+    return new Promise(resolve => {
+      const checkRefreshComplete = setInterval(() => {
+        if (!isRefreshing) {
+          clearInterval(checkRefreshComplete);
+          resolve(!!userCache); // 사용자 캐시가 있으면 성공, 없으면 실패
+        }
+      }, 100);
+    });
+  }
+  
+  // 브라우저 환경이 아니면 실패
+  if (typeof document === 'undefined') return false;
+  
+  // 쿠키 확인 - refreshToken 쿠키가 없으면 갱신 시도하지 않음
+  if (!document.cookie.includes('refreshToken')) {
+    console.log('리프레시 토큰 쿠키가 없어 갱신을 시도하지 않습니다.');
+    return false;
+  }
+  
+  // 최근 실패 기록 확인 (연속적인 실패 방지)
+  const lastRefreshFail = localStorage.getItem('lastRefreshFail');
+  const failCooldown = 10000; // 10초 쿨다운
+  
+  if (lastRefreshFail && Date.now() - parseInt(lastRefreshFail) < failCooldown) {
+    console.log('최근에 갱신 실패. 쿨다운 기간 동안 재시도하지 않습니다.');
+    return false;
+  }
+  
+  isRefreshing = true;
+  
+  try {
+    // 토큰 갱신 요청
+    const response = await api.post('/auth/refresh-token');
+    
+    // 갱신 성공 시 사용자 정보 업데이트
+    userCache = response.data.user;
+    cacheTimestamp = Date.now();
+    notifySubscribers(userCache);
+    
+    // 실패 기록 제거
+    localStorage.removeItem('lastRefreshFail');
+    
+    return true;
+  } catch (error) {
+    console.error('Token refresh failed:', error);
+    
+    // 갱신 실패 시 (예: 리프레시 토큰 만료) 사용자 정보 초기화
+    if (error.response?.status === 401) {
+      invalidateCache();
+      notifySubscribers(null);
+    }
+    
+    // 실패 시간 기록 (연속적인 실패 방지)
+    localStorage.setItem('lastRefreshFail', Date.now().toString());
+    
+    return false;
+  } finally {
+    isRefreshing = false;
+  }
+};
+
 export const signUp = (userData) => {
   return api.post('/auth/signup', userData);
 };
@@ -108,6 +177,7 @@ export const register = async (userData) => {
 };
 
 // Logout function
+// Logout function - 개선된 버전
 export const logout = async () => {
   try {
     await api.post('/auth/logout');
@@ -116,7 +186,25 @@ export const logout = async () => {
   } finally {
     // 캐시 초기화
     invalidateCache();
+    
+    // 로컬 스토리지 인증 관련 항목 제거
+    localStorage.removeItem('lastRefreshFail');
+    
+    // 구독자에게 로그아웃 알림
     notifySubscribers(null);
+    
+    // 수동으로 쿠키 제거 (브라우저 환경에서만)
+    if (typeof document !== 'undefined') {
+      document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      
+      // 도메인이 설정된 경우에 대비
+      const domain = window.location.hostname;
+      document.cookie = `accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain};`;
+      document.cookie = `refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain};`;
+    }
+    
+    // 페이지 리다이렉트 (사용자에게 로그아웃 피드백 제공)
     window.location.href = '/auth/login';
   }
 };
@@ -134,7 +222,6 @@ const isCacheValid = () => {
 };
 
 // 사용자 정보 확인 함수 (캐싱 적용)
-// checkAuth 함수에 디버깅 로그 추가
 export const checkAuth = async () => {
   // 이미 진행 중인 요청이 있으면 그 결과를 기다림
   if (pendingUserPromise) {
@@ -146,8 +233,6 @@ export const checkAuth = async () => {
     return userCache;
   }
   
-  // console.log('사용자 정보 요청 시작');
-  
   // 새 요청 실행 (withCredentials 설정으로 쿠키 자동 전송)
   pendingUserPromise = api.get('/auth/me')
     .then(response => {
@@ -157,9 +242,28 @@ export const checkAuth = async () => {
       notifySubscribers(userCache);
       return userCache;
     })
-    .catch(error => {
-      // console.error('사용자 정보 요청 실패:', error.response || error);
+    .catch(async error => {
       pendingUserPromise = null;
+      
+      // 401 에러가 발생하고 자동 갱신을 시도할 경우
+      if (error.response?.status === 401) {
+        try {
+          // 토큰 갱신 시도
+          const refreshed = await refreshAuthToken();
+          if (refreshed) {
+            // 갱신 성공 시 사용자 정보 다시 요청
+            const response = await api.get('/auth/me');
+            userCache = response.data.user;
+            cacheTimestamp = Date.now();
+            notifySubscribers(userCache);
+            return userCache;
+          }
+        } catch (refreshError) {
+          console.error('Token refresh in checkAuth failed:', refreshError);
+        }
+      }
+      
+      // 최종 실패 시 인증 상태 초기화
       userCache = null;
       cacheTimestamp = null;
       notifySubscribers(null);

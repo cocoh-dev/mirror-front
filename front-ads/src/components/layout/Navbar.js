@@ -18,12 +18,37 @@ import {
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { user, loading, logout, initialized } = useAuth();
+  const { user, loading, logout, initialized, refreshToken } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    
+    // 컴포넌트 마운트 시 인증 상태 확인 및 토큰 갱신 시도
+    const initAuth = async () => {
+      // 중요: 이미 갱신 중이거나, 로딩 중이면 갱신하지 않음
+      if (isRefreshing || loading) return;
+      
+      // 쿠키가 있는지 확인 (간접적으로 쿠키 확인)
+      const hasCookies = document.cookie.includes('refreshToken');
+      
+      // 사용자 정보가 없지만 쿠키가 있는 경우에만 토큰 갱신 시도
+      if (!user && hasCookies) {
+        try {
+          setIsRefreshing(true);
+          await refreshToken();
+        } finally {
+          setIsRefreshing(false);
+        }
+      }
+    };
+    
+    // 로그인 페이지가 아닐 때만 갱신 시도
+    if (!pathname?.startsWith('/auth/')) {
+      initAuth();
+    }
+  }, [loading, user, refreshToken, pathname, isRefreshing]);
 
   // Only render on client side to avoid hydration mismatch
   if (!isMounted) return null;
@@ -92,8 +117,10 @@ export default function Navbar() {
           
           {/* User dropdown or login/register buttons */}
           <div className="flex items-center">
-            {!initialized || loading ? (
+            {loading ? (
               <div className="flex items-center gap-2">
+                {/* 로딩 인디케이터를 표시할 수 있습니다 */}
+                <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
               </div>
             ) : user ? (
               <DropdownMenu>

@@ -89,6 +89,7 @@ const AdminSidebar = () => {
           <div className="space-y-1">
             <MenuItem icon={Users} label="회원" defaultOpen>
               <MenuItem label="회원 목록" href="/admin/members" />
+              <MenuItem label="회원 로그" href="/admin/activities" />
               <MenuItem label="회원 설정" href="/admin/member-settings" />
             </MenuItem>
           </div>

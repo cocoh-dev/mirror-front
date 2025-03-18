@@ -17,8 +17,6 @@ export function AuthProvider({ children }) {
   const [initialized, setInitialized] = useState(false);
   
   useEffect(() => {
-    
-    // 첫 로드 시 캐시된 사용자 정보가 있으면 사용
     const cachedUser = getCurrentUserSync();
     if (cachedUser) {
       setUser(cachedUser);
@@ -30,12 +28,12 @@ export function AuthProvider({ children }) {
       setUser(currentUser);
       setLoading(false);
     });
-    
+
     setInitialized(true);
     
     return unsubscribe;
   }, []);
-  
+
   // 로그인 함수
   const login = async (credentials) => {
     setLoading(true);

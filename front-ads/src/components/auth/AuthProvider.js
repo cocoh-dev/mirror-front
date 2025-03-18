@@ -34,6 +34,11 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    console.log('AuthProvider - 현재 사용자 상태:', user);
+    console.log('AuthProvider - 로딩 상태:', loading);
+  }, [user, loading]);
+  
   // 로그인 함수
   const login = async (credentials) => {
     setLoading(true);

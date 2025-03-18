@@ -263,11 +263,11 @@ export default function Home() {
                   ))}
                 </div>
                 <CardTitle>김미용 원장님</CardTitle>
-                <CardDescription>서울 강남구 'Style Hub' 대표</CardDescription>
+                <CardDescription>서울 강남구 &apos;Style Hub&apos; 대표</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  "예약 관리와 고객 데이터 관리가 너무 쉬워졌어요. 덕분에 고객 서비스에 더 집중할 수 있게 되었고, 재방문율도 30% 이상 높아졌습니다. 직원들도 더 효율적으로 일할 수 있게 되었죠."
+                  &quot;예약 관리와 고객 데이터 관리가 너무 쉬워졌어요. 덕분에 고객 서비스에 더 집중할 수 있게 되었고, 재방문율도 30% 이상 높아졌습니다. 직원들도 더 효율적으로 일할 수 있게 되었죠.&quot;
                 </p>
               </CardContent>
             </Card>
@@ -282,11 +282,11 @@ export default function Home() {
                   ))}
                 </div>
                 <CardTitle>박태영 마케팅 팀장</CardTitle>
-                <CardDescription>뷰티브랜드 'Glow Korea' 광고 담당</CardDescription>
+                <CardDescription>뷰티브랜드 &apos;Glow Korea&apos; 광고 담당</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  "정확한 위치 타겟팅 덕분에 광고 ROI가 이전보다 두 배 이상 높아졌습니다. 특히 지역별 캠페인 분석을 통해 어떤 지역에서 어떤 제품이 더 인기 있는지 파악할 수 있게 되었어요."
+                  &quot;정확한 위치 타겟팅 덕분에 광고 ROI가 이전보다 두 배 이상 높아졌습니다. 특히 지역별 캠페인 분석을 통해 어떤 지역에서 어떤 제품이 더 인기 있는지 파악할 수 있게 되었어요.&quot;
                 </p>
               </CardContent>
             </Card>
@@ -301,11 +301,11 @@ export default function Home() {
                   ))}
                 </div>
                 <CardTitle>이준서 원장님</CardTitle>
-                <CardDescription>부산 해운대구 'Wave Hair' 대표</CardDescription>
+                <CardDescription>부산 해운대구 &apos;Wave Hair&apos; 대표</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  "매출 분석 기능이 정말 유용해요. 어떤 서비스가 가장 인기 있는지, 어떤 시간대에 예약이 몰리는지 정확히 파악할 수 있게 되었습니다. 덕분에 인력 배치와 재고 관리가 훨씬 효율적으로 바뀌었어요."
+                  &quot;매출 분석 기능이 정말 유용해요. 어떤 서비스가 가장 인기 있는지, 어떤 시간대에 예약이 몰리는지 정확히 파악할 수 있게 되었습니다. 덕분에 인력 배치와 재고 관리가 훨씬 효율적으로 바뀌었어요.&quot;
                 </p>
               </CardContent>
             </Card>

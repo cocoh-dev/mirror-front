@@ -39,9 +39,9 @@ export default function ProfilePage() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
-                {user.profileImage ? (
+                {user.profile_image ? (
                   <img 
-                    src={user.profileImage} 
+                    src={user.profile_image} 
                     alt={user.name} 
                     className="w-16 h-16 rounded-full object-cover"
                   />

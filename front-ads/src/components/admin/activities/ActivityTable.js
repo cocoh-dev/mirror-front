@@ -1,5 +1,4 @@
 // /components/admin/activities/ActivityTable.js
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -10,7 +9,8 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
+  DialogClose
 } from '@/components/ui/dialog';
 
 // 활동 유형에 따른 뱃지 컬러 설정
@@ -23,6 +23,9 @@ const getActivityTypeBadgeColor = (type) => {
     salon_create: 'bg-purple-100 text-purple-800',
     salon_update: 'bg-indigo-100 text-indigo-800',
     salon_delete: 'bg-red-100 text-red-800',
+    ad_create: 'bg-purple-100 text-purple-800',
+    ad_update: 'bg-indigo-100 text-indigo-800',
+    ad_delete: 'bg-red-100 text-red-800',
     payment_created: 'bg-teal-100 text-teal-800',
     payment_completed: 'bg-emerald-100 text-emerald-800',
     payment_failed: 'bg-rose-100 text-rose-800',
@@ -82,7 +85,9 @@ export const ActivityTable = ({ activities, onUserClick, onTypeClick }) => {
     if (!details) return '-';
     
     try {
-      return JSON.stringify(details, null, 2);
+      // 객체를 문자열로 변환하되, 들여쓰기와 줄바꿈을 유지하여 표시
+      const formatted = JSON.stringify(details, null, 2);
+      return formatted;
     } catch (e) {
       return String(details);
     }
@@ -157,7 +162,7 @@ export const ActivityTable = ({ activities, onUserClick, onTypeClick }) => {
                           <Eye className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-3xl">
+                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
                         <DialogHeader>
                           <DialogTitle>활동 상세 정보</DialogTitle>
                           <DialogDescription>
@@ -186,11 +191,17 @@ export const ActivityTable = ({ activities, onUserClick, onTypeClick }) => {
                           </div>
                         </div>
                         
-                        <div>
+                        <div className="overflow-auto flex-1">
                           <h3 className="text-sm font-medium mb-2">상세 데이터</h3>
-                          <pre className="bg-secondary p-3 rounded-md overflow-auto text-xs max-h-40">
+                          <pre className="bg-secondary p-3 rounded-md overflow-x-auto text-xs whitespace-pre-wrap break-all" style={{ maxHeight: 'calc(60vh - 200px)' }}>
                             {formatDetailsJson(activity.details)}
                           </pre>
+                        </div>
+                        
+                        <div className="mt-4 flex justify-end">
+                          <DialogClose asChild>
+                            <Button variant="outline">닫기</Button>
+                          </DialogClose>
                         </div>
                       </DialogContent>
                     </Dialog>

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { 
   getCurrentUserSync, 
   subscribeToAuthChanges,
@@ -17,7 +17,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
-  const authCheckIntervalRef = useRef(null); // 주기적 인증 확인용 interval 참조
   
   // 인증 상태 확인 및 필요시 토큰 갱신
   const checkAuthStatus = async () => {
@@ -58,12 +57,6 @@ export function AuthProvider({ children }) {
     
     initAuth();
     
-    // 주기적으로 인증 상태 확인 (매 5분마다)
-    // 실제 환경에 맞게 시간 조정 가능
-    authCheckIntervalRef.current = setInterval(async () => {
-      await checkAuthStatus();
-    }, 5 * 60 * 1000); // 5분
-    
     // 페이지 가시성 변경 시 인증 확인 (탭 다시 활성화 등)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -71,12 +64,29 @@ export function AuthProvider({ children }) {
       }
     };
     
+    // 네트워크 연결 복구 시 인증 확인
+    const handleOnline = () => {
+      checkAuthStatus();
+    };
+    
+    // 사용자 활동 감지 (클릭, 키보드 입력 등)
+    const handleUserActivity = () => {
+      // 마지막 인증 확인 이후 충분한 시간이 지났는지 확인하는 로직 추가 가능
+      // 여기서는 단순화를 위해 생략
+    };
+    
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('online', handleOnline);
+    // 추가적인 사용자 활동 이벤트 (필요시 활성화)
+    // document.addEventListener('click', handleUserActivity);
+    // document.addEventListener('keydown', handleUserActivity);
     
     // 컴포넌트 언마운트 시 정리
     return () => {
-      clearInterval(authCheckIntervalRef.current);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('online', handleOnline);
+      // document.removeEventListener('click', handleUserActivity);
+      // document.removeEventListener('keydown', handleUserActivity);
       unsubscribe();
     };
   }, []);

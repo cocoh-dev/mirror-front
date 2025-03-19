@@ -1,13 +1,46 @@
 import api from '../lib/api';
+import { jwtDecode } from 'jwt-decode';
 
 // 사용자 정보 캐싱을 위한 변수
 let userCache = null;
 let pendingUserPromise = null;
-const CACHE_EXPIRY = 5 * 60 * 1000; // 5분 캐시
+const CACHE_EXPIRY = 15 * 60 * 1000; // 15분 캐시
 let cacheTimestamp = null;
 
 // 토큰 갱신 중인지 추적하는 변수
 let isRefreshing = false;
+
+const getTokenExpiryFromCookie = () => {
+  try {
+    if (typeof document === 'undefined') return null;
+    
+    const cookies = document.cookie.split(';');
+    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('accessToken='));
+    
+    if (!tokenCookie) return null;
+    
+    // 쿠키에서 토큰 값만 추출
+    const token = tokenCookie.split('=')[1];
+    
+    if (!token) return null;
+    
+    // jwt-decode를 사용하여 토큰 디코딩
+    try {
+      const decoded = jwtDecode(token);
+      
+      if (decoded.exp) {
+        return decoded.exp * 1000; // 초를 밀리초로 변환
+      }
+    } catch (e) {
+      console.log('JWT 디코딩 실패:', e);
+    }
+    
+    return null;
+  } catch (e) {
+    console.error('토큰 만료 시간 확인 오류:', e);
+    return null;
+  }
+};
 
 // 새로운 상태 구독 시스템
 const subscribers = new Set();
@@ -218,7 +251,19 @@ const invalidateCache = () => {
 
 // 캐시가 유효한지 확인
 const isCacheValid = () => {
-  return userCache && cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_EXPIRY);
+  if (!userCache || !cacheTimestamp) return false;
+  
+  // 토큰 만료 시간 확인
+  const tokenExpiry = getTokenExpiryFromCookie();
+  
+  if (tokenExpiry) {
+    // 토큰 만료 10분 전부터는 갱신 시도
+    const tokenValidityBuffer = 10 * 60 * 1000; // 10분
+    return Date.now() < (tokenExpiry - tokenValidityBuffer);
+  }
+  
+  // 토큰 만료를 확인할 수 없으면 캐시 만료 시간으로 판단
+  return (Date.now() - cacheTimestamp) < CACHE_EXPIRY;
 };
 
 // 사용자 정보 확인 함수 (캐싱 적용)
@@ -233,7 +278,7 @@ export const checkAuth = async () => {
     return userCache;
   }
   
-  // 새 요청 실행 (withCredentials 설정으로 쿠키 자동 전송)
+  // 새 요청 실행
   pendingUserPromise = api.get('/auth/me')
     .then(response => {
       userCache = response.data.user;
@@ -245,10 +290,9 @@ export const checkAuth = async () => {
     .catch(async error => {
       pendingUserPromise = null;
       
-      // 401 에러가 발생하고 자동 갱신을 시도할 경우
+      // 401 에러가 발생하면 토큰 갱신 시도
       if (error.response?.status === 401) {
         try {
-          // 토큰 갱신 시도
           const refreshed = await refreshAuthToken();
           if (refreshed) {
             // 갱신 성공 시 사용자 정보 다시 요청

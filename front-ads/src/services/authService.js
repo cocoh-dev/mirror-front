@@ -2,13 +2,39 @@ import api from '../lib/api';
 import { jwtDecode } from 'jwt-decode';
 
 // 사용자 정보 캐싱을 위한 변수
-let userCache = null;
 let pendingUserPromise = null;
 const CACHE_EXPIRY = 15 * 60 * 1000; // 15분 캐시
-let cacheTimestamp = null;
 
 // 토큰 갱신 중인지 추적하는 변수
 let isRefreshing = false;
+
+// userCache와 cacheTimestamp를 localStorage에 저장/로드하는 함수
+const saveCache = (user, timestamp) => {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    localStorage.setItem('auth_user_cache', JSON.stringify(user));
+    localStorage.setItem('auth_user_cache_timestamp', timestamp.toString());
+  } catch (e) {
+    console.error('캐시 저장 실패:', e);
+  }
+};
+
+const loadCache = () => {
+  if (typeof window === 'undefined') return { user: null, timestamp: null };
+  
+  try {
+    const user = JSON.parse(localStorage.getItem('auth_user_cache') || 'null');
+    const timestamp = parseInt(localStorage.getItem('auth_user_cache_timestamp') || '0');
+    return { user, timestamp };
+  } catch (e) {
+    console.error('캐시 로드 실패:', e);
+    return { user: null, timestamp: null };
+  }
+};
+
+// 초기화 코드: 변수를 localStorage에서 로드
+let { user: userCache, timestamp: cacheTimestamp } = loadCache();
 
 const getTokenExpiryFromCookie = () => {
   try {
@@ -32,7 +58,7 @@ const getTokenExpiryFromCookie = () => {
         return decoded.exp * 1000; // 초를 밀리초로 변환
       }
     } catch (e) {
-      console.log('JWT 디코딩 실패:', e);
+      // console.log('JWT 디코딩 실패:', e);
     }
     
     return null;
@@ -54,7 +80,7 @@ export const extractTokensFromUrl = async () => {
   const hasOAuthParams = urlParams.has('state') || urlParams.has('code');
   
   if (hasOAuthParams) {
-    console.log('OAuth 리다이렉트 감지');
+    // console.log('OAuth 리다이렉트 감지');
     
     // URL 파라미터 제거 (보안)
     const cleanUrl = window.location.pathname;
@@ -63,7 +89,7 @@ export const extractTokensFromUrl = async () => {
     // 사용자 정보 로드
     try {
       const user = await checkAuth();
-      console.log('OAuth 로그인 성공 - 사용자 정보 로드됨:', user ? '성공' : '실패');
+      // console.log('OAuth 로그인 성공 - 사용자 정보 로드됨:', user ? '성공' : '실패');
       return { user };
     } catch (err) {
       console.error('OAuth 로그인 후 사용자 정보 로드 실패:', err);
@@ -131,7 +157,7 @@ export const refreshAuthToken = async () => {
   
   // 쿠키 확인 - refreshToken 쿠키가 없으면 갱신 시도하지 않음
   if (!document.cookie.includes('refreshToken')) {
-    console.log('리프레시 토큰 쿠키가 없어 갱신을 시도하지 않습니다.');
+    // console.log('리프레시 토큰 쿠키가 없어 갱신을 시도하지 않습니다.');
     return false;
   }
   
@@ -140,7 +166,7 @@ export const refreshAuthToken = async () => {
   const failCooldown = 10000; // 10초 쿨다운
   
   if (lastRefreshFail && Date.now() - parseInt(lastRefreshFail) < failCooldown) {
-    console.log('최근에 갱신 실패. 쿨다운 기간 동안 재시도하지 않습니다.');
+    // console.log('최근에 갱신 실패. 쿨다운 기간 동안 재시도하지 않습니다.');
     return false;
   }
   
@@ -210,7 +236,6 @@ export const register = async (userData) => {
 };
 
 // Logout function
-// Logout function - 개선된 버전
 export const logout = async () => {
   try {
     await api.post('/auth/logout');
@@ -219,9 +244,6 @@ export const logout = async () => {
   } finally {
     // 캐시 초기화
     invalidateCache();
-    
-    // 로컬 스토리지 인증 관련 항목 제거
-    localStorage.removeItem('lastRefreshFail');
     
     // 구독자에게 로그아웃 알림
     notifySubscribers(null);
@@ -242,19 +264,32 @@ export const logout = async () => {
   }
 };
 
-// 캐시 초기화 함수
+// invalidateCache 함수 수정
 const invalidateCache = () => {
   userCache = null;
   pendingUserPromise = null;
   cacheTimestamp = null;
+  
+  // localStorage에서도 캐시 삭제
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('auth_user_cache');
+    localStorage.removeItem('auth_user_cache_timestamp');
+  }
 };
 
 // 캐시가 유효한지 확인
 const isCacheValid = () => {
-  if (!userCache || !cacheTimestamp) return false;
+  // console.log('캐시 확인: userCache 있음?', !!userCache);
+  // console.log('캐시 확인: cacheTimestamp 있음?', !!cacheTimestamp);
+  
+  if (!userCache || !cacheTimestamp) {
+    // console.log('캐시 유효하지 않음: 필수 데이터 없음');
+    return false;
+  }
   
   // 토큰 만료 시간 확인
   const tokenExpiry = getTokenExpiryFromCookie();
+  // console.log('토큰 만료 시간:', tokenExpiry ? new Date(tokenExpiry) : '없음');
   
   if (tokenExpiry) {
     // 토큰 만료 10분 전부터는 갱신 시도
@@ -266,23 +301,35 @@ const isCacheValid = () => {
   return (Date.now() - cacheTimestamp) < CACHE_EXPIRY;
 };
 
-// 사용자 정보 확인 함수 (캐싱 적용)
+// checkAuth 함수 수정
 export const checkAuth = async () => {
+  // console.log("checkAuth 시작");
+  // console.log("초기 캐시 상태:", !!userCache, !!cacheTimestamp);
+
   // 이미 진행 중인 요청이 있으면 그 결과를 기다림
   if (pendingUserPromise) {
+    // console.log("진행 중인 요청 있음, 기다리는 중");
     return pendingUserPromise;
   }
   
   // 캐시가 유효하면 캐시된 데이터 반환
   if (isCacheValid()) {
+    // console.log("캐시 유효, 캐시된 데이터 반환");
     return userCache;
   }
   
+  // console.log("새 요청 시작");
   // 새 요청 실행
   pendingUserPromise = api.get('/auth/me')
     .then(response => {
+      // console.log("API 응답 받음:", response.data);
       userCache = response.data.user;
       cacheTimestamp = Date.now();
+      
+      // localStorage에 캐시 저장
+      saveCache(userCache, cacheTimestamp);
+      
+      // console.log("캐시 설정 완료:", !!userCache, "타임스탬프:", cacheTimestamp);
       pendingUserPromise = null;
       notifySubscribers(userCache);
       return userCache;
@@ -367,7 +414,7 @@ if (typeof window !== 'undefined') {
   extractTokensFromUrl();
   
   // 페이지 로드 시 한 번 실행
-  checkAuth();
+  // checkAuth();
   
   // 탭 활성화될 때마다 캐시 유효성 확인
   document.addEventListener('visibilitychange', () => {

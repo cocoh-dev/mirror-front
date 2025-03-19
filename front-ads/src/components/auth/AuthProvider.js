@@ -34,18 +34,20 @@ export function AuthProvider({ children }) {
     const initAuth = async () => {
       // 초기 캐시된 사용자 정보로 상태 설정 (빠른 UI 렌더링)
       const cachedUser = getCurrentUserSync();
+      
       if (cachedUser) {
         setUser(cachedUser);
         setLoading(false);
+      } else {
+        // 캐시가 없으면, 서버에서 사용자 정보 가져오기
+        // console.log('캐시된 사용자 정보 없음, 서버에서 가져오기 시도');
+        const currentUser = await checkAuthStatus();
+        if (currentUser) {
+          setUser(currentUser);
+        }
+        setLoading(false);
       }
       
-      // 실제 서버에서 최신 인증 상태 확인
-      const currentUser = await checkAuthStatus();
-      if (currentUser) {
-        setUser(currentUser);
-      }
-      
-      setLoading(false);
       setInitialized(true);
     };
     

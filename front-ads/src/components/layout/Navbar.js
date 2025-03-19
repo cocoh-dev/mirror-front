@@ -28,7 +28,7 @@ export default function Navbar() {
     // 컴포넌트 마운트 시 인증 상태 확인 및 토큰 갱신 시도
     const initAuth = async () => {
       // 중요: 이미 갱신 중이거나, 로딩 중이면 갱신하지 않음
-      if (isRefreshing || loading) return;
+      if (isRefreshing || loading || !initialized) return;
       
       // 쿠키가 있는지 확인 (간접적으로 쿠키 확인)
       const hasCookies = document.cookie.includes('refreshToken');

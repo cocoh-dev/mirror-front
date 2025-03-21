@@ -24,10 +24,16 @@ import {
   Clock9,
   Save,
   X,
-  Loader2
+  Loader2,
+  // 디스플레이 관리 탭에 필요한 아이콘 추가
+  Plus,
+  MonitorPlay,
+  MonitorX,
+  Pencil,
+  Trash
 } from 'lucide-react';
 
-import { getSalonById, updateSalonStatus, deleteSalon, updateSalon } from '@/services/salonService';
+import { getSalonById, updateSalonStatus, deleteSalon, updateSalon, addDisplay, updateDisplay, deleteDisplay } from '@/services/salonService';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -47,8 +53,27 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { formatPhoneNumber, cleanBusinessNumber, cleanPhoneNumber, formatBusinessNumber } from '@/utils/numberFormat';
 import { SalonDetailSkeleton } from '@/components/admin/salons/SkeletonLoaders';
+
+import BasicInfoTab from '@/components/salon/details/BasicInfoTab';
+import ContentTabs from '@/components/salon/details/ContentTabs';
+import DisplayManagementTab from '@/components/salon/details/DisplayManagementTab';
 
 export default function SalonDetailPage() {
   const params = useParams();
@@ -58,7 +83,17 @@ export default function SalonDetailPage() {
   const [activeTab, setActiveTab] = useState('info');
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(null);
-  
+  // 디스플레이 관련 상태
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingDisplay, setEditingDisplay] = useState(null);
+  const [newDisplay, setNewDisplay] = useState({
+    name: '',
+    device_id: '',
+    status: 'active',
+    settings: {
+      orientation: 'landscape'
+    }
+  });
   const salonId = params.id;
   
   // 미용실 상세 정보 가져오기
@@ -94,18 +129,6 @@ export default function SalonDetailPage() {
     }
   });
   
-  // 상태 변경 함수
-  const handleStatusChange = async (newStatus) => {
-    try {
-      await updateSalonStatus(salonId, newStatus);
-      toast.success('미용실 상태가 변경되었습니다.');
-      refetch();
-    } catch (error) {
-      toast.error('상태 변경 중 오류가 발생했습니다.');
-      console.error('상태 변경 실패:', error);
-    }
-  };
-  
   // 삭제 함수
   const handleDelete = async () => {
     try {
@@ -118,6 +141,118 @@ export default function SalonDetailPage() {
     }
   };
 
+  // 디스플레이 추가 뮤테이션
+  const addDisplayMutation = useMutation({
+    mutationFn: (displayData) => addDisplay(params.id, displayData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['salon', params.id]);
+      toast.success('디스플레이가 추가되었습니다.');
+      // resetDisplayForm() 제거
+    },
+    onError: (error) => {
+      toast.error('디스플레이 추가 중 오류가 발생했습니다: ' + error.message);
+      // 오류 발생시 다시 다이얼로그 열기 옵션 
+      // setIsDialogOpen(true);
+    }
+  });
+  
+  // 디스플레이 수정 뮤테이션
+  const updateDisplayMutation = useMutation({
+    mutationFn: ({ displayId, data }) => updateDisplay(params.id, displayId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['salon', params.id]);
+      toast.success('디스플레이가 수정되었습니다.');
+      resetDisplayForm();
+    },
+    onError: (error) => {
+      toast.error('디스플레이 수정 중 오류가 발생했습니다: ' + error.message);
+    }
+  });
+  
+  // 디스플레이 삭제 뮤테이션
+  const deleteDisplayMutation = useMutation({
+    mutationFn: (displayId) => deleteDisplay(params.id, displayId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['salon', params.id]);
+      toast.success('디스플레이가 삭제되었습니다.');
+    },
+    onError: (error) => {
+      toast.error('디스플레이 삭제 중 오류가 발생했습니다: ' + error.message);
+    }
+  });
+  
+  // 디스플레이 폼 초기화
+  const resetDisplayForm = () => {
+    setNewDisplay({
+      name: '',
+      device_id: '',
+      status: 'active',
+      settings: {
+        orientation: 'landscape'
+      }
+    });
+    setEditingDisplay(null);
+    setIsDialogOpen(false);
+  };
+  
+  // 디스플레이 수정 핸들러
+  const handleEditDisplay = (display) => {
+    setEditingDisplay(display);
+    setNewDisplay({
+      name: display.name,
+      device_id: display.device_id,
+      status: display.status || 'active',
+      settings: {
+        orientation: display.settings?.orientation || 'landscape'
+      }
+    });
+    setIsDialogOpen(true);
+  };
+  
+  // 디스플레이 삭제 핸들러
+  const handleDeleteDisplay = (displayId) => {
+    if (confirm('정말로 이 디스플레이를 삭제하시겠습니까?')) {
+      deleteDisplayMutation.mutate(displayId);
+    }
+  };
+  
+  // 디스플레이 추가/수정 제출 핸들러
+  const handleDisplaySubmit = (e) => {
+    e.preventDefault();
+    
+    // 폼 제출 직후 다이얼로그 창 닫기
+    setIsDialogOpen(false);
+    
+    // 새 디스플레이 ID 생성 (실제로는 백엔드에서 처리할 수도 있음)
+    const submissionData = { ...newDisplay };
+    
+    if (editingDisplay) {
+      // 기존 디스플레이 수정
+      updateDisplayMutation.mutate({ 
+        displayId: editingDisplay.device_id, 
+        data: submissionData 
+      });
+    } else {
+      // 새 디스플레이 추가 - 서버가 원하는 형식으로 변환
+      const addData = {
+        name: newDisplay.name,
+        salon_id: params.id
+      };
+      addDisplayMutation.mutate(addData);
+    }
+    
+    // 폼 초기화 (성공/실패 상관없이)
+    setNewDisplay({
+      name: '',
+      device_id: '',
+      status: 'active',
+      settings: {
+        orientation: 'landscape'
+      }
+    });
+    setEditingDisplay(null);
+  };
+  
   // 폼 필드 변경 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -216,489 +351,120 @@ export default function SalonDetailPage() {
   
   return (
     <div className="container mx-auto p-4">
-    <div className="space-y-6">
-      {/* 헤더 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4">
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => router.push('/salons')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="text-3xl font-bold tracking-tight">{salon.name}</h1>
-          <StatusBadge status={salon.status} />
-        </div>
-        
-        <div className="flex items-center gap-2">
-          {isEditing ? (
-            <>
-              <Button variant="outline" onClick={handleCancelEdit} disabled={updateMutation.isLoading}>
-                <X className="mr-2 h-4 w-4" />
-                취소
-              </Button>
-              <Button onClick={handleSubmit} disabled={updateMutation.isLoading}>
-                {updateMutation.isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="mr-2 h-4 w-4" />
-                )}
-                저장
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  const formattedData = {
-                    ...salonData.salon,
-                    phone: formatPhoneNumber(salonData.salon.phone),
-                    business_number: formatBusinessNumber(salonData.salon.business_number)
-                  };
-                  setFormData(formattedData);
-                  setIsEditing(true);
-                }}
-              >
-                <Edit2 className="mr-2 h-4 w-4" />
-                수정
-              </Button>
-              
-              <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    삭제
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>미용실 삭제</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      정말로 &apos;{salon.name}&apos; 미용실을 삭제하시겠습니까?
-                      이 작업은 되돌릴 수 없습니다.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>취소</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white">
-                      삭제
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </>
-          )}
-        </div>
-      </div>
-      
-      {/* 미용실 상세 내용 탭 */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="info">기본 정보</TabsTrigger>
-          <TabsTrigger value="services">서비스</TabsTrigger>
-          <TabsTrigger value="staff">스태프</TabsTrigger>
-          <TabsTrigger value="reviews">리뷰</TabsTrigger>
-        </TabsList>
-        
-        {/* 기본 정보 탭 */}
-        <TabsContent value="info" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* 기본 정보 카드 */}
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle>기본 정보</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  {/* 미용실 이름 */}
-                  {isEditing && (
-                    <div className="space-y-2">
-                      <label className="font-medium">미용실명</label>
-                      <Input 
-                        name="name"
-                        value={formData?.name || ''}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                  )}
-                  
-                  {/* 주소 */}
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <div className="w-full">
-                      <p className="font-medium">주소</p>
-                      {isEditing ? (
-                        <div className="space-y-2 mt-1">
-                          <Input 
-                            name="location.address_line1"
-                            value={formData?.location?.address_line1 || ''}
-                            onChange={handleChange}
-                            placeholder="주소"
-                            className="mb-2"
-                          />
-                          <Input 
-                            name="location.address_line2"
-                            value={formData?.location?.address_line2 || ''}
-                            onChange={handleChange}
-                            placeholder="상세 주소"
-                          />
-                        </div>
-                      ) : (
-                        <p className="text-muted-foreground">{salon.location.address_line1} {salon.location.address_line2}</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* 연락처 */}
-                  <div className="flex items-start gap-2">
-                    <Phone className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <div className="w-full">
-                      <p className="font-medium">연락처</p>
-                      {isEditing ? (
-                        <Input 
-                          name="phone"
-                          value={formData?.phone || ''}
-                          onChange={handlePhoneChange}
-                          className="mt-1"
-                        />
-                      ) : (
-                        <p className="text-muted-foreground">{formatPhoneNumber(salon.phone)}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* 사업자등록번호 */}
-                  <div className="flex items-start gap-2">
-                    <Building className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <div className="w-full">
-                      <p className="font-medium">사업자등록번호</p>
-                      {isEditing ? (
-                        <Input 
-                          name="business_number"
-                          value={formData?.business_number || ''}
-                          onChange={handleBusinessNumberChange}
-                          className="mt-1"
-                        />
-                      ) : (
-                        <p className="text-muted-foreground">{formatBusinessNumber(salon.business_number)}</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* 대표자 */}
-                  <div className="flex items-start gap-2">
-                    <User className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <div className="w-full">
-                      <p className="font-medium">대표자</p>
-                      {isEditing ? (
-                        <Input 
-                          name="owner.name"
-                          value={formData?.owner?.name || ''}
-                          onChange={handleChange}
-                          className="mt-1"
-                        />
-                      ) : (
-                        <p className="text-muted-foreground">{salon.owner.name}</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* 이메일 */}
-                  <div className="flex items-start gap-2">
-                    <Mail className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <div className="w-full">
-                      <p className="font-medium">이메일</p>
-                      {isEditing ? (
-                        <Input 
-                          name="owner.email"
-                          value={formData?.owner?.email || ''}
-                          onChange={handleChange}
-                          type="email"
-                          className="mt-1"
-                        />
-                      ) : (
-                        <p className="text-muted-foreground">{salon.owner.email}</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* 등록일 */}
-                  <div className="flex items-start gap-2">
-                    <Calendar className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium">등록일</p>
-                      <p className="text-muted-foreground">{new Date(salon.createdAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                  
-                  {/* 영업 시간 */}
-                  <div className="flex items-start gap-2">
-                    <Clock className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <div className="w-full">
-                      <p className="font-medium">영업 시간</p>
-                      {isEditing ? (
-                        <Input 
-                          name="business_hours"
-                          value={formData?.business_hours || '월-금: 10:00 - 20:00, 토: 10:00 - 18:00, 일: 휴무'}
-                          onChange={handleChange}
-                          className="mt-1"
-                        />
-                      ) : (
-                        <p className="text-muted-foreground">
-                          {salon.business_hours || '월-금: 10:00 - 20:00, 토: 10:00 - 18:00, 일: 휴무'}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* 상태 및 통계 카드 */}
-            <div className="space-y-4">
-              {/* 상태 카드 */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>상태</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-col gap-2">
-                    <p className="text-sm text-muted-foreground">현재 상태</p>
-                    <div className="flex items-center gap-2">
-                      <StatusBadge status={salon.status} />
-                      <SubscriptionBadge type={salon.subscriptionType} />
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                </CardContent>
-              </Card>
-              
-              {/* 통계 카드 */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>통계</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium">평점</span>
-                        <div className="flex items-center">
-                          <Star className="h-4 w-4 fill-yellow-500 text-yellow-500 mr-1" />
-                          <span>{salon.rating}</span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-muted-foreground">총 {salon.reviewCount}개 리뷰</div>
-                    </div>
-                    
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium">방문 예약</span>
-                        <span>{salon.bookingCount || 45}</span>
-                      </div>
-                      <div className="text-sm text-muted-foreground">지난 30일 동안</div>
-                    </div>
-                    
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium">페이지 조회</span>
-                        <span>{salon.viewCount || 256}</span>
-                      </div>
-                      <div className="text-sm text-muted-foreground">지난 30일 동안</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+      <div className="space-y-6">
+        {/* 헤더 */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={() => router.push('/salons')}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1 className="text-3xl font-bold tracking-tight">{salon.name}</h1>
+            <StatusBadge status={salon.status} />
           </div>
           
-          {/* 추가 정보 */}
-          <Card>
-            <CardHeader>
-              <CardTitle>소개 및 설명</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isEditing ? (
-                <Textarea 
-                  name="description"
-                  value={formData?.description || `${formData?.name}은 고객 만족을 최우선으로 생각하는 미용실입니다. 
-                  최신 트렌드와 기술을 활용하여 고객에게 최상의 서비스를 제공합니다. 
-                  숙련된 헤어 디자이너들이 고객의 개성과 스타일에 맞는
-                  최적의 헤어스타일을 찾아드립니다.`}
-                  onChange={handleChange}
-                  rows={6}
-                />
-              ) : (
-                <p className="whitespace-pre-line">
-                  {salon.description || 
-                  `${salon.name}은 고객 만족을 최우선으로 생각하는 미용실입니다. 
-                  최신 트렌드와 기술을 활용하여 고객에게 최상의 서비스를 제공합니다. 
-                  숙련된 헤어 디자이너들이 고객의 개성과 스타일에 맞는
-                  최적의 헤어스타일을 찾아드립니다.`}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <div className="flex items-center gap-2">
+            {isEditing ? (
+              <>
+                <Button variant="outline" onClick={handleCancelEdit} disabled={updateMutation.isLoading}>
+                  <X className="mr-2 h-4 w-4" />
+                  취소
+                </Button>
+                <Button onClick={handleSubmit} disabled={updateMutation.isLoading}>
+                  {updateMutation.isLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  저장
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    const formattedData = {
+                      ...salonData.salon,
+                      phone: formatPhoneNumber(salonData.salon.phone),
+                      business_number: formatBusinessNumber(salonData.salon.business_number)
+                    };
+                    setFormData(formattedData);
+                    setIsEditing(true);
+                  }}
+                >
+                  <Edit2 className="mr-2 h-4 w-4" />
+                  수정
+                </Button>
+                
+                <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      삭제
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>미용실 삭제</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        정말로 &apos;{salon.name}&apos; 미용실을 삭제하시겠습니까?
+                        이 작업은 되돌릴 수 없습니다.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>취소</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white">
+                        삭제
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>
+            )}
+          </div>
+        </div>
         
-        {/* 서비스 탭 */}
-        <TabsContent value="services">
-          <Card>
-            <CardHeader>
-              <CardTitle>제공 서비스</CardTitle>
-              <CardDescription>미용실에서 제공하는 서비스 목록입니다.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {salon.services && salon.services.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* 여기에 서비스 목록 표시 */}
-                  {/* 서비스 데이터가 없으므로 예시 데이터 사용 */}
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base">커트</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-sm text-muted-foreground">₩15,000 ~ ₩30,000</div>
-                      <div className="text-sm mt-1">30분 ~ 1시간</div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base">염색</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-sm text-muted-foreground">₩50,000 ~ ₩80,000</div>
-                      <div className="text-sm mt-1">1시간 30분 ~ 2시간</div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base">펌</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-sm text-muted-foreground">₩70,000 ~ ₩120,000</div>
-                      <div className="text-sm mt-1">2시간 ~ 3시간</div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Scissors className="mx-auto h-12 w-12 mb-4 opacity-20" />
-                  <p>등록된 서비스가 없습니다.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* 스태프 탭 */}
-        <TabsContent value="staff">
-          <Card>
-            <CardHeader>
-              <CardTitle>스태프</CardTitle>
-              <CardDescription>미용실 스태프 정보입니다.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {/* 스태프 데이터가 없으므로 예시 데이터 사용 */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <div className="h-24 w-24 mx-auto rounded-full bg-muted flex items-center justify-center mb-2">
-                      <User className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    <CardTitle className="text-center">김미영</CardTitle>
-                    <CardDescription className="text-center">원장</CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <p className="text-sm text-muted-foreground mb-2">경력 10년</p>
-                    <p className="text-sm">커트, 염색, 펌 전문</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <div className="h-24 w-24 mx-auto rounded-full bg-muted flex items-center justify-center mb-2">
-                      <User className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    <CardTitle className="text-center">박준호</CardTitle>
-                    <CardDescription className="text-center">디자이너</CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <p className="text-sm text-muted-foreground mb-2">경력 5년</p>
-                    <p className="text-sm">남성 커트, 스타일링 전문</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* 리뷰 탭 */}
-        <TabsContent value="reviews">
-          <Card>
-            <CardHeader>
-              <CardTitle>고객 리뷰</CardTitle>
-              <CardDescription>
-                평균 평점: <Star className="inline-block h-4 w-4 fill-yellow-500 text-yellow-500 mx-1" />
-                {salon.rating} ({salon.reviewCount}개 리뷰)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {/* 리뷰 데이터가 없으므로 예시 데이터 사용 */}
-              <div className="space-y-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-base">김지수</CardTitle>
-                        <CardDescription>2024년 1월 15일</CardDescription>
-                      </div>
-                      <div className="flex items-center">
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">
-                      서비스가 정말 좋았어요! 원장님이 제 얼굴형에 맞는 스타일을 제안해주셔서 만족스러운 결과를 얻었습니다.
-                      다음에도 방문할 예정입니다.
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-base">이현우</CardTitle>
-                        <CardDescription>2023년 12월 22일</CardDescription>
-                      </div>
-                      <div className="flex items-center">
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        <Star className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">
-                      디자이너 박준호님의 기술이 정말 좋습니다. 내가 원하는 스타일을 정확히 이해하고 
-                      완벽하게 구현해주셨어요. 다만 예약 시스템이 조금 불편했습니다.
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-      </Tabs>
-    </div>
+        {/* 미용실 상세 내용 탭 */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="info">기본 정보</TabsTrigger>
+            <TabsTrigger value="services">서비스</TabsTrigger>
+            <TabsTrigger value="staff">스태프</TabsTrigger>
+            <TabsTrigger value="reviews">리뷰</TabsTrigger>
+            <TabsTrigger value="display">디스플레이 관리</TabsTrigger>
+          </TabsList>
+
+          {/* 기본 정보 탭 */}
+          <TabsContent value="info" className="space-y-4">
+            <BasicInfoTab 
+              salon={salon} 
+              isEditing={isEditing} 
+              formData={formData} 
+              handleChange={handleChange}
+              handlePhoneChange={handlePhoneChange}
+              handleBusinessNumberChange={handleBusinessNumberChange}
+            />
+          </TabsContent>
+          
+          {/* 서비스, 스태프, 리뷰 탭 */}
+          <TabsContent value="services">
+            <ContentTabs tabType="services" salon={salon} />
+          </TabsContent>
+          
+          <TabsContent value="staff">
+            <ContentTabs tabType="staff" salon={salon} />
+          </TabsContent>
+          
+          <TabsContent value="reviews">
+            <ContentTabs tabType="reviews" salon={salon} />
+          </TabsContent>
+          
+          {/* 디스플레이 관리 탭 */}
+          <TabsContent value="display" className="space-y-4">
+            <DisplayManagementTab salon={salon} salonId={salon.id} />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -13,7 +13,6 @@ import {
   Box
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
@@ -63,19 +62,62 @@ const MenuItem = ({ icon: Icon, label, href, children, defaultOpen = false }) =>
 };
 
 const AdminSidebar = () => {
+  const [sidebarHeight, setSidebarHeight] = useState('calc(100vh - 60px)');
+  const sidebarRef = useRef(null);
+  
+  // 사이드바 높이 조정 함수
+  useEffect(() => {
+    const updateSidebarHeight = () => {
+      const footer = document.querySelector('footer'); // 푸터 선택자 - 실제 푸터 요소에 맞게 조정 필요
+      if (footer) {
+        const footerTop = footer.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        const newHeight = footerTop - 20; // 푸터와 약간의 여백 유지
+        
+        setSidebarHeight(`${newHeight}px`);
+      }
+    };
+    
+    // 초기 실행 및 리사이즈 이벤트에 등록
+    updateSidebarHeight();
+    window.addEventListener('resize', updateSidebarHeight);
+    
+    // 정리 함수
+    return () => window.removeEventListener('resize', updateSidebarHeight);
+  }, []);
+
   return (
-    <div className="hidden md:flex h-screen w-64 flex-col border-r bg-background">
+    <div 
+      ref={sidebarRef}
+      className="hidden md:flex w-64 flex-col border-r bg-background"
+      style={{ 
+        height: sidebarHeight, 
+        maxHeight: sidebarHeight,
+        position: 'sticky',
+        top: 0
+      }}
+    >
+      {/* 사이드바 헤더 - 고정 */}
+      <div className="py-2 px-3 border-b">
+        <h2 className="mb-2 px-2 text-xs font-semibold text-muted-foreground">
+          관리자 메뉴
+        </h2>
+      </div>
       
-      <ScrollArea className="flex-1 py-2">
-        <div className="px-3 py-2">
-          <h2 className="mb-2 px-2 text-xs font-semibold text-muted-foreground">
-            관리자 메뉴
-          </h2>
+      {/* 메뉴 영역 - 스크롤 가능하게 설정 */}
+      <div 
+        className="flex-1 overflow-y-auto" 
+        style={{ 
+          height: `calc(${sidebarHeight} - 120px)`,  // 헤더와 푸터 영역 제외
+          overflowY: 'auto !important'  // !important로 강제 적용
+        }}
+      >
+        <div className="px-3 py-2 space-y-4">
           <div className="space-y-1">
             <MenuItem icon={Home} label="대시보드" href="/admin" />
           </div>
           
-          <Separator className="my-4" />
+          <Separator className="my-2" />
           
           <div className="space-y-1">
             <MenuItem icon={Layout} label="사이트 제작/관리" defaultOpen>
@@ -84,7 +126,7 @@ const AdminSidebar = () => {
             </MenuItem>
           </div>
           
-          <Separator className="my-4" />
+          <Separator className="my-2" />
           
           <div className="space-y-1">
             <MenuItem icon={Users} label="회원" defaultOpen>
@@ -94,7 +136,7 @@ const AdminSidebar = () => {
             </MenuItem>
           </div>
           
-          <Separator className="my-4" />
+          <Separator className="my-2" />
           
           <div className="space-y-1">
             <MenuItem icon={Box} label="콘텐츠">
@@ -113,7 +155,7 @@ const AdminSidebar = () => {
             </MenuItem>
           </div>
           
-          <Separator className="my-4" />
+          <Separator className="my-2" />
           
           <div className="space-y-1">
             <MenuItem icon={Settings} label="설정">
@@ -123,10 +165,10 @@ const AdminSidebar = () => {
             </MenuItem>
           </div>
         </div>
-      </ScrollArea>
+      </div>
       
-      {/* User section at bottom */}
-      <div className="border-t p-4">
+      {/* 사용자 화면으로 이동 버튼 - 고정 */}
+      <div className="border-t p-4 bg-background mt-auto">
         <Button variant="outline" className="w-full justify-start gap-2" asChild>
           <Link href="/dashboard">
             <Layout className="h-4 w-4" />

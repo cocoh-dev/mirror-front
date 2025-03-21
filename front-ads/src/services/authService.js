@@ -137,7 +137,6 @@ export const login = async ({ email, password }) => {
   }
 };
 
-// 토큰 갱신 명시적 함수
 // 토큰 갱신 명시적 함수 - 개선된 버전
 export const refreshAuthToken = async () => {
   // 이미 갱신 중이면 중복 요청 방지

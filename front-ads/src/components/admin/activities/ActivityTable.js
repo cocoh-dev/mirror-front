@@ -16,22 +16,45 @@ import {
 // 활동 유형에 따른 뱃지 컬러 설정
 const getActivityTypeBadgeColor = (type) => {
   const typeMappings = {
+    // 사용자 관련
     user_login: 'bg-blue-100 text-blue-800',
     user_logout: 'bg-gray-100 text-gray-800',
     user_register: 'bg-green-100 text-green-800',
     user_profile_update: 'bg-yellow-100 text-yellow-800',
+    user_password_change: 'bg-cyan-100 text-cyan-800',
+    
+    // 살롱 관련
     salon_create: 'bg-purple-100 text-purple-800',
     salon_update: 'bg-indigo-100 text-indigo-800',
     salon_delete: 'bg-red-100 text-red-800',
+    
+    // 광고 관련
     ad_create: 'bg-purple-100 text-purple-800',
     ad_update: 'bg-indigo-100 text-indigo-800',
     ad_delete: 'bg-red-100 text-red-800',
+    
+    // 결제 관련
     payment_created: 'bg-teal-100 text-teal-800',
     payment_completed: 'bg-emerald-100 text-emerald-800',
     payment_failed: 'bg-rose-100 text-rose-800',
+    refund_requested: 'bg-amber-100 text-amber-800',
+    refund_completed: 'bg-lime-100 text-lime-800',
+    
+    // 구독 관련
     subscription_created: 'bg-amber-100 text-amber-800',
     subscription_renewed: 'bg-lime-100 text-lime-800',
     subscription_cancelled: 'bg-orange-100 text-orange-800',
+    subscription_expired: 'bg-red-100 text-red-800',
+    
+    // 디스플레이 관련
+    display_added: 'bg-sky-100 text-sky-800',
+    display_updated: 'bg-blue-100 text-blue-800',
+    display_removed: 'bg-red-100 text-red-800',
+    
+    // 관리자 활동
+    admin_login: 'bg-violet-100 text-violet-800',
+    admin_user_update: 'bg-fuchsia-100 text-fuchsia-800',
+    admin_salon_update: 'bg-pink-100 text-pink-800'
   };
   
   return typeMappings[type] || 'bg-gray-100 text-gray-800';

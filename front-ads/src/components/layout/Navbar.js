@@ -26,9 +26,18 @@ export default function Navbar() {
   const handleTokenRefresh = useCallback(async () => {
     if (isRefreshing || loading || !initialized || user) return;
     
+    // 추가: 쿨다운 체크
+    const lastNavbarRefresh = localStorage.getItem('lastNavbarRefresh');
+    const navbarRefreshCooldown = 10000; // 10초
+    
+    if (lastNavbarRefresh && Date.now() - parseInt(lastNavbarRefresh) < navbarRefreshCooldown) {
+      return;
+    }
+    
     setIsRefreshing(true);
+    localStorage.setItem('lastNavbarRefresh', Date.now().toString());
+    
     try {
-      console.log('사용자 정보 없음, 리프레시 토큰 시도');
       await refreshToken();
     } finally {
       setIsRefreshing(false);

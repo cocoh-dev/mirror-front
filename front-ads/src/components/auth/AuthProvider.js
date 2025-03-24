@@ -40,10 +40,16 @@ export function AuthProvider({ children }) {
         setLoading(false);
       } else {
         // 캐시가 없으면, 서버에서 사용자 정보 가져오기
-        // console.log('캐시된 사용자 정보 없음, 서버에서 가져오기 시도');
-        const currentUser = await checkAuthStatus();
-        if (currentUser) {
-          setUser(currentUser);
+        // 새로운 API 요청 전 쿨다운 체크 추가
+        const lastAuthCheck = localStorage.getItem('lastAuthCheck');
+        const authCheckCooldown = 5000; // 5초
+        
+        if (!lastAuthCheck || Date.now() - parseInt(lastAuthCheck) > authCheckCooldown) {
+          localStorage.setItem('lastAuthCheck', Date.now().toString());
+          const currentUser = await checkAuthStatus();
+          if (currentUser) {
+            setUser(currentUser);
+          }
         }
         setLoading(false);
       }
@@ -59,36 +65,36 @@ export function AuthProvider({ children }) {
     
     initAuth();
     
-    // 페이지 가시성 변경 시 인증 확인 (탭 다시 활성화 등)
+    // 페이지 가시성 변경 시 인증 확인 - 쿨다운 로직 추가
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
+        const lastVisibilityCheck = localStorage.getItem('lastVisibilityCheck');
+        const visibilityCooldown = 30000; // 30초
+        
+        if (!lastVisibilityCheck || Date.now() - parseInt(lastVisibilityCheck) > visibilityCooldown) {
+          localStorage.setItem('lastVisibilityCheck', Date.now().toString());
+          checkAuthStatus();
+        }
+      }
+    };
+    
+    // 네트워크 연결 복구 시 인증 확인 - 쿨다운 로직 추가
+    const handleOnline = () => {
+      const lastOnlineCheck = localStorage.getItem('lastOnlineCheck');
+      const onlineCooldown = 10000; // 10초
+      
+      if (!lastOnlineCheck || Date.now() - parseInt(lastOnlineCheck) > onlineCooldown) {
+        localStorage.setItem('lastOnlineCheck', Date.now().toString());
         checkAuthStatus();
       }
     };
     
-    // 네트워크 연결 복구 시 인증 확인
-    const handleOnline = () => {
-      checkAuthStatus();
-    };
-    
-    // 사용자 활동 감지 (클릭, 키보드 입력 등)
-    const handleUserActivity = () => {
-      // 마지막 인증 확인 이후 충분한 시간이 지났는지 확인하는 로직 추가 가능
-      // 여기서는 단순화를 위해 생략
-    };
-    
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('online', handleOnline);
-    // 추가적인 사용자 활동 이벤트 (필요시 활성화)
-    // document.addEventListener('click', handleUserActivity);
-    // document.addEventListener('keydown', handleUserActivity);
     
-    // 컴포넌트 언마운트 시 정리
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('online', handleOnline);
-      // document.removeEventListener('click', handleUserActivity);
-      // document.removeEventListener('keydown', handleUserActivity);
       unsubscribe();
     };
   }, []);

@@ -3,7 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 
 // 사용자 정보 캐싱을 위한 변수
 let pendingUserPromise = null;
-const CACHE_EXPIRY = 15 * 60 * 1000; // 15분 캐시
+const CACHE_EXPIRY = 30 * 60 * 1000; // 30분으로 증가
 
 // 토큰 갱신 중인지 추적하는 변수
 let isRefreshing = false;
@@ -145,25 +145,26 @@ export const refreshAuthToken = async () => {
       const checkRefreshComplete = setInterval(() => {
         if (!isRefreshing) {
           clearInterval(checkRefreshComplete);
-          resolve(!!userCache); // 사용자 캐시가 있으면 성공, 없으면 실패
+          resolve(!!userCache);
         }
       }, 100);
     });
   }
   
-  // 브라우저 환경이 아니면 실패
-  if (typeof document === 'undefined') return false;
-  
-  // HttpOnly 쿠키는 JavaScript로 직접 확인할 수 없으므로 항상 갱신 시도
-  // 서버가 refreshToken이 없거나 유효하지 않으면 401을 반환하게 됨
-  
-  // 최근 실패 기록 확인 (연속적인 실패 방지)
+  // 쿨다운 로직 강화
   const lastRefreshFail = localStorage.getItem('lastRefreshFail');
-  const failCooldown = 10000; // 10초 쿨다운
+  const lastSuccessfulRefresh = localStorage.getItem('lastSuccessfulRefresh');
+  const failCooldown = 30000; // 30초로 증가 (기존 10초)
+  const successCooldown = 60000; // 성공 후 1분간 추가 갱신 방지
   
+  // 최근 실패 후 쿨다운
   if (lastRefreshFail && Date.now() - parseInt(lastRefreshFail) < failCooldown) {
-    // console.log('최근에 갱신 실패. 쿨다운 기간 동안 재시도하지 않습니다.');
     return false;
+  }
+  
+  // 최근 성공 후 쿨다운 (새로 추가)
+  if (lastSuccessfulRefresh && Date.now() - parseInt(lastSuccessfulRefresh) < successCooldown) {
+    return true; // 최근에 성공했으면 토큰이 유효하다고 가정
   }
   
   isRefreshing = true;
@@ -175,22 +176,22 @@ export const refreshAuthToken = async () => {
     // 갱신 성공 시 사용자 정보 업데이트
     userCache = response.data.user;
     cacheTimestamp = Date.now();
-    notifySubscribers(userCache);
     
-    // 실패 기록 제거
+    // 성공 기록 저장 (새로 추가)
+    localStorage.setItem('lastSuccessfulRefresh', Date.now().toString());
     localStorage.removeItem('lastRefreshFail');
+    
+    notifySubscribers(userCache);
     
     return true;
   } catch (error) {
     console.error('Token refresh failed:', error);
     
-    // 갱신 실패 시 (예: 리프레시 토큰 만료) 사용자 정보 초기화
     if (error.response?.status === 401) {
       invalidateCache();
       notifySubscribers(null);
     }
     
-    // 실패 시간 기록 (연속적인 실패 방지)
     localStorage.setItem('lastRefreshFail', Date.now().toString());
     
     return false;
@@ -275,57 +276,52 @@ const invalidateCache = () => {
 
 // 캐시가 유효한지 확인
 const isCacheValid = () => {
-  // console.log('캐시 확인: userCache 있음?', !!userCache);
-  // console.log('캐시 확인: cacheTimestamp 있음?', !!cacheTimestamp);
-  
   if (!userCache || !cacheTimestamp) {
-    // console.log('캐시 유효하지 않음: 필수 데이터 없음');
     return false;
   }
   
   // 토큰 만료 시간 확인
   const tokenExpiry = getTokenExpiryFromCookie();
-  // console.log('토큰 만료 시간:', tokenExpiry ? new Date(tokenExpiry) : '없음');
   
   if (tokenExpiry) {
-    // 토큰 만료 10분 전부터는 갱신 시도
-    const tokenValidityBuffer = 10 * 60 * 1000; // 10분
+    // 만료 버퍼 시간 늘리기 - 만료 30분 전부터 갱신 시도 (기존 10분)
+    const tokenValidityBuffer = 30 * 60 * 1000;
     return Date.now() < (tokenExpiry - tokenValidityBuffer);
   }
   
-  // 토큰 만료를 확인할 수 없으면 캐시 만료 시간으로 판단
+  // 캐시 만료 시간 기준
   return (Date.now() - cacheTimestamp) < CACHE_EXPIRY;
 };
 
 // checkAuth 함수 수정
 export const checkAuth = async () => {
-  // console.log("checkAuth 시작");
-  // console.log("초기 캐시 상태:", !!userCache, !!cacheTimestamp);
-
-  // 이미 진행 중인 요청이 있으면 그 결과를 기다림
+  // 쿨다운 로직 추가
+  const lastAuthCheck = localStorage.getItem('lastAuthCheck');
+  const authCheckCooldown = 5000; // 5초
+  
+  // 이미 진행 중인 요청이 있으면 기다림
   if (pendingUserPromise) {
-    // console.log("진행 중인 요청 있음, 기다리는 중");
     return pendingUserPromise;
   }
   
-  // 캐시가 유효하면 캐시된 데이터 반환
+  // 캐시가 유효하면 캐시 반환
   if (isCacheValid()) {
-    // console.log("캐시 유효, 캐시된 데이터 반환");
     return userCache;
   }
   
-  // console.log("새 요청 시작");
-  // 새 요청 실행
+  // 최근 확인 후 쿨다운 기간 내라면 현재 캐시 반환 (새로 추가)
+  if (lastAuthCheck && Date.now() - parseInt(lastAuthCheck) < authCheckCooldown) {
+    return userCache;
+  }
+  
+  // 새 API 요청 시작 및 시간 기록
+  localStorage.setItem('lastAuthCheck', Date.now().toString());
+  
   pendingUserPromise = api.get('/auth/me')
     .then(response => {
-      // console.log("API 응답 받음:", response.data);
       userCache = response.data.user;
       cacheTimestamp = Date.now();
-      
-      // localStorage에 캐시 저장
       saveCache(userCache, cacheTimestamp);
-      
-      // console.log("캐시 설정 완료:", !!userCache, "타임스탬프:", cacheTimestamp);
       pendingUserPromise = null;
       notifySubscribers(userCache);
       return userCache;
@@ -333,24 +329,14 @@ export const checkAuth = async () => {
     .catch(async error => {
       pendingUserPromise = null;
       
-      // 401 에러가 발생하면 토큰 갱신 시도
       if (error.response?.status === 401) {
-        try {
-          const refreshed = await refreshAuthToken();
-          if (refreshed) {
-            // 갱신 성공 시 사용자 정보 다시 요청
-            const response = await api.get('/auth/me');
-            userCache = response.data.user;
-            cacheTimestamp = Date.now();
-            notifySubscribers(userCache);
-            return userCache;
-          }
-        } catch (refreshError) {
-          console.error('Token refresh in checkAuth failed:', refreshError);
+        // 토큰 갱신 시도 (쿨다운 로직은 refreshAuthToken 내부에서 처리)
+        const refreshed = await refreshAuthToken();
+        if (refreshed) {
+          return userCache;
         }
       }
       
-      // 최종 실패 시 인증 상태 초기화
       userCache = null;
       cacheTimestamp = null;
       notifySubscribers(null);

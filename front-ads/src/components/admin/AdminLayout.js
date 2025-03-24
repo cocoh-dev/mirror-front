@@ -27,6 +27,10 @@ export default function AdminLayout({ children }) {
         
         // Check if user is admin or superadmin
         if (!currentUser || (currentUser.role !== 'superadmin')) {
+          // 세션스토리지에 메시지 저장
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('redirect_message', '관리자 권한이 필요한 페이지입니다.');
+          }
           router.push('/dashboard');
           return;
         }

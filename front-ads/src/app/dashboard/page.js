@@ -9,6 +9,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -18,6 +19,16 @@ export default function Dashboard() {
     // 로딩이 완료된 후 사용자가 없으면 로그인 페이지로 리다이렉트
     if (!loading && !user) {
       router.push('/auth/login');
+    }
+    
+    // 세션 스토리지에서 메시지 확인
+    if (typeof window !== 'undefined') {
+      const message = sessionStorage.getItem('redirect_message');
+      if (message) {
+        toast.error(message);
+        // 메시지를 표시한 후 제거
+        sessionStorage.removeItem('redirect_message');
+      }
     }
   }, [user, loading, router]);
 

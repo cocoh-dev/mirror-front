@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -22,33 +22,31 @@ export default function Navbar() {
   const [isMounted, setIsMounted] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
+  // refreshToken 호출 로직을 useCallback으로 분리
+  const handleTokenRefresh = useCallback(async () => {
+    if (isRefreshing || loading || !initialized || user) return;
+    
+    setIsRefreshing(true);
+    try {
+      console.log('사용자 정보 없음, 리프레시 토큰 시도');
+      await refreshToken();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, loading, initialized, user, refreshToken]);
+  
+  // 초기 마운트 시 한 번만 실행
   useEffect(() => {
     setIsMounted(true);
-    
-    // 컴포넌트 마운트 시 인증 상태 확인 및 토큰 갱신 시도
-    const initAuth = async () => {
-      // 중요: 이미 갱신 중이거나, 로딩 중이면 갱신하지 않음
-      if (isRefreshing || loading || !initialized) return;
-      
-      // 쿠키가 있는지 확인 (간접적으로 쿠키 확인)
-      const hasCookies = document.cookie.includes('refreshToken');
-      
-      // 사용자 정보가 없지만 쿠키가 있는 경우에만 토큰 갱신 시도
-      if (!user && hasCookies) {
-        try {
-          setIsRefreshing(true);
-          await refreshToken();
-        } finally {
-          setIsRefreshing(false);
-        }
-      }
-    };
-    
-    // 로그인 페이지가 아닐 때만 갱신 시도
-    if (!pathname?.startsWith('/auth/')) {
-      initAuth();
+  }, []);
+  
+  // 토큰 갱신 로직을 별도 useEffect로 분리
+  useEffect(() => {
+    // 로그인 페이지에서는 실행하지 않음
+    if (!pathname?.startsWith('/auth/') && isMounted && !user && !loading && initialized && !isRefreshing) {
+      handleTokenRefresh();
     }
-  }, [loading, user, refreshToken, pathname, isRefreshing]);
+  }, [pathname, isMounted, user, loading, initialized, isRefreshing, handleTokenRefresh]);
 
   // Only render on client side to avoid hydration mismatch
   if (!isMounted) return null;

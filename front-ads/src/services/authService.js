@@ -137,7 +137,7 @@ export const login = async ({ email, password }) => {
   }
 };
 
-// 토큰 갱신 명시적 함수 - 개선된 버전
+// refreshAuthToken 함수 수정 - HttpOnly 쿠키 문제 해결
 export const refreshAuthToken = async () => {
   // 이미 갱신 중이면 중복 요청 방지
   if (isRefreshing) {
@@ -154,11 +154,8 @@ export const refreshAuthToken = async () => {
   // 브라우저 환경이 아니면 실패
   if (typeof document === 'undefined') return false;
   
-  // 쿠키 확인 - refreshToken 쿠키가 없으면 갱신 시도하지 않음
-  if (!document.cookie.includes('refreshToken')) {
-    // console.log('리프레시 토큰 쿠키가 없어 갱신을 시도하지 않습니다.');
-    return false;
-  }
+  // HttpOnly 쿠키는 JavaScript로 직접 확인할 수 없으므로 항상 갱신 시도
+  // 서버가 refreshToken이 없거나 유효하지 않으면 401을 반환하게 됨
   
   // 최근 실패 기록 확인 (연속적인 실패 방지)
   const lastRefreshFail = localStorage.getItem('lastRefreshFail');

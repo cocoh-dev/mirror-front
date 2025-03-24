@@ -20,15 +20,11 @@ const onRefreshed = () => {
 // 토큰 재발급을 호출하는 함수
 const refreshTokens = async () => {
   try {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
-      {}, // 쿠키에서 refreshToken을 읽기 때문에 본문 필요 없음
-      { withCredentials: true }
-    );
+    const response = await api.post(`/auth/refresh-token`);
     return response.data;
   } catch (error) {
     // 401 또는 다른 오류가 발생하면 로그아웃 처리
-    window.location.href = '/auth/login';
+    // window.location.href = '/auth/login';
     return Promise.reject(error);
   }
 };
@@ -39,8 +35,13 @@ api.interceptors.response.use(
   async error => {
     const originalRequest = error.config;
 
+    // 로그인 요청에서의 401 오류는 토큰 갱신으로 처리하지 않고 그대로 전달
+    if (originalRequest.url.includes('/auth/login')) {
+      return Promise.reject(error);
+    }
     // 401 에러이고, 재시도하지 않은 경우에만 토큰 갱신 시도
     if (error.response?.status === 401 && !originalRequest._retry) {
+      console.log(error)
       if (isRefreshing) {
         // 이미 토큰 갱신 중이면 대기열에 추가
         return new Promise(resolve => {

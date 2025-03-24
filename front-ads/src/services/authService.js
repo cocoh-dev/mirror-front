@@ -126,14 +126,20 @@ export const subscribeToAuthChanges = (callback) => {
 export const login = async ({ email, password }) => {
   try {
     const response = await api.post('/auth/login', { email, password });
-    
     // 로그인 성공 시 사용자 정보 갱신
     userCache = response.data.user || await checkAuth();
     cacheTimestamp = Date.now();
     notifySubscribers(userCache);
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Login failed' };
+    // 에러 메시지 추출 및 형식화
+    const errorMessage = 
+      error.response?.data?.message || 
+      error.response?.data?.error || 
+      error.message || 
+      'Login failed';
+    
+    throw { message: errorMessage };
   }
 };
 

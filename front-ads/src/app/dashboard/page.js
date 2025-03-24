@@ -15,22 +15,34 @@ export default function Dashboard() {
   const router = useRouter();
   const { user, loading } = useAuth();
 
+  // 로그인 상태 확인 및 리다이렉트 처리
   useEffect(() => {
-    // 로딩이 완료된 후 사용자가 없으면 로그인 페이지로 리다이렉트
     if (!loading && !user) {
-      router.push('/auth/login');
-    }
-    
-    // 세션 스토리지에서 메시지 확인
-    if (typeof window !== 'undefined') {
-      const message = sessionStorage.getItem('redirect_message');
-      if (message) {
-        toast.error(message);
-        // 메시지를 표시한 후 제거
-        sessionStorage.removeItem('redirect_message');
+      // 로그인이 필요한 경우 메시지 저장
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('redirect_message', '로그인이 필요한 페이지입니다.');
       }
+      router.push('/auth/login');
+      return;
     }
   }, [user, loading, router]);
+
+  // 메시지 확인 및 표시 (별도의 useEffect로 분리)
+  useEffect(() => {
+    // 로그인은 되어 있지만 메시지가 있는 경우 (관리자 권한 부족 등)
+    if (user && typeof window !== 'undefined') {
+      const timer = setTimeout(() => {
+        const message = sessionStorage.getItem('redirect_message');
+        if (message) {
+          console.log('대시보드에서 메시지 확인:', message);
+          toast.error(message);
+          sessionStorage.removeItem('redirect_message');
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
 
   if (loading) {
     return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;

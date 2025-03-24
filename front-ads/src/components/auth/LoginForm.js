@@ -29,9 +29,18 @@ export default function LoginForm() {
 
     try {
       await login({ email, password });
-      router.push(returnUrl); // returnUrl로 리다이렉트
+      router.push(returnUrl);
     } catch (err) {
-      setError(err.message || 'Failed to login. Please check your credentials.');
+      console.error('Login error details:', err);
+      
+      // 에러 구조 확인 및 적절한 메시지 추출
+      const errorMessage = 
+        err.response?.data?.message ||  // 서버에서 온 에러 메시지
+        err.response?.data?.error ||    // 다른 형식의 서버 에러
+        err.message ||                  // Axios 에러 메시지
+        'Failed to login. Please check your credentials.';
+        
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

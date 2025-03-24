@@ -77,12 +77,6 @@ export default function LoginForm() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">비밀번호</Label>
-              <Link 
-                href="/auth/forgot-password" 
-                className="text-sm text-blue-500 hover:text-blue-700"
-              >
-                비밀번호를 잊으셨나요?
-              </Link>
             </div>
             <Input
               id="password"
@@ -91,6 +85,12 @@ export default function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <Link 
+              href="/auth/forgot-password" 
+              className="text-sm text-blue-500 hover:text-blue-700"
+            >
+              비밀번호를 잊으셨나요?
+            </Link>
           </div>
           
           <Button 

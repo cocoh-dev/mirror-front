@@ -32,37 +32,32 @@ export function AuthProvider({ children }) {
   
   useEffect(() => {
     const initAuth = async () => {
+      console.log('AuthProvider initAuth 시작');
       // 초기 캐시된 사용자 정보로 상태 설정 (빠른 UI 렌더링)
       const cachedUser = getCurrentUserSync();
       
       if (cachedUser) {
+        console.log('캐시된, 사용자 정보 있음');
         setUser(cachedUser);
         setLoading(false);
       } else {
-        // 캐시가 없으면, 서버에서 사용자 정보 가져오기
-        // 새로운 API 요청 전 쿨다운 체크 추가
-        const lastAuthCheck = localStorage.getItem('lastAuthCheck');
-        const authCheckCooldown = 5000; // 5초
-        
-        if (!lastAuthCheck || Date.now() - parseInt(lastAuthCheck) > authCheckCooldown) {
-          localStorage.setItem('lastAuthCheck', Date.now().toString());
-          const currentUser = await checkAuthStatus();
-          if (currentUser) {
-            setUser(currentUser);
-          }
+        console.log('캐시된 사용자 정보 없음, 서버에서 확인 시도');
+        setLoading(true); // 로딩 상태 명시적 설정
+        try {
+          const currentUser = await checkAuth();
+          console.log('checkAuth 결과:', !!currentUser);
+          setUser(currentUser);
+        } catch (error) {
+          console.error('Auth 초기화 오류:', error);
+        } finally {
+          setLoading(false); 
         }
-        setLoading(false);
       }
       
       setInitialized(true);
     };
     
-    // 인증 상태 변경 구독
-    const unsubscribe = subscribeToAuthChanges((currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    
+    // 초기화 실행
     initAuth();
     
     // 페이지 가시성 변경 시 인증 확인 - 쿨다운 로직 추가

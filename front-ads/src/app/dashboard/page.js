@@ -1,58 +1,32 @@
-// app/dashboard/page.js
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/components/auth/AuthProvider';
-
 // Import shadcn components
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useAuthCheck } from '@/hooks/useAuthCheck';
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuthCheck();
 
-  // 로그인 상태 확인 및 리다이렉트 처리
-  useEffect(() => {
-    if (!loading && !user) {
-      // 로그인이 필요한 경우 메시지 저장
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('redirect_message', '로그인이 필요한 페이지입니다.');
-      }
-      router.push('/auth/login');
-      return;
-    }
-  }, [user, loading, router]);
-
-  // 메시지 확인 및 표시 (별도의 useEffect로 분리)
-  useEffect(() => {
-    // 로그인은 되어 있지만 메시지가 있는 경우 (관리자 권한 부족 등)
-    if (user && typeof window !== 'undefined') {
-      const timer = setTimeout(() => {
-        const message = sessionStorage.getItem('redirect_message');
-        if (message) {
-          console.log('대시보드에서 메시지 확인:', message);
-          toast.error(message);
-          sessionStorage.removeItem('redirect_message');
-        }
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [user]);
-
-  if (loading) {
-    return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="text-lg text-muted-foreground">로딩 중...</p>
+        </div>
+      </div>
+    );
   }
 
-  // 사용자가 없으면 렌더링하지 않음 (리다이렉트 대기)
-  if (!user) {
+  if (!isAuthenticated) {
     return null;
   }
 
+  // 인증된 사용자만 접근 가능한 대시보드 내용
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">대시보드</h1>

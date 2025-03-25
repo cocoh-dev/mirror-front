@@ -300,31 +300,29 @@ const isCacheValid = () => {
 };
 
 // checkAuth 함수 수정
+// authService.js의 checkAuth 함수 수정
 export const checkAuth = async () => {
-  // 쿨다운 로직 추가
-  const lastAuthCheck = localStorage.getItem('lastAuthCheck');
-  const authCheckCooldown = 5000; // 5초
+  // 디버깅 로그 추가
+  console.log('checkAuth 호출됨, 현재 캐시:', !!userCache);
   
   // 이미 진행 중인 요청이 있으면 기다림
   if (pendingUserPromise) {
+    console.log('진행 중인 요청이 있어 대기함');
     return pendingUserPromise;
   }
   
   // 캐시가 유효하면 캐시 반환
   if (isCacheValid()) {
+    console.log('캐시가 유효함, 캐시된 사용자 반환');
     return userCache;
   }
   
-  // 최근 확인 후 쿨다운 기간 내라면 현재 캐시 반환 (새로 추가)
-  if (lastAuthCheck && Date.now() - parseInt(lastAuthCheck) < authCheckCooldown) {
-    return userCache;
-  }
+  console.log('/auth/me API 요청 시작');
   
-  // 새 API 요청 시작 및 시간 기록
-  localStorage.setItem('lastAuthCheck', Date.now().toString());
-  
+  // 새 API 요청 시작
   pendingUserPromise = api.get('/auth/me')
     .then(response => {
+      console.log('/auth/me 응답 성공:', !!response.data.user);
       userCache = response.data.user;
       cacheTimestamp = Date.now();
       saveCache(userCache, cacheTimestamp);
@@ -333,11 +331,14 @@ export const checkAuth = async () => {
       return userCache;
     })
     .catch(async error => {
+      console.log('/auth/me 응답 실패:', error.response?.status);
       pendingUserPromise = null;
       
       if (error.response?.status === 401) {
-        // 토큰 갱신 시도 (쿨다운 로직은 refreshAuthToken 내부에서 처리)
+        console.log('401 에러, 토큰 갱신 시도');
+        // 토큰 갱신 시도
         const refreshed = await refreshAuthToken();
+        console.log('토큰 갱신 결과:', refreshed);
         if (refreshed) {
           return userCache;
         }

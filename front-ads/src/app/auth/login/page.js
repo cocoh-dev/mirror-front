@@ -8,7 +8,6 @@ export default function LoginPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const message = sessionStorage.getItem('redirect_message');
-      
       if (message === 'login_required') {
         toast.error('로그인이 필요한 페이지입니다.');
         sessionStorage.removeItem('redirect_message');

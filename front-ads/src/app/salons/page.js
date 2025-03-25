@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { toast } from "sonner";
-import { LayoutGrid, List } from "lucide-react";
+import { Building, LayoutGrid, List, Plus } from "lucide-react";
 
 import { SalonPageHeader } from "@/components/admin/salons/SalonPageHeader";
 import { SalonTable } from "@/components/admin/salons/SalonTable";
@@ -15,6 +15,7 @@ import { Loader2 } from "lucide-react";
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { GridSkeleton } from "@/components/admin/salons/SkeletonLoaders";
 import { TableSkeleton } from "@/components/admin/members/TableSkeleton";
+import { Card } from "@/components/ui/card";
 
 const MySalonsList = () => {
   const [salons, setSalons] = useState([]);
@@ -138,7 +139,23 @@ const MySalonsList = () => {
         viewMode === 'grid' ? <GridSkeleton /> : <TableSkeleton />
       ) : (
         <>
-          {viewMode === 'grid' ? (
+          {salons.length === 0 ? (
+            <Card className="p-8 text-center">
+              <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                <div className="rounded-full bg-gray-100 p-6">
+                  <Building className="h-12 w-12 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold">등록된 미용실이 없습니다</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  미용실 추가 버튼을 클릭하여 첫 미용실을 등록해보세요.
+                </p>
+                <Button onClick={handleAddSalon} className="mt-4">
+                  <Plus className="mr-2 h-4 w-4" />
+                  미용실 추가하기
+                </Button>
+              </div>
+            </Card>
+          ) : viewMode === 'grid' ? (
             <SalonGrid 
               salons={salons}
               onView={handleViewSalon}

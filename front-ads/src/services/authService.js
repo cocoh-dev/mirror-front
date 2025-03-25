@@ -303,26 +303,26 @@ const isCacheValid = () => {
 // authService.js의 checkAuth 함수 수정
 export const checkAuth = async () => {
   // 디버깅 로그 추가
-  console.log('checkAuth 호출됨, 현재 캐시:', !!userCache);
+  // console.log('checkAuth 호출됨, 현재 캐시:', !!userCache);
   
   // 이미 진행 중인 요청이 있으면 기다림
   if (pendingUserPromise) {
-    console.log('진행 중인 요청이 있어 대기함');
+    // console.log('진행 중인 요청이 있어 대기함');
     return pendingUserPromise;
   }
   
   // 캐시가 유효하면 캐시 반환
   if (isCacheValid()) {
-    console.log('캐시가 유효함, 캐시된 사용자 반환');
+    // console.log('캐시가 유효함, 캐시된 사용자 반환');
     return userCache;
   }
   
-  console.log('/auth/me API 요청 시작');
+  // console.log('/auth/me API 요청 시작');
   
   // 새 API 요청 시작
   pendingUserPromise = api.get('/auth/me')
     .then(response => {
-      console.log('/auth/me 응답 성공:', !!response.data.user);
+      // console.log('/auth/me 응답 성공:', !!response.data.user);
       userCache = response.data.user;
       cacheTimestamp = Date.now();
       saveCache(userCache, cacheTimestamp);
@@ -331,14 +331,14 @@ export const checkAuth = async () => {
       return userCache;
     })
     .catch(async error => {
-      console.log('/auth/me 응답 실패:', error.response?.status);
+      // console.log('/auth/me 응답 실패:', error.response?.status);
       pendingUserPromise = null;
       
       if (error.response?.status === 401) {
-        console.log('401 에러, 토큰 갱신 시도');
+        // console.log('401 에러, 토큰 갱신 시도');
         // 토큰 갱신 시도
         const refreshed = await refreshAuthToken();
-        console.log('토큰 갱신 결과:', refreshed);
+        // console.log('토큰 갱신 결과:', refreshed);
         if (refreshed) {
           return userCache;
         }

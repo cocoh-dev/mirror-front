@@ -237,7 +237,7 @@ export default function ActivitiesPage() {
                       <SelectValue placeholder="모든 활동 유형" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">모든 활동 유형</SelectItem>
+                      <SelectItem>모든 활동 유형</SelectItem>
                       {activityTypes?.types?.map((type) => (
                         <SelectItem key={type} value={type}>
                           {type}

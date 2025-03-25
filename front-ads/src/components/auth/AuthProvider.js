@@ -32,20 +32,20 @@ export function AuthProvider({ children }) {
   
   useEffect(() => {
     const initAuth = async () => {
-      console.log('AuthProvider initAuth 시작');
+      // console.log('AuthProvider initAuth 시작');
       // 초기 캐시된 사용자 정보로 상태 설정 (빠른 UI 렌더링)
       const cachedUser = getCurrentUserSync();
       
       if (cachedUser) {
-        console.log('캐시된, 사용자 정보 있음');
+        // console.log('캐시된, 사용자 정보 있음');
         setUser(cachedUser);
         setLoading(false);
       } else {
-        console.log('캐시된 사용자 정보 없음, 서버에서 확인 시도');
+        // console.log('캐시된 사용자 정보 없음, 서버에서 확인 시도');
         setLoading(true); // 로딩 상태 명시적 설정
         try {
           const currentUser = await checkAuth();
-          console.log('checkAuth 결과:', !!currentUser);
+          // console.log('checkAuth 결과:', !!currentUser);
           setUser(currentUser);
         } catch (error) {
           console.error('Auth 초기화 오류:', error);

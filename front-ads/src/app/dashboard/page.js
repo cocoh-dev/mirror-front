@@ -9,7 +9,7 @@ import { useAuthCheck } from '@/hooks/useAuthCheck';
 
 export default function Dashboard() {
   const router = useRouter();
-  const { isAuthenticated, user, isLoading } = useAuthCheck();
+  const { isAuthenticated, isLoading } = useAuthCheck();
 
   if (isLoading) {
     return (

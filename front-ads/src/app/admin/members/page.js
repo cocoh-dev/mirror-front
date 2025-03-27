@@ -4,7 +4,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getMembers } from '@/services/memberService';
-import MembersHeader from '@/components/admin/members/MembersHeader';
 import MembersSearchAndFilter from '@/components/admin/members/MembersSearchAndFilter';
 import MembersTable from '@/components/admin/members/MembersTable';
 import { TableSkeleton } from '@/components/admin/members/TableSkeleton';
@@ -100,7 +99,9 @@ export default function MembersPage() {
   if (isLoading && !showSkeleton) {
     return (
       <div className="space-y-6">
-        <MembersHeader />
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight">회원 관리</h1>
+        </div>
         <MembersSearchAndFilter 
           searchTerm={searchTerm}
           onSearchInput={handleSearchInput}
@@ -135,7 +136,9 @@ export default function MembersPage() {
   
   return (
     <div className="space-y-6">
-      <MembersHeader />
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight">회원 관리</h1>
+      </div>
       
       <MembersSearchAndFilter 
         searchTerm={searchTerm}

@@ -62,7 +62,6 @@ export default function Navbar() {
 
   // If on auth pages, don't show navbar
   if (pathname?.startsWith('/auth/')) return null;
-
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="container mx-auto px-4">
@@ -133,9 +132,17 @@ export default function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                      {user?.name?.charAt(0).toUpperCase() || 'U'}
-                    </div>
+                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                    {user?.profileImage ? (
+                      <img 
+                        src={user.profileImage} 
+                        alt={`${user?.name || 'User'}'s profile`}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <span>{user?.name?.charAt(0).toUpperCase() || 'U'}</span>
+                    )}
+                  </div>
                     <span>{user?.name || 'User'}</span>
                   </Button>
                 </DropdownMenuTrigger>

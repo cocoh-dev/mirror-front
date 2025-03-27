@@ -131,7 +131,7 @@ const AdminSidebar = () => {
           <div className="space-y-1">
             <MenuItem icon={Users} label="회원" defaultOpen>
               <MenuItem label="회원 목록" href="/admin/members" />
-              <MenuItem label="회원 로그" href="/admin/activities" />
+              <MenuItem label="활동 로그" href="/admin/activities" />
               <MenuItem label="회원 설정" href="/admin/member-settings" />
             </MenuItem>
           </div>
@@ -143,6 +143,7 @@ const AdminSidebar = () => {
               <MenuItem label="광고" href="/admin/ads" />
               <MenuItem label="스폰서" href="/admin/companies" />
               <MenuItem label="미용실" href="/admin/salons" />
+              <MenuItem label="전체로그" href="/admin/logs" />
               <MenuItem label="구독" href="/admin/subscription" />
               <MenuItem label="H.set" href="/admin/h-set" />
               <MenuItem label="게시판" href="/admin/boards" />

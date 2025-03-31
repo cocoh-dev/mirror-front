@@ -16,6 +16,7 @@ import { ErrorDisplay } from "@/components/ui/error-display";
 import { GridSkeleton } from "@/components/admin/salons/SkeletonLoaders";
 import { TableSkeleton } from "@/components/admin/members/TableSkeleton";
 import { Card } from "@/components/ui/card";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
 
 const MySalonsList = () => {
   const [salons, setSalons] = useState([]);
@@ -23,6 +24,7 @@ const MySalonsList = () => {
   const [error, setError] = useState(null);
   const router = useRouter();
   const [viewMode, setViewMode] = useState('grid');
+  const { isAuthenticated, isLoading } = useAuthCheck();
   
   // 페이지네이션 관련 상태 추가
   const [currentPage, setCurrentPage] = useState(1);

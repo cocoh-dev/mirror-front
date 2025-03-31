@@ -49,8 +49,6 @@ export const AdLocationTab = ({
         return '전국';
       case 'administrative':
         return '행정구역';
-      case 'radius':
-        return '반경';
       default:
         return '위치';
     }
@@ -137,13 +135,6 @@ export const AdLocationTab = ({
                             </Label>
                           </div>
                           
-                          <div className="flex items-center space-x-2 px-3 py-2 rounded-md bg-gray-50 border transition-colors hover:bg-gray-100">
-                            <RadioGroupItem value="radius" id={`radius-${index}`} className="text-purple-600" />
-                            <Label htmlFor={`radius-${index}`} className="flex items-center cursor-pointer">
-                              <Navigation className="h-4 w-4 mr-2 text-purple-600" />
-                              반경
-                            </Label>
-                          </div>
                         </RadioGroup>
                       </div>
 
@@ -183,58 +174,6 @@ export const AdLocationTab = ({
                         </div>
                       )}
 
-                      {location.target_type === 'radius' && (
-                        <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor={`radius-input-${index}`} className="text-sm font-medium text-purple-700">반경 (m)</Label>
-                              <div className="relative">
-                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                  <Navigation className="h-4 w-4 text-gray-500" />
-                                </div>
-                                <Input
-                                  id={`radius-input-${index}`}
-                                  type="number"
-                                  value={location.radius || 0}
-                                  onChange={(e) => onUpdateLocation(index, 'radius', parseInt(e.target.value))}
-                                  className="pl-10 transition-all focus:ring-2 focus:ring-purple-500"
-                                  placeholder="1000"
-                                  required
-                                />
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor={`lat-${index}`} className="text-sm font-medium text-purple-700">위도</Label>
-                              <Input
-                                id={`lat-${index}`}
-                                type="number"
-                                step="0.000001"
-                                value={location.center_latitude || 0}
-                                onChange={(e) => onUpdateLocation(index, 'center_latitude', parseFloat(e.target.value))}
-                                className="transition-all focus:ring-2 focus:ring-purple-500"
-                                placeholder="37.5665"
-                                required
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor={`lng-${index}`} className="text-sm font-medium text-purple-700">경도</Label>
-                              <Input
-                                id={`lng-${index}`}
-                                type="number"
-                                step="0.000001"
-                                value={location.center_longitude || 0}
-                                onChange={(e) => onUpdateLocation(index, 'center_longitude', parseFloat(e.target.value))}
-                                className="transition-all focus:ring-2 focus:ring-purple-500"
-                                placeholder="126.9780"
-                                required
-                              />
-                            </div>
-                          </div>
-                          <div className="mt-3 pt-3 border-t border-purple-200">
-                            <p className="text-xs text-purple-700">지도에서 중심점을 선택하거나 위도/경도 값을 직접 입력하세요.</p>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div>
@@ -258,22 +197,6 @@ export const AdLocationTab = ({
                         </div>
                       )}
 
-                      {location.target_type === 'radius' && (
-                        <div className="grid grid-cols-3 gap-4 p-3 bg-purple-50 rounded-lg">
-                          <div>
-                            <p className="text-sm text-purple-700">반경</p>
-                            <p className="font-medium">{location.radius || 0}m</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-purple-700">위도</p>
-                            <p className="font-medium">{location.center_latitude || 0}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-purple-700">경도</p>
-                            <p className="font-medium">{location.center_longitude || 0}</p>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>

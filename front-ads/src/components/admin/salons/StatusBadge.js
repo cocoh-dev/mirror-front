@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 
 export const StatusBadge = ({ status }) => {
   const variants = {
-    verified: { variant: 'default', label: '인증됨', icon: CheckCircle },
+    approved: { variant: 'default', label: '인증됨', icon: CheckCircle },
     pending: { variant: 'outline', label: '심사중', icon: null },
     rejected: { variant: 'destructive', label: '반려됨', icon: XCircle },
   };

@@ -2,12 +2,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, Mail, User2, UserCircle, Loader2 } from 'lucide-react';
-import { useAuth } from '@/components/auth/AuthProvider';
+import { useAuthCheck } from '@/hooks/useAuthCheck';
 
 export default function ProfilePage() {
-  const { user, loading, error } = useAuth();
+  const { isAuthenticated, isLoading } = useAuthCheck();
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
@@ -16,6 +16,10 @@ export default function ProfilePage() {
         </div>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   if (error) {

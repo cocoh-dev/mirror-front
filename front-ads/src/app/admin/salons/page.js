@@ -76,7 +76,7 @@ export default function SalonsPage() {
 
   // 이벤트 핸들러
   const handleAddSalon = () => {
-    router.push('/admin/salons/add');
+    router.push('/salons/add');
   };
 
   const handleViewSalon = (salon) => {

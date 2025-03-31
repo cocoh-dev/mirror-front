@@ -12,7 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Textarea } from '@/components/ui/textarea';
 import { createSalon } from '@/services/salonService';
 import SearchAddressModal from '@/components/common/SearchAddressModal';
-import { KakaoMap } from '@/components/common/kakao';
+import { KakaoMap } from '@/components/common/kakaoMap';
 import { formatPhoneNumber, formatBusinessNumber, cleanPhoneNumber, cleanBusinessNumber } from '@/utils/numberFormat';
 
 export const RegisterSalonForm = () => {

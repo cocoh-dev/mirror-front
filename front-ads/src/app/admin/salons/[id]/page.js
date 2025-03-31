@@ -261,9 +261,9 @@ export default function SalonDetailPage() {
                     <div className="flex flex-wrap gap-2">
                       <Button 
                         size="sm" 
-                        variant={salon.status === 'verified' ? 'default' : 'outline'}
-                        onClick={() => handleStatusChange('verified')}
-                        disabled={salon.status === 'verified'}
+                        variant={salon.status === 'approved' ? 'default' : 'outline'}
+                        onClick={() => handleStatusChange('approved')}
+                        disabled={salon.status === 'approved'}
                       >
                         <CheckCircle className="mr-2 h-4 w-4" />
                         인증

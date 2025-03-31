@@ -13,11 +13,8 @@ export default function LoginPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const message = sessionStorage.getItem('redirect_message');
-      if (message === 'login_required') {
-        toast.error('로그인이 필요한 페이지입니다.');
-        sessionStorage.removeItem('redirect_message');
-      } else if (message === 'admin_access_denied') {
-        toast.error('관리자 권한이 필요한 페이지입니다.');
+      if (message) {
+        toast.error(message); // 저장된 메시지 그대로 사용
         sessionStorage.removeItem('redirect_message');
       }
     }

@@ -39,7 +39,7 @@ export const SalonFilters = ({
       <Tabs value={activeTab} onValueChange={onTabChange} className="w-full sm:w-auto">
         <TabsList>
           <TabsTrigger value="all">전체</TabsTrigger>
-          <TabsTrigger value="verified">인증됨</TabsTrigger>
+          <TabsTrigger value="approved">인증됨</TabsTrigger>
           <TabsTrigger value="pending">심사중</TabsTrigger>
           <TabsTrigger value="rejected">반려됨</TabsTrigger>
         </TabsList>

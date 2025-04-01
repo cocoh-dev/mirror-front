@@ -42,7 +42,7 @@ import {
                 <TableHead>상태</TableHead>
                 <TableHead>기간</TableHead>
                 <TableHead>예산</TableHead>
-                <TableHead>사용량</TableHead>
+                <TableHead>노출 범위</TableHead>
                 <TableHead className="text-right">관리</TableHead>
               </TableRow>
             </TableHeader>
@@ -73,18 +73,11 @@ import {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center">
-                      <DollarSign className="mr-1 h-3 w-3 text-muted-foreground" />
                       <span>₩{ad.budget?.toLocaleString()}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="space-y-1">
-                      <Progress value={(ad.spent / ad.budget) * 100} className="h-2" />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>₩{ad.spent?.toLocaleString()}</span>
-                        <span>{Math.round((ad.spent / ad.budget) * 100)}%</span>
-                      </div>
-                    </div>
+                    <span className='text-xs text-gray-500'>{ad.targetedSalonCount}</span>
                   </TableCell>
                   <TableCell className="text-right ads-actions">
                     <DropdownMenu>

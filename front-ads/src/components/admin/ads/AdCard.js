@@ -134,16 +134,11 @@ export const AdCard = ({ ad, onView }) => {
         </div>
         
         <div className="flex items-center text-sm text-muted-foreground mt-2">
-          <DollarSign className="mr-1 h-3 w-3" />
-          <span>₩{ad.budget?.toLocaleString()}</span>
+          <span>{ad.budget?.toLocaleString()}₩</span>
         </div>
         
         <div className="space-y-1 mt-2">
-          <Progress value={(ad.spent / ad.budget) * 100} className="h-2" />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>₩{ad.spent?.toLocaleString()}</span>
-            <span>{Math.round((ad.spent / ad.budget) * 100)}%</span>
-          </div>
+          <span className='text-sm text-muted-foreground'>노출 범위 : {ad.targetedSalonCount}</span>
         </div>
         
       </CardContent>

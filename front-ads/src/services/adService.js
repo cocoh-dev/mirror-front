@@ -12,6 +12,19 @@ export const getAds = async (params = {}) => {
   }
 };
 
+// 광고 검색 (새로 추가)
+export const searchAds = async (params = {}) => {
+  try {
+    const response = await api.get('/api/ads/search', { params });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error('광고 검색 실패:', error);
+    throw error;
+  }
+};
+
+
 // 광고 상세 조회
 export const getAdById = async (id) => {
   try {

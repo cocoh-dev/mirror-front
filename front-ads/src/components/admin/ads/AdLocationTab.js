@@ -151,7 +151,7 @@ export const AdLocationTab = ({
                                 value={location.city || ''}
                                 onChange={(e) => onUpdateLocation(index, 'city', e.target.value)}
                                 className="pl-10 transition-all focus:ring-2 focus:ring-blue-500"
-                                placeholder="예: 서울특별시"
+                                placeholder="예: 서울"
                                 required
                               />
                             </div>

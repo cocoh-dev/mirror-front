@@ -153,7 +153,7 @@ export const updateDisplay = async (salonId, displayId, displayData) => {
       }),
     });
 
-    if (!response.ok) {
+    if (response.status !== 200) {
       const error = await response.json();
       throw new Error(error.message || '디스플레이 수정 중 오류가 발생했습니다.');
     }
@@ -179,9 +179,8 @@ export const deleteDisplay = async (displayId) => {
     console.log(displayId);
     const response = await api.delete(`/api/displays/${displayId}`);
 
-    if (!response.ok) {
-      const error = await response.data;
-      throw new Error(error.message || '디스플레이 삭제 중 오류가 발생했습니다.');
+    if (response.status !== 200) {
+      throw new Error(response.data.message || '디스플레이 삭제 중 오류가 발생했습니다.');
     }
 
     return await response.data;

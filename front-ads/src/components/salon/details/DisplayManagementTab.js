@@ -30,6 +30,7 @@ import { Label } from '@/components/ui/label';
 
 import { addDisplay, updateDisplay, deleteDisplay } from '@/services/salonService';
 import DisplayDeleteButton from '@/components/display/DisplayDeleteButton';
+import TokenDisplay from './TokenDisplay';
 
 export default function DisplayManagementTab({ salon, salonId }) {
   const queryClient = useQueryClient();
@@ -172,6 +173,7 @@ export default function DisplayManagementTab({ salon, salonId }) {
                   <div className="flex-1">
                     <p className="font-medium">{display.name}</p>
                     <p className="text-sm text-gray-500">ID: {display.device_id}</p>
+                    <TokenDisplay token={display.access_token} />
                     <p className="text-sm text-gray-500">상태: {display.status}</p>
                     {display.settings && (
                       <p className="text-sm text-gray-500">

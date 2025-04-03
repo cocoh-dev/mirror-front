@@ -1,3 +1,4 @@
+// File: front-ads/src/components/auth/AuthProvider.js
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
@@ -90,7 +91,6 @@ export function AuthProvider({ children }) {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('online', handleOnline);
-      unsubscribe();
     };
   }, []);
 
@@ -127,6 +127,11 @@ export function AuthProvider({ children }) {
     }
   };
   
+  // 사용자 정보를 직접 갱신하는 함수 추가
+  const refreshUser = (userData) => {
+    setUser(userData);
+  };
+  
   // 인증 컨텍스트 값
   const value = {
     user,
@@ -134,7 +139,8 @@ export function AuthProvider({ children }) {
     initialized,
     login,
     logout,
-    refreshToken, // 토큰 갱신 함수 추가
+    refreshToken,
+    refreshUser, // 사용자 정보 갱신 함수 추가
     isAuthenticated: !!user
   };
   

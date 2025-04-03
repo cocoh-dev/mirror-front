@@ -135,7 +135,7 @@ export default function Navbar() {
                   <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
                     {user?.profileImage ? (
                       <img 
-                        src={user.profileImage} 
+                        src={`${process.env.NEXT_PUBLIC_API_URL}/api/proxy-image?url=${encodeURIComponent(user.profileImage)}`} 
                         alt={`${user?.name || 'User'}'s profile`}
                         className="w-full h-full rounded-full object-cover"
                       />

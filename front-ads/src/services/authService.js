@@ -397,6 +397,36 @@ export const resetPassword = async (token, newPassword) => {
   }
 };
 
+export const updateUserProfile = async (profileData) => {
+  try {
+    const response = await api.put('/api/profile', profileData);
+    
+    if (response.data.user) {
+      userCache = response.data.user;
+      cacheTimestamp = Date.now();
+      saveCache(userCache, cacheTimestamp);
+      notifySubscribers(userCache);
+    }
+    
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: '프로필 업데이트 실패' };
+  }
+};
+
+export const updatePassword = async (passwordData) => {
+  try {
+    const response = await api.put('/api/profile/password', {
+      currentPassword: passwordData.currentPassword,
+      newPassword: passwordData.newPassword
+    });
+    
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: '비밀번호 변경 실패' };
+  }
+};
+
 // 페이지 로드 시 자동으로 사용자 정보 확인 설정
 if (typeof window !== 'undefined') {
   // URL에서 토큰 파라미터 확인 (OAuth 콜백)

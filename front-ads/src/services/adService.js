@@ -23,6 +23,17 @@ export const searchAds = async (params = {}) => {
     throw error;
   }
 };
+// 광고 검색 (새로 추가)
+export const publicAds = async (params = {}) => {
+  try {
+    const response = await api.get('/api/public/ads', { params });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error('광고 검색 실패:', error);
+    throw error;
+  }
+};
 
 
 // 광고 상세 조회

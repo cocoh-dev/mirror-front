@@ -119,7 +119,7 @@ export const AdCard = ({ ad, onView }) => {
       <div className="overflow-hidden">
         {renderMedia()}
       </div>
-      <CardHeader className="p-4 pb-0">
+      <CardHeader className="p-3 pb-0">
         <div className="flex justify-between items-start">
           <div>
             <CardTitle className="text-lg">{ad.title}</CardTitle>
@@ -127,57 +127,21 @@ export const AdCard = ({ ad, onView }) => {
           <StatusBadge status={ad.status} />
         </div>
       </CardHeader>
-      <CardContent className="p-4 pt-2">
-        <div className="flex items-center text-sm text-muted-foreground mt-2">
+      <CardContent className="p-3 pt-1">
+        <div className="flex items-center text-sm text-muted-foreground mt-1">
           <CalendarDays className="mr-1 h-3 w-3" />
           <span className="text-xs">{ad.startDate} ~ {ad.endDate}</span>
         </div>
         
-        <div className="flex items-center text-sm text-muted-foreground mt-2">
+        <div className="flex items-center text-sm text-muted-foreground mt-1">
           <span>{ad.budget?.toLocaleString()}₩</span>
         </div>
         
-        <div className="space-y-1 mt-2">
+        <div className="mt-1">
           <span className='text-sm text-muted-foreground'>노출 범위 : {ad.targetedSalonCount}</span>
         </div>
         
       </CardContent>
-      <CardFooter className="p-4 pt-0 flex justify-end">
-        <DropdownMenu className="ads-actions">
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>작업</DropdownMenuLabel>
-            <DropdownMenuItem className="flex items-center gap-2">
-              <Eye className="h-4 w-4" />
-              <span>상세보기</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-2">
-              <Edit2 className="h-4 w-4" />
-              <span>수정</span>
-            </DropdownMenuItem>
-            {ad.status === 'active' ? (
-              <DropdownMenuItem className="flex items-center gap-2">
-                <Pause className="h-4 w-4" />
-                <span>일시중지</span>
-              </DropdownMenuItem>
-            ) : ad.status === 'paused' ? (
-              <DropdownMenuItem className="flex items-center gap-2">
-                <Play className="h-4 w-4" />
-                <span>재개</span>
-              </DropdownMenuItem>
-            ) : null}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive flex items-center gap-2">
-              <Trash2 className="h-4 w-4" />
-              <span>삭제</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </CardFooter>
     </Card>
   );
 };

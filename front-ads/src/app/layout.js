@@ -1,7 +1,7 @@
 // app/layout.js
 import './globals.css';
 import { Inter } from 'next/font/google';
-import Navbar from '@/components/layout/Navbar';
+import Navbar from '@/components/layout/Header';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import QueryProvider from '@/components/QueryProvider';
 import Footer from '@/components/layout/Footer';

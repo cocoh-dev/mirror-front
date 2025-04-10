@@ -16,7 +16,7 @@ export const getAds = async (params = {}) => {
 export const searchAds = async (params = {}) => {
   try {
     const response = await api.get('/api/ads/search', { params });
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('광고 검색 실패:', error);
@@ -27,7 +27,7 @@ export const searchAds = async (params = {}) => {
 export const publicAds = async (params = {}) => {
   try {
     const response = await api.get('/api/public/ads', { params });
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('광고 검색 실패:', error);
@@ -98,7 +98,7 @@ export const deleteAd = async (id) => {
 export const getAdsList = async (params = {}) => {
   try {
     const response = await api.get('/api/ads/list', { params });
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('전체 광고 목록 조회 실패:', error);

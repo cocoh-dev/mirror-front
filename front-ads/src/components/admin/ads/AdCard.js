@@ -30,6 +30,7 @@ import {
   Pause,
   Play,
 } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
 
 export const AdCard = ({ ad, onView }) => {
   // 이미지/비디오 오류 상태 관리
@@ -124,17 +125,21 @@ export const AdCard = ({ ad, onView }) => {
           <div>
             <CardTitle className="text-lg">{ad.title}</CardTitle>
           </div>
-          <StatusBadge status={ad.status} />
+          <StatusBadge campaign={ad.campaign} />
         </div>
       </CardHeader>
       <CardContent className="p-3 pt-1">
         <div className="flex items-center text-sm text-muted-foreground mt-1">
           <CalendarDays className="mr-1 h-3 w-3" />
-          <span className="text-xs">{ad.startDate} ~ {ad.endDate}</span>
+          <span className="text-xs">
+            {ad.campaign?.start_date ? format(parseISO(ad.campaign.start_date), 'yyyy-MM-dd') : ''} 
+              {' ~ '}
+            {ad.campaign?.end_date ? format(parseISO(ad.campaign.end_date), 'yyyy-MM-dd') : ''}
+          </span>
         </div>
         
         <div className="flex items-center text-sm text-muted-foreground mt-1">
-          <span>{ad.budget?.toLocaleString()}₩</span>
+          <span>{ad.campaign?.budget ? Math.floor(ad.campaign.budget).toLocaleString() : ''} ₩</span>
         </div>
         
         <div className="mt-1">

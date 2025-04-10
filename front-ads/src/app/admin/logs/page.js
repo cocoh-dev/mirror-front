@@ -58,14 +58,29 @@ import {
 import api from '@/lib/api';
 import { useAuthCheck } from '@/hooks/useAuthCheck';
 
-// 로그 레벨 배지 색상 설정
+// 로그 레벨 배지 색상 설정 - 다크모드 대응
 const getLogLevelBadge = (level) => {
   const levels = {
-    error: { bg: 'bg-red-100 text-red-800', icon: AlertTriangle },
-    warn: { bg: 'bg-yellow-100 text-yellow-800', icon: AlertTriangle },
-    info: { bg: 'bg-blue-100 text-blue-800', icon: Info },
-    debug: { bg: 'bg-gray-100 text-gray-800', icon: Database },
-    trace: { bg: 'bg-purple-100 text-purple-800', icon: Clock }
+    error: { 
+      bg: 'bg-red-200 dark:bg-red-900 text-red-800 dark:text-red-200', 
+      icon: AlertTriangle 
+    },
+    warn: { 
+      bg: 'bg-yellow-200 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200', 
+      icon: AlertTriangle 
+    },
+    info: { 
+      bg: 'bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-200', 
+      icon: Info 
+    },
+    debug: { 
+      bg: 'bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200', 
+      icon: Database 
+    },
+    trace: { 
+      bg: 'bg-purple-200 dark:bg-purple-900 text-purple-800 dark:text-purple-200', 
+      icon: Clock 
+    }
   };
   
   const { bg, icon: Icon } = levels[level] || levels.info;
@@ -303,6 +318,27 @@ export default function LogsManagementPage() {
     }
   }, [activeTab, selectedFile, selectedLogType]);
   
+  // HTTP 상태 코드 배지 생성 함수 - 다크모드 대응
+  const getStatusBadge = (status) => {
+    if (!status || status === '-') return '-';
+    
+    let bgClass = '';
+    
+    if (status >= 400) {
+      bgClass = 'bg-red-200 dark:bg-red-900 text-red-800 dark:text-red-200';
+    } else if (status >= 300) {
+      bgClass = 'bg-yellow-200 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
+    } else {
+      bgClass = 'bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200';
+    }
+    
+    return (
+      <span className={`px-2 py-1 rounded text-xs ${bgClass}`}>
+        {status}
+      </span>
+    );
+  };
+  
   // 로딩 중이거나 인증되지 않은 경우
   if (isLoading || !isAuthenticated) {
     return (
@@ -461,7 +497,7 @@ export default function LogsManagementPage() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                   </div>
                 ) : filteredLogs.length > 0 ? (
-                  <div className="border rounded-md">
+                  <div className="border rounded-md dark:border-gray-700">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -473,7 +509,7 @@ export default function LogsManagementPage() {
                       </TableHeader>
                       <TableBody>
                         {filteredLogs.slice(0, 100).map((log, index) => (
-                          <TableRow key={index}>
+                          <TableRow key={index} className="dark:border-gray-700">
                             <TableCell className="font-mono text-xs">
                               {log.timestamp || log.metadata?.timestamp || '-'}
                             </TableCell>
@@ -484,7 +520,7 @@ export default function LogsManagementPage() {
                               <div className="max-h-20 overflow-y-auto">
                                 {log.message}
                                 {log.error && (
-                                  <div className="text-red-600 mt-1 text-xs font-mono">
+                                  <div className="text-red-600 dark:text-red-400 mt-1 text-xs font-mono">
                                     {log.error.stack || log.error.message || JSON.stringify(log.error)}
                                   </div>
                                 )}
@@ -536,15 +572,15 @@ export default function LogsManagementPage() {
                     
                     <div className="space-y-2">
                       <Label>파일 선택</Label>
-                      <div className="border rounded-md h-80 overflow-y-auto">
-                        <div className="divide-y">
+                      <div className="border rounded-md h-80 overflow-y-auto dark:border-gray-700">
+                        <div className="divide-y dark:divide-gray-700">
                           {logFiles
                             .filter(file => file.type === selectedLogType)
                             .map((file) => (
                               <button
                                 key={file.name}
-                                className={`w-full p-2 text-left text-sm hover:bg-gray-100 ${
-                                  selectedFile === file.name ? 'bg-gray-100 font-medium' : ''
+                                className={`w-full p-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                                  selectedFile === file.name ? 'bg-gray-100 dark:bg-gray-800 font-medium' : ''
                                 }`}
                                 onClick={() => setSelectedFile(file.name)}
                               >
@@ -593,7 +629,7 @@ export default function LogsManagementPage() {
                       <p className="text-muted-foreground">왼쪽에서 로그 파일을 선택해주세요.</p>
                     </div>
                   ) : logContent.length > 0 ? (
-                    <div className="border rounded-md overflow-x-auto">
+                    <div className="border rounded-md overflow-x-auto dark:border-gray-700">
                       <Table>
                       <TableHeader>
                           <TableRow>
@@ -607,7 +643,7 @@ export default function LogsManagementPage() {
                         </TableHeader>
                         <TableBody>
                           {logContent.map((log, index) => (
-                            <TableRow key={index}>
+                            <TableRow key={index} className="dark:border-gray-700">
                               <TableCell className="font-mono text-xs">
                                 {log.timestamp || log.metadata?.timestamp || '-'}
                               </TableCell>
@@ -618,7 +654,7 @@ export default function LogsManagementPage() {
                                 <div className="max-h-20 overflow-y-auto">
                                   {log.message}
                                   {log.error && (
-                                    <div className="text-red-600 mt-1 text-xs font-mono">
+                                    <div className="text-red-600 dark:text-red-400 mt-1 text-xs font-mono">
                                       {log.error.stack || log.error.message || JSON.stringify(log.error)}
                                     </div>
                                   )}
@@ -626,13 +662,7 @@ export default function LogsManagementPage() {
                               </TableCell>
                               <TableCell>{log.metadata?.method || '-'}</TableCell>
                               <TableCell>
-                                <span className={`px-2 py-1 rounded text-xs ${
-                                  (log.metadata?.status >= 400) ? 'bg-red-100 text-red-800' : 
-                                  (log.metadata?.status >= 300) ? 'bg-yellow-100 text-yellow-800' : 
-                                  'bg-green-100 text-green-800'
-                                }`}>
-                                  {log.metadata?.status || '-'}
-                                </span>
+                                {getStatusBadge(log.metadata?.status)}
                               </TableCell>
                               <TableCell className="font-mono text-xs">
                                 {log.metadata?.requestId || log.requestId || '-'}
@@ -705,7 +735,7 @@ export default function LogsManagementPage() {
                     </div>
                   </div>
                   
-                  <div className="border rounded-md">
+                  <div className="border rounded-md dark:border-gray-700">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -718,7 +748,7 @@ export default function LogsManagementPage() {
                       <TableBody>
                         {searchResults.length > 0 ? (
                           searchResults.map((log, index) => (
-                            <TableRow key={index}>
+                            <TableRow key={index} className="dark:border-gray-700">
                               <TableCell className="font-mono text-xs">
                                 {formatTimestamp(log.timestamp)}
                               </TableCell>
@@ -729,7 +759,7 @@ export default function LogsManagementPage() {
                                 <div className="max-h-20 overflow-y-auto">
                                   {log.message}
                                   {log.error && (
-                                    <div className="text-red-600 mt-1 text-xs font-mono">
+                                    <div className="text-red-600 dark:text-red-400 mt-1 text-xs font-mono">
                                       {log.error.stack || log.error.message || JSON.stringify(log.error)}
                                     </div>
                                   )}

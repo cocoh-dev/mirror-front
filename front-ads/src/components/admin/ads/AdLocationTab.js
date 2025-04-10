@@ -20,26 +20,26 @@ export const AdLocationTab = ({
   const getLocationIcon = (type) => {
     switch (type) {
       case 'nationwide':
-        return <Globe className="h-5 w-5 text-green-600" />;
+        return <Globe className="h-5 w-5 text-green-600 dark:text-green-400" />;
       case 'administrative':
-        return <Building2 className="h-5 w-5 text-blue-600" />;
+        return <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />;
       case 'radius':
-        return <Navigation className="h-5 w-5 text-purple-600" />;
+        return <Navigation className="h-5 w-5 text-purple-600 dark:text-purple-400" />;
       default:
-        return <MapPin className="h-5 w-5 text-gray-600" />;
+        return <MapPin className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
   const getLocationColor = (type) => {
     switch (type) {
       case 'nationwide':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800';
       case 'administrative':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800';
       case 'radius':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-muted/40 dark:bg-muted/20 text-foreground border-border';
     }
   };
 
@@ -55,28 +55,28 @@ export const AdLocationTab = ({
   };
 
   return (
-    <Card className="shadow-md">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b py-2">
-        <div className="flex items-center justify-between">
+    <Card className="shadow-sm border-border">
+      <CardHeader className="bg-card dark:bg-card/5 border-b border-border py-4">
+        <div className="flex items-center justify-between pb-4">
           <div>
-            <CardTitle className="text-xl font-bold">위치 타겟팅</CardTitle>
-            <CardDescription className="mt-1">광고 노출 지역 설정</CardDescription>
+            <CardTitle className="text-xl font-bold text-foreground">위치 타겟팅</CardTitle>
+            <CardDescription className="mt-1 text-muted-foreground">광고 노출 지역 설정</CardDescription>
           </div>
-          <Badge variant="outline" className="font-medium">
+          <Badge variant="outline" className="font-medium border-border text-foreground">
             {formData.targetLocations.length}개 지역
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="p-6">
         {formData.targetLocations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-            <Map className="h-10 w-10 text-gray-400 mb-2" />
+          <div className="flex flex-col items-center justify-center h-40 bg-muted/40 dark:bg-muted/20 rounded-lg border-2 border-dashed border-muted">
+            <Map className="h-10 w-10 text-muted-foreground mb-2" />
             <p className="text-muted-foreground mb-2">등록된 위치 타겟팅이 없습니다</p>
             {editMode && (
               <Button 
                 variant="outline" 
                 onClick={onAddLocation}
-                className="mt-2"
+                className="mt-2 border-border text-foreground hover:bg-muted"
               >
                 <PlusCircle className="h-4 w-4 mr-2" />
                 위치 추가
@@ -86,21 +86,21 @@ export const AdLocationTab = ({
         ) : (
           <div className="space-y-6">
             {formData.targetLocations.map((location, index) => (
-              <div key={index} className="rounded-lg border overflow-hidden transition-all hover:shadow-sm">
+              <div key={index} className="rounded-lg border border-border overflow-hidden transition-all hover:shadow-sm dark:hover:shadow-gray-800/20">
                 <div className={`p-4 border-b ${getLocationColor(location.target_type)}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="p-2 rounded-full bg-white">
+                      <div className="p-2 rounded-full bg-card dark:bg-card/20">
                         {getLocationIcon(location.target_type)}
                       </div>
-                      <h3 className="font-medium">{getLocationTitle(location.target_type)} 타겟팅</h3>
+                      <h3 className="font-medium text-foreground">{getLocationTitle(location.target_type)} 타겟팅</h3>
                     </div>
                     {editMode && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => onRemoveLocation(index)}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30"
                       >
                         <XCircle className="h-4 w-4 mr-1" />
                         삭제
@@ -109,29 +109,29 @@ export const AdLocationTab = ({
                   </div>
                 </div>
 
-                <div className="p-5">
+                <div className="p-5 bg-card dark:bg-card/5">
                   {editMode ? (
                     <div className="space-y-5">
                       <div className="mb-4">
-                        <Label className="text-sm font-medium mb-2">타겟팅 유형</Label>
+                        <Label className="text-sm font-medium text-foreground mb-2">타겟팅 유형</Label>
                         <RadioGroup
                           value={location.target_type}
                           onValueChange={(value) => onUpdateLocation(index, 'target_type', value)}
                           className="flex flex-wrap gap-4 mt-2"
                         >
-                          <div className="flex items-center space-x-2 px-3 py-2 rounded-md bg-gray-50 border transition-colors hover:bg-gray-100">
-                            <RadioGroupItem value="nationwide" id={`nationwide-${index}`} className="text-green-600" />
+                          <div className="flex items-center space-x-2 px-3 py-2 rounded-md bg-muted/40 dark:bg-muted/20 border border-border transition-colors hover:bg-muted/60 dark:hover:bg-muted/30">
+                            <RadioGroupItem value="nationwide" id={`nationwide-${index}`} className="text-green-600 dark:text-green-400" />
                             <Label htmlFor={`nationwide-${index}`} className="flex items-center cursor-pointer">
-                              <Globe className="h-4 w-4 mr-2 text-green-600" />
-                              전국
+                              <Globe className="h-4 w-4 mr-2 text-green-600 dark:text-green-400" />
+                              <span className="text-foreground">전국</span>
                             </Label>
                           </div>
                           
-                          <div className="flex items-center space-x-2 px-3 py-2 rounded-md bg-gray-50 border transition-colors hover:bg-gray-100">
-                            <RadioGroupItem value="administrative" id={`admin-${index}`} className="text-blue-600" />
+                          <div className="flex items-center space-x-2 px-3 py-2 rounded-md bg-muted/40 dark:bg-muted/20 border border-border transition-colors hover:bg-muted/60 dark:hover:bg-muted/30">
+                            <RadioGroupItem value="administrative" id={`admin-${index}`} className="text-blue-600 dark:text-blue-400" />
                             <Label htmlFor={`admin-${index}`} className="flex items-center cursor-pointer">
-                              <Building2 className="h-4 w-4 mr-2 text-blue-600" />
-                              행정구역
+                              <Building2 className="h-4 w-4 mr-2 text-blue-600 dark:text-blue-400" />
+                              <span className="text-foreground">행정구역</span>
                             </Label>
                           </div>
                           
@@ -139,34 +139,34 @@ export const AdLocationTab = ({
                       </div>
 
                       {location.target_type === 'administrative' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
                           <div className="space-y-2">
-                            <Label htmlFor={`city-${index}`} className="text-sm font-medium text-blue-700">시/도</Label>
+                            <Label htmlFor={`city-${index}`} className="text-sm font-medium text-blue-700 dark:text-blue-400">시/도</Label>
                             <div className="relative">
                               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <Building2 className="h-4 w-4 text-gray-500" />
+                                <Building2 className="h-4 w-4 text-muted-foreground" />
                               </div>
                               <Input
                                 id={`city-${index}`}
                                 value={location.city || ''}
                                 onChange={(e) => onUpdateLocation(index, 'city', e.target.value)}
-                                className="pl-10 transition-all focus:ring-2 focus:ring-blue-500"
+                                className="pl-10 transition-all focus:ring-2 focus:ring-ring border-blue-200 dark:border-blue-800 bg-card dark:bg-card/20"
                                 placeholder="예: 서울"
                                 required
                               />
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor={`district-${index}`} className="text-sm font-medium text-blue-700">구/군</Label>
+                            <Label htmlFor={`district-${index}`} className="text-sm font-medium text-blue-700 dark:text-blue-400">구/군</Label>
                             <div className="relative">
                               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <MapPin className="h-4 w-4 text-gray-500" />
+                                <MapPin className="h-4 w-4 text-muted-foreground" />
                               </div>
                               <Input
                                 id={`district-${index}`}
                                 value={location.district || ''}
                                 onChange={(e) => onUpdateLocation(index, 'district', e.target.value)}
-                                className="pl-10 transition-all focus:ring-2 focus:ring-blue-500"
+                                className="pl-10 transition-all focus:ring-2 focus:ring-ring border-blue-200 dark:border-blue-800 bg-card dark:bg-card/20"
                                 placeholder="예: 강남구"
                               />
                             </div>
@@ -178,21 +178,21 @@ export const AdLocationTab = ({
                   ) : (
                     <div>
                       {location.target_type === 'nationwide' && (
-                        <div className="flex items-center p-3 bg-green-50 rounded-lg">
-                          <Globe className="h-5 w-5 text-green-600 mr-2" />
-                          <p className="font-medium text-green-800">전국 모든 지역에 노출됩니다</p>
+                        <div className="flex items-center p-3 bg-green-50 dark:bg-green-900/10 rounded-lg">
+                          <Globe className="h-5 w-5 text-green-600 dark:text-green-400 mr-2" />
+                          <p className="font-medium text-green-800 dark:text-green-300">전국 모든 지역에 노출됩니다</p>
                         </div>
                       )}
                       
                       {location.target_type === 'administrative' && (
-                        <div className="grid grid-cols-2 gap-4 p-3 bg-blue-50 rounded-lg">
+                        <div className="grid grid-cols-2 gap-4 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg">
                           <div>
-                            <p className="text-sm text-blue-700">시/도</p>
-                            <p className="font-medium">{location.city || '-'}</p>
+                            <p className="text-sm text-blue-700 dark:text-blue-400">시/도</p>
+                            <p className="font-medium text-foreground">{location.city || '-'}</p>
                           </div>
                           <div>
-                            <p className="text-sm text-blue-700">구/군</p>
-                            <p className="font-medium">{location.district || '전체'}</p>
+                            <p className="text-sm text-blue-700 dark:text-blue-400">구/군</p>
+                            <p className="font-medium text-foreground">{location.district || '전체'}</p>
                           </div>
                         </div>
                       )}
@@ -206,22 +206,22 @@ export const AdLocationTab = ({
             {editMode && (
               <div 
                 onClick={onAddLocation}
-                className="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-4 flex flex-col items-center justify-center h-32 hover:bg-gray-50 transition-colors"
+                className="cursor-pointer rounded-lg border-2 border-dashed border-muted p-4 flex flex-col items-center justify-center h-32 hover:bg-muted/20 dark:hover:bg-muted/10 transition-colors"
               >
-                <PlusCircle className="h-8 w-8 text-gray-400 mb-2" />
-                <span className="text-gray-500 font-medium">새 위치 타겟팅 추가</span>
+                <PlusCircle className="h-8 w-8 text-muted-foreground mb-2" />
+                <span className="text-muted-foreground font-medium">새 위치 타겟팅 추가</span>
               </div>
             )}
 
             {editMode && (
               <>
-                <Separator className="my-6" />
+                <Separator className="my-6 bg-border" />
                 <div className="flex justify-end">
                   <Button 
                     type="button" 
                     onClick={onSubmit} 
                     disabled={isLoading}
-                    className="bg-blue-600 hover:bg-blue-700 transition-colors"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
                   >
                     {isLoading ? "저장 중..." : "변경사항 저장"}
                   </Button>

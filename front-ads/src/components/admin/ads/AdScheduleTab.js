@@ -30,28 +30,28 @@ export const AdScheduleTab = ({
   };
 
   return (
-    <Card className="shadow-md">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b py-2">
-        <div className="flex items-center justify-between">
+    <Card className="shadow-sm border-border">
+      <CardHeader className="bg-card dark:bg-card/5 border-b border-border">
+        <div className="flex items-center justify-between pb-4">
           <div>
-            <CardTitle className="text-xl font-bold">광고 스케줄</CardTitle>
-            <CardDescription className="mt-1">광고 표시 일정 관리</CardDescription>
+            <CardTitle className="text-xl font-bold text-foreground">광고 스케줄</CardTitle>
+            <CardDescription className="mt-1 text-muted-foreground">광고 표시 일정 관리</CardDescription>
           </div>
-          <Badge variant="outline" className="font-medium">
+          <Badge variant="outline" className="font-medium border-border text-foreground">
             {formData.schedules.length}개 일정
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="p-6">
         {formData.schedules.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-            <Calendar className="h-10 w-10 text-gray-400 mb-2" />
+          <div className="flex flex-col items-center justify-center h-40 bg-muted/40 dark:bg-muted/20 rounded-lg border-2 border-dashed border-muted">
+            <Calendar className="h-10 w-10 text-muted-foreground mb-2" />
             <p className="text-muted-foreground mb-2">등록된 스케줄이 없습니다</p>
             {editMode && (
               <Button 
                 variant="outline" 
                 onClick={onAddSchedule}
-                className="mt-2"
+                className="mt-2 border-border text-foreground hover:bg-muted"
               >
                 <PlusCircle className="h-4 w-4 mr-2" />
                 스케줄 추가
@@ -64,28 +64,28 @@ export const AdScheduleTab = ({
               {formData.schedules.map((schedule, index) => (
                 <div 
                   key={index} 
-                  className={`relative rounded-lg border overflow-hidden transition-all group ${
-                    editMode ? "hover:border-blue-300 hover:shadow-md" : "bg-white"
+                  className={`relative rounded-lg border border-border overflow-hidden transition-all group ${
+                    editMode ? "hover:border-primary dark:hover:border-primary hover:shadow-md" : "bg-card dark:bg-card/20"
                   }`}
                 >
                   {editMode ? (
                     <div className="p-4">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 rounded-full bg-blue-100">
-                          <Clock className="h-5 w-5 text-blue-600" />
+                        <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                          <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <h3 className="font-medium text-gray-700">시간 설정</h3>
+                        <h3 className="font-medium text-foreground">시간 설정</h3>
                       </div>
                       
                       <div className="relative mt-2">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                          <AlarmClock className="h-4 w-4 text-gray-500" />
+                          <AlarmClock className="h-4 w-4 text-muted-foreground" />
                         </div>
                         <Input
                           type="time"
                           value={schedule.time ? schedule.time.slice(0, 5) : "12:00"}
                           onChange={(e) => onUpdateSchedule(index, e.target.value + ":00")}
-                          className="pl-10 transition-all focus:ring-2 focus:ring-blue-500"
+                          className="pl-10 transition-all focus:ring-2 focus:ring-ring border-input bg-background"
                         />
                       </div>
                       
@@ -94,7 +94,7 @@ export const AdScheduleTab = ({
                           variant="ghost"
                           size="sm"
                           onClick={() => onRemoveSchedule(index)}
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                          className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30"
                         >
                           <XCircle className="h-4 w-4 mr-1" />
                           삭제
@@ -104,15 +104,15 @@ export const AdScheduleTab = ({
                   ) : (
                     <div className="p-4 flex justify-between items-center">
                       <div className="flex items-center">
-                        <div className="p-2 rounded-full bg-blue-100 mr-3">
-                          <Clock className="h-5 w-5 text-blue-600" />
+                        <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30 mr-3">
+                          <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                          <h4 className="text-sm text-gray-500">광고 표시 시간</h4>
-                          <p className="text-lg font-medium">{formatTime(schedule.time)}</p>
+                          <h4 className="text-sm text-muted-foreground">광고 표시 시간</h4>
+                          <p className="text-lg font-medium text-foreground">{formatTime(schedule.time)}</p>
                         </div>
                       </div>
-                      <Badge variant="outline" className="text-blue-600 border-blue-300 bg-blue-50">
+                      <Badge variant="outline" className="text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/30">
                         {schedule.time ? schedule.time.slice(0, 5) : "12:00"}
                       </Badge>
                     </div>
@@ -123,23 +123,23 @@ export const AdScheduleTab = ({
               {editMode && (
                 <div 
                   onClick={onAddSchedule}
-                  className="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-4 flex flex-col items-center justify-center h-full min-h-32 hover:bg-gray-50 transition-colors"
+                  className="cursor-pointer rounded-lg border-2 border-dashed border-muted p-4 flex flex-col items-center justify-center h-full min-h-32 hover:bg-muted/20 dark:hover:bg-muted/10 transition-colors"
                 >
-                  <PlusCircle className="h-8 w-8 text-gray-400 mb-2" />
-                  <span className="text-gray-500 font-medium">새 스케줄 추가</span>
+                  <PlusCircle className="h-8 w-8 text-muted-foreground mb-2" />
+                  <span className="text-muted-foreground font-medium">새 스케줄 추가</span>
                 </div>
               )}
             </div>
 
             {editMode && formData.schedules.length > 0 && (
               <>
-                <Separator className="my-6" />
+                <Separator className="my-6 bg-border" />
                 <div className="flex justify-end">
                   <Button 
                     type="button" 
                     onClick={onSubmit} 
                     disabled={isLoading}
-                    className="bg-blue-600 hover:bg-blue-700 transition-colors"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
                   >
                     {isLoading ? "저장 중..." : "변경사항 저장"}
                   </Button>

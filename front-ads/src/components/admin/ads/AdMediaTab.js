@@ -16,14 +16,14 @@ export const AdMediaTab = ({
   isLoading
 }) => {
   return (
-    <Card className="shadow-md">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b">
-        <div className="flex items-center justify-between">
+    <Card className="shadow-sm border-border">
+      <CardHeader className="bg-card dark:bg-card/5 border-b border-border">
+        <div className="flex items-center justify-between pb-4">
           <div>
-            <CardTitle className="text-xl font-bold">광고 미디어</CardTitle>
-            <CardDescription className="mt-1">이미지 및 비디오 관리</CardDescription>
+            <CardTitle className="text-xl font-bold text-foreground">광고 미디어</CardTitle>
+            <CardDescription className="mt-1 text-muted-foreground">이미지 및 비디오 관리</CardDescription>
           </div>
-          <Badge variant="outline" className="font-medium">
+          <Badge variant="outline" className="font-medium border-border text-foreground">
             {formData.media.length}개 미디어
           </Badge>
         </div>
@@ -32,16 +32,16 @@ export const AdMediaTab = ({
         {formData.media.length === 0 && uploadFiles.length === 0 ? (
           editMode ? (
             <div className="flex flex-col h-full">
-              <div className="cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center aspect-video hover:bg-gray-50 transition-colors h-full">
-                <UploadIcon className="h-10 w-10 text-gray-400 mb-2" />
-                <span className="font-medium text-gray-600 mb-4">미디어 추가</span>
+              <div className="cursor-pointer border-2 border-dashed border-muted dark:border-muted rounded-lg p-6 flex flex-col items-center justify-center aspect-video hover:bg-muted/20 dark:hover:bg-muted/10 transition-colors h-full">
+                <UploadIcon className="h-10 w-10 text-muted-foreground mb-2" />
+                <span className="font-medium text-foreground mb-4">미디어 추가</span>
                 <div className="flex space-x-3 mt-2">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => document.getElementById('minFileInput').click()}
-                    className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                    className="border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50"
                   >
                     일반 크기
                   </Button>
@@ -50,12 +50,12 @@ export const AdMediaTab = ({
                     variant="outline"
                     size="sm"
                     onClick={() => document.getElementById('maxFileInput').click()}
-                    className="border-purple-300 text-purple-600 hover:bg-purple-50"
+                    className="border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50"
                   >
                     대형 크기
                   </Button>
                 </div>
-                <span className="text-xs text-gray-500 mt-2">이미지 또는 동영상</span>
+                <span className="text-xs text-muted-foreground mt-2">이미지 또는 동영상</span>
                 <input
                   id="minFileInput"
                   type="file"
@@ -75,7 +75,7 @@ export const AdMediaTab = ({
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-40 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+            <div className="flex flex-col items-center justify-center h-40 bg-muted/40 dark:bg-muted/20 rounded-lg border-2 border-dashed border-muted">
               <p className="text-muted-foreground mb-2">등록된 미디어가 없습니다</p>
             </div>
           )
@@ -83,23 +83,15 @@ export const AdMediaTab = ({
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {formData.media.map((media, index) => (
-                <div key={media.id} className="relative group overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md">
-                  <div className="aspect-video bg-gray-100 relative overflow-hidden">
+                <div key={media.id} className="relative group overflow-hidden rounded-lg border border-border shadow-sm transition-all hover:shadow-md dark:hover:shadow-gray-800/30">
+                  <div className="aspect-video bg-muted/40 dark:bg-muted/20 relative overflow-hidden">
                     {media.type === 'image' ? (
-                      // <img
-                      //   src={`${process.env.NEXT_PUBLIC_API_URL}/api/proxy-image?url=${encodeURIComponent(media.url)}`}
-                      //   // src={media.url}
-                      //   alt={`광고 미디어 ${index + 1}`}
-                      //   className="w-full h-full object-cover"
-                      // />
                       <img
                         src={`${process.env.NEXT_PUBLIC_API_URL}/api/proxy-image?url=${encodeURIComponent(media.url)}`}
                         alt={`광고 미디어 ${index + 1}`}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           console.error('이미지 로딩 실패:', media.url);
-                          console.log(e);
-                          // e.target.src = '/fallback-image.png'; // 대체 이미지 설정
                         }}
                       />
                     ) : (
@@ -114,7 +106,7 @@ export const AdMediaTab = ({
                       <button
                         type="button"
                         onClick={() => onRemoveExistingMedia(media.id)}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
+                        className="absolute top-2 right-2 bg-red-500 dark:bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600 dark:hover:bg-red-700"
                         aria-label="삭제"
                       >
                         <XIcon className="h-4 w-4" />
@@ -122,18 +114,18 @@ export const AdMediaTab = ({
                     )}
                     
                     {media.is_primary && (
-                      <div className="absolute top-2 left-2 bg-amber-500 text-white rounded-full p-1.5 shadow-lg">
+                      <div className="absolute top-2 left-2 bg-amber-500 dark:bg-amber-600 text-white rounded-full p-1.5 shadow-lg">
                         <StarIcon className="h-4 w-4" />
                       </div>
                     )}
                   </div>
                   
-                  <div className="p-3 bg-white">
+                  <div className="p-3 bg-card dark:bg-card/20">
                     <div className="flex items-center justify-between">
                       <Badge className={`${
                         media.type === "image" 
-                          ? "bg-blue-100 text-blue-800 hover:bg-blue-200" 
-                          : "bg-purple-100 text-purple-800 hover:bg-purple-200"
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-900" 
+                          : "bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-900"
                       }`}>
                         <div className="flex items-center">
                           {media.type === "image" 
@@ -145,7 +137,7 @@ export const AdMediaTab = ({
                       </Badge>
                       
                       {media.is_primary && (
-                        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">
+                        <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200 hover:bg-amber-200 dark:hover:bg-amber-900">
                           대표 미디어
                         </Badge>
                       )}
@@ -155,7 +147,7 @@ export const AdMediaTab = ({
               ))}
 
               {editMode && uploadFiles.map((fileObj, index) => (
-                <div key={`upload-${index}`} className="relative group overflow-hidden rounded-lg border-2 border-dashed border-blue-300 bg-blue-50">
+                <div key={`upload-${index}`} className="relative group overflow-hidden rounded-lg border-2 border-dashed border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/10">
                   <div className="aspect-video flex items-center justify-center p-3">
                     {fileObj.file.type.startsWith('image/') ? (
                       <img
@@ -165,9 +157,9 @@ export const AdMediaTab = ({
                       />
                     ) : (
                       <div className="flex flex-col items-center justify-center text-center p-4">
-                        <VideoIcon className="h-8 w-8 text-blue-500 mb-2" />
-                        <p className="font-medium text-blue-700 line-clamp-1">{fileObj.file.name}</p>
-                        <p className="text-sm text-blue-500">{(fileObj.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <VideoIcon className="h-8 w-8 text-blue-500 dark:text-blue-400 mb-2" />
+                        <p className="font-medium text-blue-700 dark:text-blue-300 line-clamp-1">{fileObj.file.name}</p>
+                        <p className="text-sm text-blue-500 dark:text-blue-400">{(fileObj.file.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
                     )}
                   </div>
@@ -175,39 +167,39 @@ export const AdMediaTab = ({
                   <div className="absolute top-2 right-2 flex space-x-2">
                     <Badge className={`
                       ${fileObj.sizeType === 'min' 
-                        ? 'bg-blue-100 text-blue-800' 
-                        : 'bg-purple-100 text-purple-800'}
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200' 
+                        : 'bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200'}
                     `}>
                       {fileObj.sizeType === 'min' ? '일반' : '대형'}
                     </Badge>
                     <button
                       type="button"
                       onClick={() => onRemoveUploadFile(index)}
-                      className="bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:bg-red-600"
+                      className="bg-red-500 dark:bg-red-600 text-white rounded-full p-1.5 shadow-lg hover:bg-red-600 dark:hover:bg-red-700"
                       aria-label="삭제"
                     >
                       <XIcon className="h-3 w-3" />
                     </button>
                   </div>
                   
-                  <div className="p-3 bg-white border-t">
-                    <p className="text-xs text-blue-600 font-medium">업로드 예정</p>
+                  <div className="p-3 bg-card dark:bg-card/20 border-t border-blue-200 dark:border-blue-800">
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">업로드 예정</p>
                   </div>
                 </div>
               ))}
 
               {editMode && (
                 <div className="flex flex-col h-full">
-                  <div className="cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center aspect-video hover:bg-gray-50 transition-colors h-full">
-                    <UploadIcon className="h-10 w-10 text-gray-400 mb-2" />
-                    <span className="font-medium text-gray-600 mb-4">미디어 추가</span>
+                  <div className="cursor-pointer border-2 border-dashed border-muted dark:border-muted rounded-lg p-6 flex flex-col items-center justify-center aspect-video hover:bg-muted/20 dark:hover:bg-muted/10 transition-colors h-full">
+                    <UploadIcon className="h-10 w-10 text-muted-foreground mb-2" />
+                    <span className="font-medium text-foreground mb-4">미디어 추가</span>
                     <div className="flex space-x-3 mt-2">
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={() => document.getElementById('minFileInput').click()}
-                        className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                        className="border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50"
                       >
                         일반 크기
                       </Button>
@@ -216,12 +208,12 @@ export const AdMediaTab = ({
                         variant="outline"
                         size="sm"
                         onClick={() => document.getElementById('maxFileInput').click()}
-                        className="border-purple-300 text-purple-600 hover:bg-purple-50"
+                        className="border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50"
                       >
                         대형 크기
                       </Button>
                     </div>
-                    <span className="text-xs text-gray-500 mt-2">이미지 또는 동영상</span>
+                    <span className="text-xs text-muted-foreground mt-2">이미지 또는 동영상</span>
                     <input
                       id="minFileInput"
                       type="file"
@@ -245,13 +237,13 @@ export const AdMediaTab = ({
 
             {editMode && (
               <>
-                <Separator className="my-6" />
+                <Separator className="my-6 bg-border" />
                 <div className="flex justify-end">
                   <Button 
                     type="button" 
                     onClick={onSubmit} 
                     disabled={isLoading}
-                    className="bg-blue-600 hover:bg-blue-700 transition-colors"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
                   >
                     {isLoading ? "저장 중..." : "변경사항 저장"}
                   </Button>

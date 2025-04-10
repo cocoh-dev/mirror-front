@@ -18,14 +18,14 @@ export default function CatchAllAdminPage({ params }) {
     // 준비 중인 페이지 메시지 표시
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh]">
-        <h2 className="text-2xl font-semibold mb-4">페이지 준비 중</h2>
-        <p className="mb-8 text-center max-w-md text-muted-foreground">
+        <h2 className="text-2xl font-semibold mb-4 dark:text-white">페이지 준비 중</h2>
+        <p className="mb-8 text-center max-w-md text-muted-foreground dark:text-gray-400">
           요청하신 &apos;{slug.join('/')}&apos; 페이지는 현재 개발 중입니다.
           빠른 시일 내에 서비스를 제공해 드리겠습니다.
         </p>
         <Link 
           href="/admin"
-          className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+          className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 dark:bg-gray-700 dark:hover:bg-gray-600"
         >
           관리자 대시보드로 돌아가기
         </Link>

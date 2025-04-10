@@ -149,16 +149,16 @@ export default function DisplayManagementTab({ salon, salonId }) {
   
   return (
     <div>
-      <Card>
+      <Card className="dark:border-gray-800 dark:bg-gray-800">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div>
-            <CardTitle>디스플레이 정보</CardTitle>
-            <CardDescription>미용실 디스플레이 수 : {salon.displays ? salon.displays.length : 0}</CardDescription>
+            <CardTitle className="dark:text-white">디스플레이 정보</CardTitle>
+            <CardDescription className="dark:text-gray-400">미용실 디스플레이 수 : {salon.displays ? salon.displays.length : 0}</CardDescription>
           </div>
           <Button 
             onClick={() => setIsDialogOpen(true)} 
             size="sm" 
-            className="px-2"
+            className="px-2 dark:bg-blue-700 dark:hover:bg-blue-600 dark:text-white"
           >
             <Plus className="w-4 h-4 mr-1" />
             디스플레이 추가
@@ -168,15 +168,15 @@ export default function DisplayManagementTab({ salon, salonId }) {
           {salon.displays && salon.displays.length > 0 ? (
             <div className="space-y-4">
               {salon.displays.map((display) => (
-                <div key={display.device_id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <MonitorPlay className="w-5 h-5 text-gray-400 mt-1" />
+                <div key={display.device_id} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <MonitorPlay className="w-5 h-5 text-gray-400 dark:text-gray-300 mt-1" />
                   <div className="flex-1">
-                    <p className="font-medium">{display.name}</p>
-                    <p className="text-sm text-gray-500">ID: {display.device_id}</p>
+                    <p className="font-medium dark:text-white">{display.name}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">ID: {display.device_id}</p>
                     <TokenDisplay token={display.access_token} />
-                    <p className="text-sm text-gray-500">상태: {display.status}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">상태: {display.status}</p>
                     {display.settings && (
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         화면 방향: {display.settings.orientation === 'landscape' ? '가로' : '세로'}
                       </p>
                     )}
@@ -186,6 +186,7 @@ export default function DisplayManagementTab({ salon, salonId }) {
                       variant="ghost" 
                       size="sm"
                       onClick={() => handleEditDisplay(display)}
+                      className="dark:hover:bg-gray-600 dark:text-gray-300"
                     >
                       <Pencil className="w-4 h-4" />
                     </Button>
@@ -200,9 +201,9 @@ export default function DisplayManagementTab({ salon, salonId }) {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <MonitorX className="w-12 h-12 text-gray-300 mb-3" />
-              <p className="text-gray-500">등록된 디스플레이가 없습니다.</p>
-              <p className="text-sm text-gray-400 mt-1">디스플레이 추가 버튼을 클릭하여 새 디스플레이를 등록해주세요.</p>
+              <MonitorX className="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" />
+              <p className="text-gray-500 dark:text-gray-400">등록된 디스플레이가 없습니다.</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">디스플레이 추가 버튼을 클릭하여 새 디스플레이를 등록해주세요.</p>
             </div>
           )}
         </CardContent>

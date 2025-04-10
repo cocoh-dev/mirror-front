@@ -343,28 +343,28 @@ export default function ActivitiesPage() {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500">총 활동 수</h3>
+                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">총 활동 수</h3>
                       <p className="text-2xl font-bold">{reportData?.report.activityChange.currentWeek}</p>
                       <div className={`flex items-center text-sm ${
                         parseFloat(reportData?.report.activityChange.changePercentage) >= 0 
-                          ? 'text-green-600' 
-                          : 'text-red-600'
+                          ? 'text-green-600 dark:text-green-400' 
+                          : 'text-red-600 dark:text-red-400'
                       }`}>
                         <span>
                           {reportData?.report.activityChange.changePercentage}% 
                           {parseFloat(reportData?.report.activityChange.changePercentage) >= 0 ? '증가' : '감소'}
                         </span>
-                        <span className="text-gray-500 ml-1">(전주 대비)</span>
+                        <span className="text-gray-500 dark:text-gray-400 ml-1">(전주 대비)</span>
                       </div>
                     </div>
                     
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500">가장 활동적인 사용자</h3>
+                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">가장 활동적인 사용자</h3>
                       <div className="space-y-2 mt-2">
                         {reportData?.report.topUsers.map((userStat, index) => (
                           <div key={index} className="flex justify-between items-center">
                             <div className="flex items-center">
-                              <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs mr-2">
+                              <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs mr-2">
                                 {index + 1}
                               </div>
                               <span>{userStat.user?.name || '알 수 없음'}</span>
@@ -391,7 +391,7 @@ export default function ActivitiesPage() {
                           <span className="font-medium">{typeStat.activity_type}</span>
                           <span>{typeStat.count}회</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
                           <div 
                             className="bg-primary h-2.5 rounded-full" 
                             style={{ 

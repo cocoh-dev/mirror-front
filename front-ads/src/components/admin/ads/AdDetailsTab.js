@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, PauseCircle, PlayCircle } from 'lucide-react';
 
 export const AdDetailsTab = ({ 
   adData, 
@@ -22,14 +22,43 @@ export const AdDetailsTab = ({
     onInputChange(name, type === 'checkbox' ? checked : value);
   };
 
-  const handleSwitchChange = (checked) => {
-    onInputChange('is_active', checked);
-  };
-
   const handleSelectChange = (value) => {
     onInputChange('type', value);
   };
 
+  // 광고 일시중지/재개 토글 핸들러
+  const handlePauseToggle = (isPaused) => {
+    // isPaused가 true면 'paused', false면 기존 활성 상태 또는 'active'로 설정
+    const newStatus = isPaused ? 'paused' : (formData.status === 'paused' ? 'active' : formData.status);
+    onInputChange('status', newStatus);
+  };
+
+  // 상태 뱃지 스타일 및 텍스트 매핑
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      active: { label: '진행중', variant: 'active', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
+      pending: { label: '대기중', variant: 'pending', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
+      paused: { label: '일시중지', variant: 'paused', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' },
+      inactive: { label: '만료됨', variant: 'inactive', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100' }
+    };
+    
+    const config = statusConfig[status] || statusConfig.inactive;
+    
+    if (status) {
+      return (
+        <Badge className={config.color}>
+          {config.label}
+        </Badge>
+      );
+    }
+    
+    return null;
+  };
+
+  // 현재 상태가 일시중지인지 확인
+  const isPaused = formData.status === 'paused';
+  // 일시중지 가능한 상태인지 확인 (활성 또는 일시중지 상태만 토글 가능)
+  const canTogglePause = formData.status === 'active' || formData.status === 'paused';
   return (
     <Card className="shadow-sm border-border">
       <CardHeader className="bg-card dark:bg-card/5 border-b border-border">
@@ -39,9 +68,9 @@ export const AdDetailsTab = ({
             <CardDescription className="mt-1 text-muted-foreground">광고의 기본적인 속성과 설정</CardDescription>
           </div>
           {!editMode && (
-            <Badge variant={adData.is_active ? "success" : "secondary"} className="ml-2">
-              {adData.is_active ? '활성화' : '비활성화'}
-            </Badge>
+            <div className="flex items-center gap-2">
+              {getStatusBadge(formData.status)}
+            </div>
           )}
         </div>
       </CardHeader>
@@ -86,18 +115,41 @@ export const AdDetailsTab = ({
                 </p>
               </div>
               
-              <div className="flex items-center justify-between space-x-2 bg-muted/40 dark:bg-muted/20 p-3 rounded-lg border border-border">
-                <div>
-                  <Label htmlFor="is_active" className="font-semibold text-foreground">활성화 상태</Label>
-                  <p className="text-sm text-muted-foreground">광고를 즉시 활성화합니다</p>
+              {canTogglePause && (
+                <div className="flex items-center justify-between space-x-2 bg-muted/40 dark:bg-muted/20 p-3 rounded-lg border border-border">
+                  <div>
+                    <Label htmlFor="is_paused" className="font-semibold text-foreground">
+                      {isPaused ? '광고 재개하기' : '광고 일시중지'}
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      {isPaused ? '현재 일시중지된 광고를 다시 활성화합니다' : '현재 진행 중인 광고를 일시중지합니다'}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    onClick={() => handlePauseToggle(!isPaused)}
+                    className={`gap-1 ${
+                      isPaused 
+                        ? 'text-green-600 dark:text-green-400 border-green-300 dark:border-green-700' 
+                        : 'text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-700'
+                    }`}
+                  >
+                    {isPaused ? (
+                      <>
+                        <PlayCircle className="h-4 w-4" />
+                        <span>재개하기</span>
+                      </>
+                    ) : (
+                      <>
+                        <PauseCircle className="h-4 w-4" />
+                        <span>일시중지</span>
+                      </>
+                    )}
+                  </Button>
                 </div>
-                <Switch
-                  id="is_active"
-                  checked={formData.is_active}
-                  onCheckedChange={handleSwitchChange}
-                  className="data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-600"
-                />
-              </div>
+              )}
             </div>
             
             <Separator className="my-4 bg-border" />
@@ -131,10 +183,16 @@ export const AdDetailsTab = ({
               </div>
               
               <div className="bg-muted/40 dark:bg-muted/20 p-4 rounded-lg border border-border">
-                <h3 className="text-sm font-semibold text-muted-foreground mb-2">활성화 상태</h3>
-                <Badge variant={adData.is_active ? "success" : "secondary"}>
-                  {adData.is_active ? '활성화' : '비활성화'}
-                </Badge>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-2">광고 상태</h3>
+                {getStatusBadge(adData.status)}
+                
+                {(adData.status === 'active' || adData.status === 'paused') && (
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    {adData.status === 'paused' 
+                      ? '편집 모드에서 광고를 재개할 수 있습니다' 
+                      : '편집 모드에서 광고를 일시중지할 수 있습니다'}
+                  </div>
+                )}
               </div>
               
               <div className="bg-muted/40 dark:bg-muted/20 p-4 rounded-lg border border-border">

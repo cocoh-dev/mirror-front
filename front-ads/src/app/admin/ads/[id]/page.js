@@ -25,6 +25,7 @@ import { AdDetailsTab } from '@/components/admin/ads/AdDetailsTab';
 import { AdMediaTab } from '@/components/admin/ads/AdMediaTab';
 import { AdScheduleTab } from '@/components/admin/ads/AdScheduleTab';
 import { AdLocationTab } from '@/components/admin/ads/AdLocationTab';
+import { AdCampaignTab } from '@/components/admin/ads/AdCampaignTab'; // 새로 추가된 캠페인 탭
 
 // 서비스 임포트
 import { getAdById, updateAd, deleteAd, updateAdMedia } from '@/services/adService';
@@ -39,10 +40,11 @@ export default function AdDetailPage() {
   const [formData, setFormData] = useState({
     title: "",
     type: "",
-    is_active: true,
+    status: true,
     media: [],
     schedules: [],
-    targetLocations: []
+    targetLocations: [],
+    campaign: null // 캠페인 정보를 저장할 새 필드
   });
   const [uploadFiles, setUploadFiles] = useState([]);
   const [deleting, setDeleting] = useState(false);
@@ -64,11 +66,12 @@ export default function AdDetailPage() {
       setFormData({
         title: data.ad.title,
         type: data.ad.type,
-        is_active: data.ad.is_active,
+        status: data.ad.status,
         salon_id: data.ad.salon_id,
         media: data.ad.media || [],
         schedules: data.ad.AdSchedules || [],
-        targetLocations: data.ad.AdLocations || []
+        targetLocations: data.ad.AdLocations || [],
+        campaign: data.ad.AdCampaign || null // 캠페인 정보 설정
       });
     }
   }, [data]);
@@ -123,6 +126,17 @@ export default function AdDetailPage() {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  // 캠페인 데이터 변경 처리 함수 (새로 추가)
+  const handleCampaignChange = (campaignData) => {
+    setFormData(prev => ({
+      ...prev,
+      campaign: {
+        ...prev.campaign,
+        ...campaignData
+      }
     }));
   };
 
@@ -229,11 +243,12 @@ export default function AdDetailPage() {
       const adData = {
         title: formData.title,
         type: formData.type,
-        is_active: formData.is_active,
+        status: formData.status,
         salon_id: formData.salon_id,
         media: updatedMedia, // 직접 업데이트된 미디어 배열 사용
         schedules: formData.schedules.map(s => s.time),
-        targetLocations: formData.targetLocations
+        targetLocations: formData.targetLocations,
+        campaign: formData.campaign // 캠페인 정보 추가
       };
       
       await updateMutation.mutateAsync(adData);
@@ -254,11 +269,12 @@ export default function AdDetailPage() {
       setFormData({
         title: adData.title,
         type: adData.type,
-        is_active: adData.is_active,
+        status: adData.status,
         salon_id: adData.salon_id,
         media: adData.media || [],
         schedules: adData.AdSchedules || [],
-        targetLocations: adData.AdLocations || []
+        targetLocations: adData.AdLocations || [],
+        campaign: adData.AdCampaign || null // 캠페인 정보 복원
       });
     }
     setUploadFiles([]);
@@ -267,7 +283,9 @@ export default function AdDetailPage() {
   // 로딩 중 표시
   if (isLoading) {
     return (
-      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
 
@@ -344,6 +362,7 @@ export default function AdDetailPage() {
           <TabsTrigger value="media">미디어</TabsTrigger>
           <TabsTrigger value="schedule">스케줄</TabsTrigger>
           <TabsTrigger value="location">위치 타겟팅</TabsTrigger>
+          <TabsTrigger value="campaign">캠페인</TabsTrigger>
         </TabsList>
 
         <TabsContent value="details">
@@ -393,6 +412,18 @@ export default function AdDetailPage() {
             isLoading={updateMutation.isLoading}
           />
         </TabsContent>
+
+        <TabsContent value="campaign">
+          <AdCampaignTab 
+            adData={adData}
+            formData={formData}
+            editMode={editMode}
+            onCampaignChange={handleCampaignChange}
+            onSubmit={handleSubmit}
+            isLoading={updateMutation.isLoading}
+          />
+        </TabsContent>
+        
       </Tabs>
     </div>
   );

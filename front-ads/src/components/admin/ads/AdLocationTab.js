@@ -56,7 +56,7 @@ export const AdLocationTab = ({
 
   return (
     <Card className="shadow-sm border-border">
-      <CardHeader className="bg-card dark:bg-card/5 border-b border-border py-4">
+      <CardHeader className="bg-card dark:bg-card/5 border-b border-border">
         <div className="flex items-center justify-between pb-4">
           <div>
             <CardTitle className="text-xl font-bold text-foreground">위치 타겟팅</CardTitle>

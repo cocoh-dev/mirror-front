@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { ThemeToggle } from '@/components/ThemeToggle'; // 테마 토글 컴포넌트 import
 
 // Import shadcn components
 import { Button } from '@/components/ui/button';
@@ -21,10 +22,9 @@ import {
   Sheet, 
   SheetContent, 
   SheetTrigger,
-  SheetHeader,  // 추가
-  SheetTitle    // 추가
+  SheetHeader,
+  SheetTitle
 } from '@/components/ui/sheet';
-
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -70,8 +70,8 @@ export default function Navbar() {
         href="/dashboard" 
         className={`px-3 py-2 rounded-md text-sm font-medium ${
           pathname === '/dashboard' 
-            ? 'bg-gray-100 text-gray-900' 
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100' 
+            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'
         }`}
         onClick={() => setIsOpen(false)}
       >
@@ -82,8 +82,8 @@ export default function Navbar() {
         href="/salons" 
         className={`px-3 py-2 rounded-md text-sm font-medium ${
           pathname?.startsWith('/salons') 
-            ? 'bg-gray-100 text-gray-900' 
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100' 
+            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'
         }`}
         onClick={() => setIsOpen(false)}
       >
@@ -94,8 +94,8 @@ export default function Navbar() {
         href="/ads" 
         className={`px-3 py-2 rounded-md text-sm font-medium ${
           pathname?.startsWith('/ads') 
-            ? 'bg-gray-100 text-gray-900' 
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100' 
+            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'
         }`}
         onClick={() => setIsOpen(false)}
       >
@@ -107,8 +107,8 @@ export default function Navbar() {
           href="/admin" 
           className={`px-3 py-2 rounded-md text-sm font-medium ${
             pathname?.startsWith('/admin') 
-              ? 'bg-gray-100 text-gray-900' 
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100' 
+              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'
           }`}
           onClick={() => setIsOpen(false)}
         >
@@ -122,7 +122,7 @@ export default function Navbar() {
   if (pathname?.startsWith('/auth/')) return null;
   
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="bg-white border-b border-gray-200 dark:bg-gray-950 dark:border-gray-800">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Mobile: Left - Menu Button, Center - Logo */}
@@ -130,12 +130,12 @@ export default function Navbar() {
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="mr-2">
-                  <Menu className="h-6 w-6" />
+                  <Menu className="h-6 w-6 dark:text-gray-300" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left">
+              <SheetContent side="left" className="dark:bg-gray-900 dark:text-gray-100">
                 <SheetHeader>
-                  <SheetTitle>메뉴</SheetTitle> {/* 제목 추가 */}
+                  <SheetTitle className="dark:text-gray-100">메뉴</SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col space-y-4 px-6">
                   <NavItems />
@@ -146,7 +146,7 @@ export default function Navbar() {
             {/* Centered Logo on Mobile */}
             <div className="absolute left-1/2 transform -translate-x-1/2">
               <Link href="/" className="flex items-center">
-                <span className="text-2xl font-bold">미러모션</span>
+                <span className="text-2xl font-bold dark:text-white">미러모션</span>
               </Link>
             </div>
 
@@ -157,7 +157,7 @@ export default function Navbar() {
           {/* Desktop: Left - Logo and Navigation */}
           <div className="hidden md:flex items-center">
             <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold">미러모션</span>
+              <span className="text-2xl font-bold dark:text-white">미러모션</span>
             </Link>
             
             <nav className="ml-10 space-x-4 flex">
@@ -166,16 +166,19 @@ export default function Navbar() {
           </div>
           
           {/* User dropdown or login/register buttons - Always on right */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center space-x-2">
+            {/* 테마 토글 버튼 추가 */}
+            <ThemeToggle />
+            
             {loading ? (
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin dark:border-gray-600 dark:border-t-blue-400"></div>
               </div>
             ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                  <Button variant="outline" className="flex items-center gap-2 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                     {user?.profileImage ? (
                       <img 
                         src={`${process.env.NEXT_PUBLIC_API_URL}/api/proxy-image?url=${encodeURIComponent(user.profileImage)}`} 
@@ -183,33 +186,33 @@ export default function Navbar() {
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (
-                      <span>{user?.name?.charAt(0).toUpperCase() || 'U'}</span>
+                      <span className="dark:text-gray-200">{user?.name?.charAt(0).toUpperCase() || 'U'}</span>
                     )}
                   </div>
                     <span className="hidden sm:inline">{user?.name || 'User'}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
+                <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+                  <DropdownMenuLabel className="dark:text-gray-300">My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator className="dark:bg-gray-700" />
+                  <DropdownMenuItem asChild className="dark:focus:bg-gray-700 dark:focus:text-gray-100">
                     <Link href="/profile">프로필</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="dark:focus:bg-gray-700 dark:focus:text-gray-100">
                     <Link href="/subscriptions">구독</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout}>
+                  <DropdownMenuSeparator className="dark:bg-gray-700" />
+                  <DropdownMenuItem onClick={logout} className="dark:focus:bg-gray-700 dark:focus:text-gray-100">
                     로그아웃
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <div className="flex space-x-2">
-                <Button variant="outline" asChild>
+                <Button variant="outline" asChild className="dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-700">
                   <Link href="/auth/login">로그인</Link>
                 </Button>
-                <Button asChild>
+                <Button asChild className="dark:hover:bg-blue-700">
                   <Link href="/auth/register">회원가입</Link>
                 </Button>
               </div>
@@ -217,16 +220,19 @@ export default function Navbar() {
           </div>
 
           {/* Mobile: User icon in top right */}
-          <div className="md:hidden absolute right-4">
+          <div className="md:hidden absolute right-4 flex items-center space-x-1">
+            {/* 모바일에서도 테마 토글 버튼 추가 */}
+            <ThemeToggle />
+            
             {loading ? (
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin dark:border-gray-600 dark:border-t-blue-400"></div>
               </div>
             ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                       {user?.profileImage ? (
                         <img 
                           src={`${process.env.NEXT_PUBLIC_API_URL}/api/proxy-image?url=${encodeURIComponent(user.profileImage)}`} 
@@ -234,28 +240,28 @@ export default function Navbar() {
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
-                        <span>{user?.name?.charAt(0).toUpperCase() || 'U'}</span>
+                        <span className="dark:text-gray-200">{user?.name?.charAt(0).toUpperCase() || 'U'}</span>
                       )}
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
+                <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+                  <DropdownMenuLabel className="dark:text-gray-300">My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator className="dark:bg-gray-700" />
+                  <DropdownMenuItem asChild className="dark:focus:bg-gray-700 dark:focus:text-gray-100">
                     <Link href="/profile">프로필</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="dark:focus:bg-gray-700 dark:focus:text-gray-100">
                     <Link href="/subscriptions">구독</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout}>
+                  <DropdownMenuSeparator className="dark:bg-gray-700" />
+                  <DropdownMenuItem onClick={logout} className="dark:focus:bg-gray-700 dark:focus:text-gray-100">
                     로그아웃
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button size="sm" asChild>
+              <Button size="sm" asChild className="dark:hover:bg-blue-700">
                 <Link href="/auth/login">로그인</Link>
               </Button>
             )}

@@ -3,7 +3,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { login } from '@/services/authService';
 import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
-import { useAuth } from '@/components/auth/AuthProvider';
 
 // Import shadcn components
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -58,6 +58,7 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -87,7 +88,7 @@ export default function LoginForm() {
             />
             <Link 
               href="/auth/forgot-password" 
-              className="text-sm text-blue-500 hover:text-blue-700"
+              className="text-sm text-primary hover:text-primary/90"
             >
               비밀번호를 잊으셨나요?
             </Link>
@@ -98,7 +99,7 @@ export default function LoginForm() {
             className="w-full" 
             disabled={loading}
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? '로그인 중...' : '로그인'}
           </Button>
         </form>
         
@@ -108,9 +109,9 @@ export default function LoginForm() {
         </div>
       </CardContent>
       <CardFooter className="flex justify-center">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           계정이 없으신가요?{' '}
-          <Link href="/auth/register" className="text-blue-500 hover:text-blue-700">
+          <Link href="/auth/register" className="text-primary hover:text-primary/90">
             회원가입
           </Link>
         </p>

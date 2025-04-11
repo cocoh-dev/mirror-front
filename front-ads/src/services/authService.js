@@ -183,7 +183,7 @@ export const refreshAuthToken = async () => {
     userCache = response.data.user;
     cacheTimestamp = Date.now();
     
-    // 성공 기록 저장 (새로 추가)
+    // 성공 기록 저장
     localStorage.setItem('lastSuccessfulRefresh', Date.now().toString());
     localStorage.removeItem('lastRefreshFail');
     
@@ -194,8 +194,16 @@ export const refreshAuthToken = async () => {
     console.error('Token refresh failed:', error);
     
     if (error.response?.status === 401) {
+      // 캐시 무효화 및 로그아웃 처리
       invalidateCache();
       notifySubscribers(null);
+      
+      // 로그인 페이지로 리다이렉트 (여기서 직접 로그아웃 함수 호출은 피함)
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login')) {
+        const currentPath = window.location.pathname + window.location.search;
+        sessionStorage.setItem('redirect_message', '세션이 만료되었습니다. 다시 로그인해주세요.');
+        window.location.href = `/auth/login?returnUrl=${encodeURIComponent(currentPath)}`;
+      }
     }
     
     localStorage.setItem('lastRefreshFail', Date.now().toString());

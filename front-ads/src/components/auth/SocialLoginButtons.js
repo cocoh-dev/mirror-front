@@ -11,13 +11,15 @@ export default function SocialLoginButtons({ returnUrl }) {
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-gray-500">또는 소셜 계정으로 로그인</span>
+          <span className="bg-card px-2 text-muted-foreground">또는 소셜 계정으로 로그인</span>
         </div>
       </div>
 
       <Button 
         variant="outline" 
-        className="flex items-center justify-center gap-2 bg-[#FEE500] hover:bg-[#FDD835] hover:text-black text-black"
+        className="flex items-center justify-center gap-2 
+                bg-[#FEE500] hover:bg-[#FDD835] text-black 
+                dark:bg-[#FDE133] dark:hover:bg-[#FCD400] dark:text-black"
         onClick={() => socialLogin('kakao', returnUrl)}
       >
         <KakaoIcon className="h-5 w-5" />
@@ -26,7 +28,9 @@ export default function SocialLoginButtons({ returnUrl }) {
 
       <Button 
         variant="outline" 
-        className="flex items-center justify-center gap-2 bg-[#03C75A] hover:bg-[#02A54A] text-white"
+        className="flex items-center justify-center gap-2 
+                bg-[#03C75A] hover:bg-[#02A54A] text-white 
+                dark:bg-[#03B154] dark:hover:bg-[#029A46] dark:text-white"
         onClick={() => socialLogin('naver', returnUrl)}
       >
         <NaverIcon className="h-5 w-5" />
@@ -35,7 +39,7 @@ export default function SocialLoginButtons({ returnUrl }) {
 
       <Button 
         variant="outline" 
-        className="flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-black"
+        className="flex items-center justify-center gap-2 bg-white dark:bg-[#2D2D2D] border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-[#3A3A3A] text-black dark:text-white"
         onClick={() => socialLogin('google', returnUrl)}
       >
         <GoogleIcon className="h-5 w-5" />

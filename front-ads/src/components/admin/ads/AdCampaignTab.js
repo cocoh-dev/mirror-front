@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, DollarSign, Clock, InfoIcon } from 'lucide-react';
-import { format, parseISO, addDays } from 'date-fns';
+import { parseISO, format, startOfDay, endOfDay } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { ko } from 'date-fns/locale';
@@ -45,6 +45,14 @@ export const AdCampaignTab = ({
     }
   }, [adData]);
 
+  // 한국 시간 기준으로 ISO 문자열을 생성하는 헬퍼 함수
+  const toKSTISOString = (date) => {
+    if (!date) return null;
+    
+    // 날짜의 시작 또는 끝 시간으로 설정 (한국 시간 기준)
+    return date.toISOString();
+  };
+
   // 상태 변경 핸들러 함수들을 직접 업데이트하도록 변경
   const handleBudgetChange = (value) => {
     setBudget(value);
@@ -54,8 +62,8 @@ export const AdCampaignTab = ({
       const campaignData = {
         budget: value ? parseFloat(value) : null,
         daily_budget: dailyBudget ? parseFloat(dailyBudget) : null,
-        start_date: startDate ? startDate.toISOString() : null,
-        end_date: endDate ? endDate.toISOString() : null
+        start_date: startDate ? toKSTISOString(startDate) : null,
+        end_date: endDate ? toKSTISOString(endDate) : null
       };
       
       onCampaignChange(campaignData);
@@ -70,8 +78,8 @@ export const AdCampaignTab = ({
       const campaignData = {
         budget: budget ? parseFloat(budget) : null,
         daily_budget: value ? parseFloat(value) : null,
-        start_date: startDate ? startDate.toISOString() : null,
-        end_date: endDate ? endDate.toISOString() : null
+        start_date: startDate ? toKSTISOString(startDate) : null,
+        end_date: endDate ? toKSTISOString(endDate) : null
       };
       
       onCampaignChange(campaignData);
@@ -79,15 +87,18 @@ export const AdCampaignTab = ({
   };
   
   const handleStartDateChange = (date) => {
-    setStartDate(date);
-    
+    // 시작일은 date-picker에서 선택한 날짜의 시작 시간(00:00:00)으로 설정
+    const adjustedDate = date ? startOfDay(date) : null;
+    setStartDate(adjustedDate);
+    console.log(date)
+    console.log(adjustedDate)
     // 직접 캠페인 데이터 업데이트
     if (editMode && onCampaignChange) {
       const campaignData = {
         budget: budget ? parseFloat(budget) : null,
         daily_budget: dailyBudget ? parseFloat(dailyBudget) : null,
-        start_date: date ? date.toISOString() : null,  // 직접 인자로 받은 date 사용
-        end_date: endDate ? endDate.toISOString() : null
+        start_date: adjustedDate ? toKSTISOString(adjustedDate) : null,
+        end_date: endDate ? toKSTISOString(endDate) : null
       };
       
       onCampaignChange(campaignData);
@@ -108,14 +119,17 @@ export const AdCampaignTab = ({
   
   // 끝 날짜 변경 핸들러 수정
   const handleEndDateChange = (date) => {
-    setEndDate(date);
-    // 여기에서 직접 캠페인 데이터를 업데이트하되, date 값을 직접 사용
+    // 종료일은 date-picker에서 선택한 날짜의 끝 시간(23:59:59)으로 설정
+    const adjustedDate = date ? endOfDay(date) : null;
+    setEndDate(adjustedDate);
+    
+    // 여기에서 직접 캠페인 데이터를 업데이트
     if (editMode && onCampaignChange) {
       const campaignData = {
         budget: budget ? parseFloat(budget) : null,
         daily_budget: dailyBudget ? parseFloat(dailyBudget) : null,
-        start_date: startDate ? startDate.toISOString() : null,
-        end_date: date ? date.toISOString() : null  // endDate 대신 인자로 받은 date 사용
+        start_date: startDate ? toKSTISOString(startDate) : null,
+        end_date: adjustedDate ? toKSTISOString(adjustedDate) : null
       };
       
       onCampaignChange(campaignData);

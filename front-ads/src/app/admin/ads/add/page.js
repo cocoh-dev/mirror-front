@@ -13,6 +13,7 @@ import { AdDetailsTab } from '@/components/admin/ads/AdDetailsTab';
 import { AdMediaTab } from '@/components/admin/ads/AdMediaTab';
 import { AdScheduleTab } from '@/components/admin/ads/AdScheduleTab';
 import { AdLocationTab } from '@/components/admin/ads/AdLocationTab';
+import { AdCampaignTab } from '@/components/admin/ads/AdCampaignTab'; // 캠페인 탭 추가
 
 // 서비스 임포트
 import { createAd, updateAdMedia } from '@/services/adService';
@@ -21,14 +22,21 @@ export default function AddAdPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   
-  // 초기 폼 데이터 설정
+  // 초기 폼 데이터 설정 (campaign 필드 추가)
   const [formData, setFormData] = useState({
     title: "",
     type: "sponsor",
     is_active: true,
+    status: "active", // 상태 필드 추가
     media: [],
     schedules: [],
-    targetLocations: []
+    targetLocations: [],
+    campaign: {
+      budget: null,
+      daily_budget: null,
+      start_date: null,
+      end_date: null
+    }
   });
   
   const [uploadFiles, setUploadFiles] = useState([]);
@@ -68,6 +76,17 @@ export default function AddAdPage() {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+  
+  // 캠페인 데이터 변경 처리 함수 추가
+  const handleCampaignChange = (campaignData) => {
+    setFormData(prev => ({
+      ...prev,
+      campaign: {
+        ...prev.campaign,
+        ...campaignData
+      }
     }));
   };
   
@@ -146,12 +165,15 @@ export default function AddAdPage() {
     if (e) e.preventDefault();
     
     try {
+      // 광고 데이터 준비 (캠페인 정보 추가)
       const adData = {
         title: formData.title,
         type: formData.type,
         is_active: formData.is_active,
+        status: formData.status,
         schedules: formData.schedules.map(s => s.time),
-        targetLocations: formData.targetLocations
+        targetLocations: formData.targetLocations,
+        campaign: formData.campaign
       };
       
       const createdAd = await createMutation.mutateAsync(adData);
@@ -161,7 +183,7 @@ export default function AddAdPage() {
         
         if (createdAd) {
           // ID 검증 및 대체 방법 시도
-          const adId = createdAd.ad.id;
+          const adId = createdAd.ad?.id;
           
           if (adId) {
             const mediaFormData = new FormData();
@@ -222,6 +244,7 @@ export default function AddAdPage() {
           <TabsTrigger value="media">미디어</TabsTrigger>
           <TabsTrigger value="schedule">스케줄</TabsTrigger>
           <TabsTrigger value="location">위치 타겟팅</TabsTrigger>
+          <TabsTrigger value="campaign">캠페인</TabsTrigger> {/* 캠페인 탭 추가 */}
         </TabsList>
 
         <TabsContent value="details">
@@ -267,6 +290,18 @@ export default function AddAdPage() {
             onAddLocation={addLocation}
             onUpdateLocation={updateLocation}
             onRemoveLocation={removeLocation}
+            onSubmit={handleSubmit}
+            isLoading={createMutation.isLoading}
+          />
+        </TabsContent>
+
+        {/* 캠페인 탭 추가 */}
+        <TabsContent value="campaign">
+          <AdCampaignTab
+            adData={{}} // 빈 객체 전달 (신규 생성이므로)
+            formData={formData}
+            editMode={true} // 항상 편집 모드
+            onCampaignChange={handleCampaignChange}
             onSubmit={handleSubmit}
             isLoading={createMutation.isLoading}
           />

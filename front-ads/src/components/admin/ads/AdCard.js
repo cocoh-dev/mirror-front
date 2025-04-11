@@ -125,7 +125,7 @@ export const AdCard = ({ ad, onView }) => {
           <div>
             <CardTitle className="text-lg">{ad.title}</CardTitle>
           </div>
-          <StatusBadge campaign={ad.campaign} />
+          <StatusBadge status={ad.status} />
         </div>
       </CardHeader>
       <CardContent className="p-3 pt-1">

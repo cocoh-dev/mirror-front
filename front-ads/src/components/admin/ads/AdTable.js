@@ -64,7 +64,7 @@ export const AdTable = ({ ads, onView }) => {
                   <div className="text-sm text-muted-foreground">{ad.type}</div>
                 </TableCell>
                 <TableCell>
-                  <StatusBadge campaign={ad.campaign} />
+                  <StatusBadge status={ad.status} />
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center">

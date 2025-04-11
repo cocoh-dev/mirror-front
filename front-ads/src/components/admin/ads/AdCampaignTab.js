@@ -125,8 +125,12 @@ export const AdCampaignTab = ({
   return (
     <Card className="shadow-sm border-border">
       <CardHeader className="bg-card dark:bg-card/5 border-b border-border">
-        <CardTitle className="text-xl font-bold text-foreground">광고 캠페인</CardTitle>
-        <CardDescription className="mt-1 text-muted-foreground">캠페인 기간 및 예산 설정</CardDescription>
+        <div className="flex items-center justify-between pb-4">
+          <div>
+            <CardTitle className="text-xl font-bold text-foreground">광고 캠페인</CardTitle>
+            <CardDescription className="mt-1 text-muted-foreground">캠페인 기간 및 예산 설정</CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="p-6">
         {editMode ? (

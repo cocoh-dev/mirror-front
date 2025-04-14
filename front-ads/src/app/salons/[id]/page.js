@@ -98,7 +98,6 @@ export default function SalonDetailPage() {
     }
   });
   const salonId = params.id;
-  
   // 미용실 상세 정보 가져오기
   const { 
     data: salonData,
@@ -456,7 +455,7 @@ export default function SalonDetailPage() {
           </TabsContent>
           
           <TabsContent value="staff">
-            <StaffTab salon={salon} canEdit={isOwner}/>
+            <StaffTab salonId={salonId} canEdit={isOwner}/>
             {/* <ContentTabs tabType="staff" salon={salon} /> */}
           </TabsContent>
           

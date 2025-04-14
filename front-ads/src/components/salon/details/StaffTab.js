@@ -31,7 +31,7 @@ export const StaffTab = ({ salonId, canEdit }) => {
         setIsLoading(true);
         const fetchedStaffs = await staffService.getStaffBySalon(salonId);
         // 데이터가 배열인지 확인하고, 배열이 아니면 빈 배열로 설정
-        setStaffs(Array.isArray(fetchedStaffs) ? fetchedStaffs : []);
+        setStaffs(fetchedStaffs.staffs || []);
       } catch (error) {
         toast.error('스태프 정보를 불러오는 데 실패했습니다.');
         setStaffs([]); // 에러 발생 시에도 빈 배열로 설정
@@ -48,6 +48,8 @@ export const StaffTab = ({ salonId, canEdit }) => {
       toast.error('모든 필드를 입력해주세요.');
       return;
     }
+
+    console.log('현재 salon ID:', salonId);
 
     try {
       const newStaff = await staffService.createStaff(salonId, {

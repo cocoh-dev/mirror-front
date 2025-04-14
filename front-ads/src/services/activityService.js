@@ -65,10 +65,10 @@ export const getActivitiesByType = async (type, limit = 50) => {
  */
 export const getSalonActivities = async (salonId, limit = 50) => {
   try {
-    const response = await api.get(`/api/salons/${salonId}/activity`, {
+    const response = await api.get(`/api/activity/salon/${salonId}`, {
       params: { limit }
     });
-    
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('살롱 활동 조회 오류:', error);

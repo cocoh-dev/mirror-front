@@ -43,6 +43,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { SalonDetailSkeleton } from '@/components/admin/salons/SkeletonLoaders';
+import LogsTab from '@/components/admin/salons/LogsTab';
 
 export default function SalonDetailPage() {
   const params = useParams();
@@ -504,46 +505,7 @@ export default function SalonDetailPage() {
         
         {/* 활동 로그 탭 */}
         <TabsContent value="logs">
-          <Card>
-            <CardHeader>
-              <CardTitle>활동 로그</CardTitle>
-              <CardDescription>미용실 계정 활동 기록입니다.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                    <History className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <p className="font-medium">미용실 정보 수정</p>
-                    <p className="text-sm text-muted-foreground">2024년 2월 15일 14:23</p>
-                    <p className="text-sm">관리자 (admin@example.com)가 미용실 정보를 수정했습니다.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                    <History className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <p className="font-medium">상태 변경</p>
-                    <p className="text-sm text-muted-foreground">2024년 1월 10일 09:45</p>
-                    <p className="text-sm">미용실 상태가 &apos;심사중&apos;에서 &apos;인증됨&apos;으로 변경되었습니다.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                    <History className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <p className="font-medium">미용실 등록</p>
-                    <p className="text-sm text-muted-foreground">2023년 12월 5일 11:32</p>
-                    <p className="text-sm">미용실이 처음 등록되었습니다.</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <LogsTab salonId={salonId} />
         </TabsContent>
       </Tabs>
     </div>

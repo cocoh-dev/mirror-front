@@ -44,10 +44,13 @@ import {
 } from '@/components/ui/alert-dialog';
 import { SalonDetailSkeleton } from '@/components/admin/salons/SkeletonLoaders';
 import LogsTab from '@/components/admin/salons/LogsTab';
+import StaffTab from '@/components/salon/details/StaffTab';
+import { useAuthCheck } from '@/hooks/useAuthCheck';
 
 export default function SalonDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuthCheck();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('info');
   
@@ -121,6 +124,7 @@ export default function SalonDetailPage() {
   
   const salon = salonData.salon || {};
   // console.log(salon);
+  const isOwner = salon.owner_id === user?.id || user?.role === 'superadmin';
   
   return (
     <div className="space-y-6">
@@ -400,43 +404,7 @@ export default function SalonDetailPage() {
         
         {/* 스태프 탭 */}
         <TabsContent value="staff">
-          <Card>
-            <CardHeader>
-              <CardTitle>스태프</CardTitle>
-              <CardDescription>미용실 스태프 정보입니다.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {/* 스태프 데이터가 없으므로 예시 데이터 사용 */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <div className="h-24 w-24 mx-auto rounded-full bg-muted flex items-center justify-center mb-2">
-                      <User className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    <CardTitle className="text-center">김미영</CardTitle>
-                    <CardDescription className="text-center">원장</CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <p className="text-sm text-muted-foreground mb-2">경력 10년</p>
-                    <p className="text-sm">커트, 염색, 펌 전문</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <div className="h-24 w-24 mx-auto rounded-full bg-muted flex items-center justify-center mb-2">
-                      <User className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    <CardTitle className="text-center">박준호</CardTitle>
-                    <CardDescription className="text-center">디자이너</CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <p className="text-sm text-muted-foreground mb-2">경력 5년</p>
-                    <p className="text-sm">남성 커트, 스타일링 전문</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
+          <StaffTab salonId={salonId} canEdit={isOwner}/>
         </TabsContent>
         
         {/* 리뷰 탭 */}

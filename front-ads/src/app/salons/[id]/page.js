@@ -74,8 +74,11 @@ import { SalonDetailSkeleton } from '@/components/admin/salons/SkeletonLoaders';
 import BasicInfoTab from '@/components/salon/details/BasicInfoTab';
 import ContentTabs from '@/components/salon/details/ContentTabs';
 import DisplayManagementTab from '@/components/salon/details/DisplayManagementTab';
+import StaffTab from '@/components/salon/details/StaffTab';
+import { useAuthCheck } from '@/hooks/useAuthCheck';
 
 export default function SalonDetailPage() {
+  const { user } = useAuthCheck();
   const params = useParams();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -348,6 +351,7 @@ export default function SalonDetailPage() {
   }
   
   const salon = salonData.salon || {};
+  const isOwner = salon.owner_id === user?.id || user?.role === 'superadmin';
   
   return (
     <div className="container mx-auto p-4">
@@ -452,7 +456,8 @@ export default function SalonDetailPage() {
           </TabsContent>
           
           <TabsContent value="staff">
-            <ContentTabs tabType="staff" salon={salon} />
+            <StaffTab salon={salon} canEdit={isOwner}/>
+            {/* <ContentTabs tabType="staff" salon={salon} /> */}
           </TabsContent>
           
           <TabsContent value="reviews">

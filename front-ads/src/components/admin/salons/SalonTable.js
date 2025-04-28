@@ -9,20 +9,21 @@ import { formatPhoneNumber, formatBusinessNumber } from '@/utils/numberFormat';
 
 export const SalonTable = ({ salons, onView, onEdit, onDelete }) => {
   return (
-    <Card>
+    <Card className="dark:border dark:border-gray-600">
       <CardContent className="p-0">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>미용실명</TableHead>
-              <TableHead>주소</TableHead>
-              <TableHead>대표</TableHead>
-              <TableHead>연락처</TableHead>
-              <TableHead>상태</TableHead>
-              <TableHead>구독</TableHead>
-              <TableHead>평점</TableHead>
-              <TableHead className="text-right">관리</TableHead>
+            <TableRow className="text-xl">
+              {/* UX관점에서 salon Table PK는 필요없을 것 같아서 주석처리 */}
+              {/* <TableHead>ID</TableHead> */}
+              <TableHead className="dark:text-white">미용실명</TableHead>
+              <TableHead className="dark:text-white">주소</TableHead>
+              <TableHead className="dark:text-white">대표</TableHead>
+              <TableHead className="dark:text-white">연락처</TableHead>
+              <TableHead className="dark:text-white">상태</TableHead>
+              <TableHead className="dark:text-white">구독</TableHead>
+              <TableHead className="dark:text-white">평점</TableHead>
+              <TableHead className="dark:text-white">관리</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -36,7 +37,8 @@ export const SalonTable = ({ salons, onView, onEdit, onDelete }) => {
                   onView(salon);
                 }}
               >
-                <TableCell className="font-medium">{salon.id}</TableCell>
+                {/* UX관점에서 salon Table PK는 필요없을 것 같아서 주석처리 */}
+                {/* <TableCell className="font-medium">{salon.id}</TableCell> */}
                 <TableCell>{salon.name}</TableCell>
                 <TableCell>{salon.location.address_line1} {salon.location.address_line2}</TableCell>
                 <TableCell>{salon.owner.name}</TableCell>
@@ -50,7 +52,7 @@ export const SalonTable = ({ salons, onView, onEdit, onDelete }) => {
                 <TableCell>
                   <SalonRating rating={salon.rating} reviewCount={salon.reviewCount} />
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="">
                   <div className="salon-actions">
                     <SalonActions 
                       salon={salon}

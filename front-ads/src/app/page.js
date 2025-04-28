@@ -21,11 +21,13 @@ export default function Home() {
               효율적인 경영과 타겟 마케팅의 새로운 기준을 경험하세요.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 dark:bg-gray-800 dark:text-blue-300 dark:hover:bg-gray-700">
+              <Button size="lg" variant="outline" 
+              className="bg-white text-blue-600 hover:bg-blue-100 hover:text-blue dark:border-gray-400 dark:text-blue-200 dark:hover:bg-blue-300 dark:hover:text-white">
                 미용실 원장님 시작하기
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-red-600 hover:bg-white/10 dark:border-gray-400 dark:text-gray-200 dark:hover:bg-gray-800">
+              <Button size="lg" variant="outline" 
+              className="bg-white text-red-600 hover:bg-red-100 hover:text-red dark:border-gray-400 dark:text-red-200 dark:hover:bg-red-300 dark:hover:text-white">
                 광고주 시작하기
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -181,7 +183,10 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <Button className="mt-8 dark:bg-blue-700 dark:hover:bg-blue-600 dark:text-white">
+              <Button className="mt-8 
+              bg-black text-white
+              hover:bg-gray-400
+              dark:bg-neutral-700 dark:hover:bg-gray-400 dark:text-white">
                 원장님 솔루션 더 알아보기
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -233,7 +238,10 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <Button className="mt-8 dark:bg-blue-700 dark:hover:bg-blue-600 dark:text-white">
+              <Button className="mt-8 
+              bg-black text-white
+              hover:bg-gray-400
+              dark:bg-neutral-700 dark:hover:bg-gray-400 dark:text-white">
                 광고 솔루션 더 알아보기
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -324,14 +332,16 @@ export default function Home() {
             첫 달 무료 체험으로 부담 없이 시작할 수 있습니다.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 dark:bg-gray-800 dark:text-blue-300 dark:hover:bg-gray-700">
+            <Button size="lg" className="
+            bg-white text-blue-600 hover:bg-blue-100 hover:text-blue
+            dark:border-gray-400 dark:text-blue dark:hover:bg-blue-300 dark:hover:text-white">
               무료 체험 시작하기
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 dark:border-gray-400 dark:text-gray-200 dark:hover:bg-gray-800">
+            {/* <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 dark:border-gray-400 dark:text-gray-200 dark:hover:bg-gray-800">
               데모 신청하기
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            </Button> */}
           </div>
         </div>
       </section>

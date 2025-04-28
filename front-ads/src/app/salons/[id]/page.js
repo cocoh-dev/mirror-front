@@ -84,7 +84,7 @@ export default function SalonDetailPage() {
   const queryClient = useQueryClient();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('info');
-  const [isEditing, setIsEditing] = useState(false);
+  // const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(null);
   // 디스플레이 관련 상태
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -111,25 +111,27 @@ export default function SalonDetailPage() {
     enabled: !!salonId,
     onSuccess: (data) => {
       // 항상 폼 데이터를 최신 데이터로 설정 (단, 편집 중이 아닐 때만)
-      if (!isEditing) {
-        setFormData(data.salon);
-      }
+      // if (!isEditing) {
+      //   setFormData(data.salon);
+      // }
+      setFormData(data.salon);
     }
   });
 
+  // 250428 update : 수정페이지 분리에 따른 업데이트 mutation 삭제
   // 미용실 업데이트 mutation
-  const updateMutation = useMutation({
-    mutationFn: (updatedData) => updateSalon(salonId, updatedData),
-    onSuccess: () => {
-      toast.success('미용실 정보가 업데이트되었습니다.');
-      queryClient.invalidateQueries(['salon', salonId]);
-      setIsEditing(false);
-    },
-    onError: (err) => {
-      toast.error('미용실 정보 업데이트 중 오류가 발생했습니다.');
-      console.error('업데이트 실패:', err);
-    }
-  });
+  // const updateMutation = useMutation({
+  //   mutationFn: (updatedData) => updateSalon(salonId, updatedData),
+  //   onSuccess: () => {
+  //     toast.success('미용실 정보가 업데이트되었습니다.');
+  //     queryClient.invalidateQueries(['salon', salonId]);
+  //     setIsEditing(false);
+  //   },
+  //   onError: (err) => {
+  //     toast.error('미용실 정보 업데이트 중 오류가 발생했습니다.');
+  //     console.error('업데이트 실패:', err);
+  //   }
+  // });
   
   // 삭제 함수
   const handleDelete = async () => {
@@ -311,14 +313,15 @@ export default function SalonDetailPage() {
     updateMutation.mutate(dataToSubmit);
   };
 
+  // 250428 update : 수정페이지 분리에 따른 편집 핸들러 삭제제
   // 편집 취소 핸들러
-  const handleCancelEdit = () => {
-    // 원래 데이터로 복원 (명시적으로 복제하여 참조 문제 방지)
-    if (salonData && salonData.salon) {
-      setFormData({...salonData.salon});
-    }
-    setIsEditing(false);
-  };
+  // const handleCancelEdit = () => {
+  //   // 원래 데이터로 복원 (명시적으로 복제하여 참조 문제 방지)
+  //   if (salonData && salonData.salon) {
+  //     setFormData({...salonData.salon});
+  //   }
+  //   setIsEditing(false);
+  // };
   
   // 로딩 상태
   if (isLoading) {
@@ -364,8 +367,8 @@ export default function SalonDetailPage() {
             <h1 className="text-3xl font-bold tracking-tight">{salon.name}</h1>
             <StatusBadge status={salon.status} />
           </div>
-          
-          <div className="flex items-center gap-2">
+          {/* 250428 update :수정 상태 변화에 따른 삼항연산자 삭제 */}
+          {/* <div className="flex items-center gap-2">
             {isEditing ? (
               <>
                 <Button variant="outline" onClick={handleCancelEdit} disabled={updateMutation.isLoading}>
@@ -424,6 +427,39 @@ export default function SalonDetailPage() {
                 </AlertDialog>
               </>
             )}
+          </div> */}
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => router.push(`/salons/${salonId}/edit`)}
+            >
+              <Edit2 className="mr-2 h-4 w-4" />
+              수정
+            </Button>
+            
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  삭제
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>미용실 삭제</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    정말로 &apos;{salon.name}&apos; 미용실을 삭제하시겠습니까?
+                    이 작업은 되돌릴 수 없습니다.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>취소</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white">
+                    삭제
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
         
@@ -441,7 +477,7 @@ export default function SalonDetailPage() {
           <TabsContent value="info" className="space-y-4">
             <BasicInfoTab 
               salon={salon} 
-              isEditing={isEditing} 
+              // isEditing={isEditing} 
               formData={formData} 
               handleChange={handleChange}
               handlePhoneChange={handlePhoneChange}

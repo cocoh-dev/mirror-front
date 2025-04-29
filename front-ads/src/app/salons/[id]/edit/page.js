@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Loader2, ArrowLeft, Save, X } from 'lucide-react';
+import { CardDescription } from '@/components/ui/card';
 
 import BasicInfoTab from '@/components/salon/details/BasicInfoTab';
 import { useAuthCheck } from '@/hooks/useAuthCheck';

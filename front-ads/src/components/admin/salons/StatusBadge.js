@@ -11,7 +11,9 @@ export const StatusBadge = ({ status }) => {
   const { variant, label, icon: Icon } = variants[status] || variants.pending;
   
   return (
-    <Badge variant={variant} className="flex items-center gap-1">
+    <Badge variant={variant} 
+    className="flex items-center gap-1 
+    dark:bg-white dark:text-black">
       {Icon && <Icon className="h-3 w-3" />}
       {label}
     </Badge>

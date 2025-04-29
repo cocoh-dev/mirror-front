@@ -168,7 +168,7 @@ export default function Navbar() {
           {/* User dropdown or login/register buttons - Always on right */}
           <div className="hidden md:flex items-center space-x-2">
             {/* 테마 토글 버튼 추가 */}
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
             
             {loading ? (
               <div className="flex items-center gap-2">
@@ -222,7 +222,7 @@ export default function Navbar() {
           {/* Mobile: User icon in top right */}
           <div className="md:hidden absolute right-4 flex items-center space-x-1">
             {/* 모바일에서도 테마 토글 버튼 추가 */}
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
             
             {loading ? (
               <div className="flex items-center gap-2">

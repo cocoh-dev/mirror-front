@@ -9,5 +9,6 @@ export const SubscriptionBadge = ({ type }) => {
   
   const { variant, label } = variants[type] || variants.free;
   
-  return <Badge variant={variant}>{label}</Badge>;
+  return <Badge className="dark:bg-white dark:text-black"
+  variant={variant}>{label}</Badge>;
 };

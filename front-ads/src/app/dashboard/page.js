@@ -1,11 +1,18 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 // Import shadcn components
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { useAuthCheck } from '@/hooks/useAuthCheck';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -34,54 +41,104 @@ export default function Dashboard() {
         {/* Salon Card */}
         <Card className="dark:bg-gray-700 dark:shadow-md dark:shadow-black/20 dark:rounded-xl">
           <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">내 미용실</CardTitle>
-            <CardDescription className="text-lg text-gray-600 dark:text-gray-300">내 미용실과 지점 정보를 관리하세요</CardDescription>
+            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">
+              내 미용실
+            </CardTitle>
+            <CardDescription className="text-lg text-gray-600 dark:text-gray-300">
+              내 미용실과 지점 정보를 관리하세요
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold text-gray-900 dark:text-white">0</p>
+            <p className="text-4xl font-bold text-gray-900 dark:text-white">
+              0
+            </p>
             <p className="text-gray-500 dark:text-gray-400">운영중인 미용실</p>
           </CardContent>
           <CardFooter className="mt-auto">
-            <Button className="hover:bg-gray-500"
-            onClick={() => router.push('/salons')}>
-              내 미용실 보기</Button>
+            <Button
+              className="hover:bg-gray-500"
+              onClick={() => router.push("/salons")}
+            >
+              내 미용실 보기
+            </Button>
           </CardFooter>
         </Card>
-        
+
         {/* Advertisements Card */}
         <Card className="dark:bg-gray-700 dark:shadow-md dark:shadow-black/20 dark:rounded-xl">
           <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">광고 관리</CardTitle>
-            <CardDescription className="text-lg text-gray-600 dark:text-gray-300">광고 캠페인을 설정하세요</CardDescription>
+            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">
+              광고 관리
+            </CardTitle>
+            <CardDescription className="text-lg text-gray-600 dark:text-gray-300">
+              광고 캠페인을 설정하세요
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold text-gray-900 dark:text-white">0</p>
+            <p className="text-4xl font-bold text-gray-900 dark:text-white">
+              0
+            </p>
             <p className="text-gray-500 dark:text-gray-400">진행중인 광고</p>
           </CardContent>
           <CardFooter className="mt-auto">
             <Button
               className="hover:bg-gray-500"
-              onClick={() => router.push('/ads')}
+              onClick={() => router.push("/ads")}
             >
               광고 보기
             </Button>
           </CardFooter>
         </Card>
 
-        
         {/* Subscription Card */}
         <Card className="dark:bg-gray-700 dark:shadow-md dark:shadow-black/20 dark:rounded-xl">
           <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">구독 관리</CardTitle>
-            <CardDescription className="text-lg text-gray-600 dark:text-gray-300">구독 상품을 확인하고 변경하세요</CardDescription>
+            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">
+              구독 관리
+            </CardTitle>
+            <CardDescription className="text-lg text-gray-600 dark:text-gray-300">
+              구독 상품을 확인하고 변경하세요
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-base text-gray-500 dark:font-bold dark:text-gray-400 dark:text-white">현재 구독중인 플랜:</p>
+            <p className="text-base text-gray-500 dark:font-bold dark:text-gray-400 dark:text-white">
+              현재 구독중인 플랜:
+            </p>
             <p className="text-2xl font-medium">없음</p>
           </CardContent>
           <CardFooter className="mt-auto">
-            <Button className="hover:bg-gray-500"
-            onClick={() => router.push('/subscriptions')}>구독 설정</Button>
+            <Button
+              className="hover:bg-gray-500"
+              onClick={() => router.push("/subscriptions")}
+            >
+              구독 설정
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Subscription Card */}
+        <Card className="dark:bg-gray-700 dark:shadow-md dark:shadow-black/20 dark:rounded-xl">
+          <CardHeader>
+            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">
+              결제
+            </CardTitle>
+            <CardDescription className="text-lg text-gray-600 dark:text-gray-300">
+              결제를 진행하세요
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-base text-gray-500 dark:font-bold dark:text-gray-400 dark:text-white">
+              현재 결제중인 플랜:
+            </p>
+            <p className="text-2xl font-medium">없음</p>
+          </CardContent>
+          <CardFooter className="mt-auto">
+            <Button
+              className="hover:bg-gray-500"
+              onClick={() => router.push("/payment")}
+            >
+              결제 진행
+            </Button>
           </CardFooter>
         </Card>
       </div>

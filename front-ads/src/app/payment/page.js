@@ -31,21 +31,21 @@ function PaymentContent() {
     const handleMessage = (event) => {
       if (event.data === "PAYMENT_SUCCESS" && selectedPlan) {
         // 결제 창 닫기 시도
-        const closePaymentWindow = () => {
-          if (paymentWindowRef.current) {
-            try {
-              paymentWindowRef.current.close();
-            } catch (e) {
-              console.error("Failed to close payment window:", e);
-            }
-          }
-        };
+        // const closePaymentWindow = () => {
+        //   if (paymentWindowRef.current) {
+        //     try {
+        //       paymentWindowRef.current.close();
+        //     } catch (e) {
+        //       console.error("Failed to close payment window:", e);
+        //     }
+        //   }
+        // };
 
         // 여러 번 시도
-        closePaymentWindow();
-        setTimeout(closePaymentWindow, 500);
-        setTimeout(closePaymentWindow, 1000);
-        setTimeout(closePaymentWindow, 2000);
+        // closePaymentWindow();
+        // setTimeout(closePaymentWindow, 500);
+        // setTimeout(closePaymentWindow, 1000);
+        // setTimeout(closePaymentWindow, 2000);
 
         router.push(
           `/success?shopOrderNo=${currentOrderNo}&goodName=${encodeURIComponent(
@@ -234,7 +234,7 @@ function PaymentContent() {
                   "QR 결제"
                 )}
               </Button>
-              {/* <Button
+              <Button
                 className="hover:bg-gray-500 w-1/2"
                 onClick={() => handleNewWindowPayment(plan)}
                 disabled={isProcessing}
@@ -247,7 +247,7 @@ function PaymentContent() {
                 ) : (
                   "새창 결제"
                 )}
-              </Button> */}
+              </Button>
             </CardFooter>
           </Card>
         ))}

@@ -22,6 +22,12 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["app.cocoh.kr", "testpgapi.easypay.co.kr"],
+      bodySizeLimit: "2mb",
+    },
+  },
 };
 
 export default nextConfig;

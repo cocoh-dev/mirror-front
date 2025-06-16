@@ -34,27 +34,27 @@ function SuccessContent() {
         if (window.opener) {
           setIsPopup(true);
           // 부모 창으로 결제 완료 메시지 전송
-          window.opener.postMessage("PAYMENT_SUCCESS", "*");
+          // window.opener.postMessage("PAYMENT_SUCCESS", "*");
 
-          // 부모 창으로 리다이렉트
-          window.opener.location.href = `/success?shopOrderNo=${shopOrderNo}&goodName=${encodeURIComponent(
-            goodName
-          )}&amount=${amount}`;
+          // // 부모 창으로 리다이렉트
+          // window.opener.location.href = `/success?shopOrderNo=${shopOrderNo}&goodName=${encodeURIComponent(
+          //   goodName
+          // )}&amount=${amount}`;
 
-          // 현재 창 닫기 시도
-          const closeWindow = () => {
-            try {
-              window.close();
-            } catch (e) {
-              console.error("window.close() failed:", e);
-            }
-          };
+          // // 현재 창 닫기 시도
+          // const closeWindow = () => {
+          //   try {
+          //     window.close();
+          //   } catch (e) {
+          //     console.error("window.close() failed:", e);
+          //   }
+          // };
 
-          // 여러 번 시도
-          closeWindow();
-          setTimeout(closeWindow, 500);
-          setTimeout(closeWindow, 1000);
-          setTimeout(closeWindow, 2000);
+          // // 여러 번 시도
+          // closeWindow();
+          // setTimeout(closeWindow, 500);
+          // setTimeout(closeWindow, 1000);
+          // setTimeout(closeWindow, 2000);
         }
       } catch (err) {
         console.error("처리 중 오류 발생:", err);

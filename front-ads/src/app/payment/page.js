@@ -150,11 +150,6 @@ function PaymentContent() {
           } catch (error) {
             // 창이 닫혔을 때 발생하는 에러 처리
             clearInterval(checkWindow);
-            router.push(
-              `/success?shopOrderNo=${orderNo}&goodName=${encodeURIComponent(
-                plan.name
-              )}&amount=${plan.amount}`
-            );
           }
         }, 1000);
       }

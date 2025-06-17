@@ -3,14 +3,14 @@ import api from "@/lib/api";
 export const paymentService = {
   // 결제 정보 조회
   async getPayment(data) {
-    const response = await api.post("/payment", data);
+    const response = await api.post("/api/payment", data);
     return response.data;
   },
 
   // 결제 처리
   async processPayment(orderData) {
     try {
-      const response = await api.post("/payment", {
+      const response = await api.post("/api/payment", {
         shopOrderNo: orderData.shopOrderNo,
         amount: orderData.amount,
         orderInfo: {
@@ -42,7 +42,7 @@ export const paymentService = {
   // 결제 상태 조회
   async getPaymentStatus(orderNo) {
     try {
-      const response = await api.get(`/payment/status/${orderNo}`);
+      const response = await api.get(`/api/payment/status/${orderNo}`);
       return response.data;
     } catch (error) {
       console.error("결제 상태 조회 오류:", error);
